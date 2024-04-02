@@ -1,31 +1,31 @@
 {
 	"schemaVersion": 1,
-	"id": "modid",
+	"id": "wheelchairs",
 	"version": "${version}",
-	"name": "Example mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Wheelchairs",
+	"description": "Customisable assistive devices for representation and roleplaying",
 	"authors": [
-		"Me!"
+		"Lying"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://lyinginbedmon.carrd.co/",
+		"sources": "https://github.com/Lyinginbedmon/Wheelchairs-2"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/modid/icon.png",
+	"icon": "assets/wheelchairs/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.example.ExampleMod"
+			"com.lying.wheelchairs"
 		],
 		"client": [
-			"com.example.ExampleModClient"
+			"com.lying.WheelchairsClient"
 		]
 	},
 	"mixins": [
 		"modid.mixins.json",
 		{
-			"config": "modid.client.mixins.json",
+			"config": "wheelchairs.client.mixins.json",
 			"environment": "client"
 		}
 	],

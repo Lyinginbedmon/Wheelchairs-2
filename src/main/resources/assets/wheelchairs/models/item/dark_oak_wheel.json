@@ -1,0 +1,7 @@
+{
+    "parent": "wheelchairs:item/wheel",
+    "textures":
+    {
+    	"layer0": "wheelchairs:items/wheel_dark_oak"
+    }
+}
