@@ -2,6 +2,6 @@
     "parent": "wheelchairs:item/wheel",
     "textures":
     {
-    	"layer0": "wheelchairs:items/wheel_oak"
+    	"layer0": "wheelchairs:item/wheel_oak"
     }
 }

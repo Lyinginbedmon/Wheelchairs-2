@@ -1,6 +1,6 @@
 {
-	"itemGroup.wheelchairs.default": "Wheelchairs",
-	"curios.identifier.cosmetic": "Cosmetic",
+	"itemGroup.wheelchairs.item_group": "Wheelchairs",
+	"entity.wheelchairs.wheelchair": "Wheelchair",
 	"item.wheelchairs.oak_wheelchair": "Oak Wheelchair",
 	"item.wheelchairs.spruce_wheelchair": "Spruce Wheelchair",
 	"item.wheelchairs.birch_wheelchair": "Birch Wheelchair",
@@ -17,7 +17,6 @@
 	"item.wheelchairs.dark_oak_wheel": "Dark Oak Wheel",
 	"item.wheelchairs.crimson_wheel": "Crimson Wheel",
 	"item.wheelchairs.warped_wheel": "Warped Wheel",
-	"block.wheelchairs.wheelchair_block": "Wheelchair",
 	"enum.wheelchairs.leg.left": "Left",
 	"enum.wheelchairs.leg.right": "Right",
 	"gui.wheelchairs.wheelchair.wheel_left": " Left: %s",

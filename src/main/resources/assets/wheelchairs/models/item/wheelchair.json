@@ -1,8 +1,8 @@
 {
-    "parent": "item/generated",
+    "parent": "minecraft:item/generated",
     "textures":
     {
-    	"layer0": "wheelchairs:items/wheelchair_seat",
-    	"layer1": "wheelchairs:items/wheelchair_oak"
+    	"layer0": "wheelchairs:item/wheelchair_seat",
+    	"layer1": "wheelchairs:item/wheelchair_oak"
     }
 }

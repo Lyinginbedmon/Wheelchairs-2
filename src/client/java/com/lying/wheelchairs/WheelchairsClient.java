@@ -1,10 +1,21 @@
 package com.lying.wheelchairs;
 
-import net.fabricmc.api.ClientModInitializer;
+import com.lying.wheelchairs.init.WHCEntityTypes;
+import com.lying.wheelchairs.init.WHCItemsClient;
+import com.lying.wheelchairs.init.WHCModelParts;
+import com.lying.wheelchairs.renderer.entity.EntityWheelchairRenderer;
 
-public class WheelchairsClient implements ClientModInitializer {
-	@Override
-	public void onInitializeClient() {
-		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+
+public class WheelchairsClient implements ClientModInitializer
+{
+	
+	public void onInitializeClient()
+	{
+		WHCItemsClient.registerItemColors();
+		
+		WHCModelParts.init();
+		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
 	}
 }

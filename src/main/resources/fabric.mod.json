@@ -16,14 +16,14 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.lying.wheelchairs"
+			"com.lying.wheelchairs.Wheelchairs"
 		],
 		"client": [
-			"com.lying.WheelchairsClient"
+			"com.lying.wheelchairs.WheelchairsClient"
 		]
 	},
 	"mixins": [
-		"modid.mixins.json",
+		"wheelchairs.mixins.json",
 		{
 			"config": "wheelchairs.client.mixins.json",
 			"environment": "client"

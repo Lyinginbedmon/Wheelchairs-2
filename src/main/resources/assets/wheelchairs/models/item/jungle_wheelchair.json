@@ -2,6 +2,6 @@
     "parent": "wheelchairs:item/wheelchair",
     "textures":
     {
-    	"layer1": "wheelchairs:items/wheelchair_jungle"
+    	"layer1": "wheelchairs:item/wheelchair_jungle"
     }
 }
