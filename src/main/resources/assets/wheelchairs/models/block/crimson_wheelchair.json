@@ -1,0 +1,7 @@
+{
+	"parent": "wheelchairs:block/wheelchair",
+	"textures": {
+		"log": "block/crimson_stem",
+		"plank": "block/crimson_planks"
+	}
+}

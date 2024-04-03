@@ -1,0 +1,45 @@
+{
+	"textures": {
+		"particle": "#plank"
+	},
+	"elements": [
+		{
+			"name": "seat",
+			"from": [3, 9, 2],
+			"to": [13, 11, 10],
+			"faces": {
+				"north": {"uv": [0, 14, 10, 16], "texture": "#plank"},
+				"east": {"uv": [0, 14, 8, 16], "texture": "#plank"},
+				"south": {"uv": [0, 14, 10, 16], "texture": "#plank"},
+				"west": {"uv": [0, 14, 8, 16], "texture": "#plank"},
+				"down": {"uv": [0, 0, 10, 8], "texture": "#plank"}
+			}
+		},
+		{
+			"name": "axle",
+			"from": [1, 8, 7.5],
+			"to": [15, 9, 8.5],
+			"faces": {
+				"north": {"uv": [0, 0, 14, 1], "texture": "#plank"},
+				"east": {"uv": [0, 0, 1, 1], "texture": "#plank"},
+				"south": {"uv": [0, 0, 14, 1], "texture": "#plank"},
+				"west": {"uv": [0, 0, 1, 1], "texture": "#plank"},
+				"up": {"uv": [0, 0, 14, 1], "texture": "#plank"},
+				"down": {"uv": [0, 0, 14, 1], "texture": "#plank"}
+			}
+		},
+		{
+			"name": "backrest",
+			"from": [3.5, 10, 10],
+			"to": [12.5, 17, 11],
+			"faces": {
+				"north": {"uv": [0, 0, 9, 7], "texture": "#log"},
+				"east": {"uv": [0, 0, 1, 7], "texture": "#log"},
+				"south": {"uv": [0, 0, 9, 7], "texture": "#log"},
+				"west": {"uv": [0, 0, 1, 7], "texture": "#log"},
+				"up": {"uv": [0, 0, 9, 1], "texture": "#log"},
+				"down": {"uv": [0, 0, 9, 1], "texture": "#log"}
+			}
+		}
+	]
+}

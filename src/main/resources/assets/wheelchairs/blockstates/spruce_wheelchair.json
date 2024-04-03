@@ -1,0 +1,7 @@
+{
+  "variants":
+  {
+    "overlay=false": { "model": "wheelchairs:block/spruce_wheelchair" },
+    "overlay=true": { "model": "wheelchairs:block/spruce_wheelchair_overlay" }
+  }
+}

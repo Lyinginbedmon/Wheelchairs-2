@@ -25,7 +25,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -37,20 +36,10 @@ import net.minecraft.world.event.GameEvent;
 
 public class ItemWheelchair extends Item implements DyeableItem
 {
-	private final Identifier texMain, texOverlay;
-	
-	public ItemWheelchair(Identifier textureIn, Settings settings)
+	public ItemWheelchair(Settings settings)
 	{
 		super(settings);
-		
-		String namespace = textureIn.getNamespace();
-		String path = textureIn.getPath();
-		this.texMain = new Identifier(namespace,"textures/entity/"+path+".png");
-		this.texOverlay = new Identifier(namespace,"textures/entity/"+path+"_overlay.png");
 	}
-	
-	public Identifier textureMain() { return this.texMain; }
-	public Identifier textureOverlay() { return this.texOverlay; }
 	
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		Direction direction = context.getSide();
