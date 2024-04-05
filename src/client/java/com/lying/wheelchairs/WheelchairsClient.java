@@ -2,7 +2,6 @@ package com.lying.wheelchairs;
 
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItemsClient;
-import com.lying.wheelchairs.init.WHCModelParts;
 import com.lying.wheelchairs.renderer.block.WHCSpecialModels;
 import com.lying.wheelchairs.renderer.entity.EntityWheelchairRenderer;
 
@@ -16,7 +15,6 @@ public class WheelchairsClient implements ClientModInitializer
 	{
 		ModelLoadingPlugin.register(new WHCSpecialModels());
 		WHCItemsClient.registerItemColors();
-		WHCModelParts.init();
 		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
 	}
 }

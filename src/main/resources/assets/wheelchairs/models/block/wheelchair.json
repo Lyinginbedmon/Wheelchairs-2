@@ -1,5 +1,6 @@
 {
 	"textures": {
+		"wool": "block/white_wool",
 		"particle": "#plank"
 	},
 	"elements": [
@@ -13,6 +14,18 @@
 				"south": {"uv": [0, 14, 10, 16], "texture": "#plank"},
 				"west": {"uv": [0, 14, 8, 16], "texture": "#plank"},
 				"down": {"uv": [0, 0, 10, 8], "texture": "#plank"}
+			}
+		},
+		{
+			"name": "cushion",
+			"from": [3, 11, 2],
+			"to": [13, 13, 10],
+			"faces": {
+				"north": {"uv": [0, 0, 10, 2], "texture": "#wool", "tintindex": 0},
+				"east": {"uv": [0, 0, 8, 2], "texture": "#wool", "tintindex": 0},
+				"south": {"uv": [0, 0, 10, 2], "texture": "#wool", "tintindex": 0},
+				"west": {"uv": [0, 0, 8, 2], "texture": "#wool", "tintindex": 0},
+				"up": {"uv": [0, 0, 10, 8], "texture": "#wool", "tintindex": 0}
 			}
 		},
 		{

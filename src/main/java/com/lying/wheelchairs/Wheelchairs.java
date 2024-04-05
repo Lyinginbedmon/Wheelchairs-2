@@ -3,6 +3,7 @@ package com.lying.wheelchairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lying.wheelchairs.init.WHCBlocks;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.reference.Reference;
@@ -16,6 +17,7 @@ public class Wheelchairs implements ModInitializer
 	public void onInitialize()
 	{
 		WHCItems.init();
+		WHCBlocks.init();
 		WHCEntityTypes.init();
 	}
 }

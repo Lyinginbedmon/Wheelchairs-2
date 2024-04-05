@@ -69,7 +69,10 @@ public class WHCItems
     private static Item register(String nameIn, Item itemIn)
     {
     	if(itemIn instanceof ItemWheelchair)
+    	{
     		WHEELCHAIRS.add(itemIn);
+    		WHCBlocks.registerSeat(nameIn);
+    	}
     	ITEMS.put(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
     	return itemIn;
     }

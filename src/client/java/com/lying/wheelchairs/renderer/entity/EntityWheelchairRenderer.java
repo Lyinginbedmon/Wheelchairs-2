@@ -6,6 +6,7 @@ import com.lying.wheelchairs.item.ItemWheelchair;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.block.BlockModelRenderer;
 import net.minecraft.client.render.block.BlockRenderManager;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory.Context;
@@ -55,15 +56,15 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 			if(chair.getItem() instanceof ItemWheelchair)
 			{
 				BakedModelManager bakedModelManager = this.blockRenderManager.getModels().getModelManager();
+				BlockModelRenderer modelRenderer = this.blockRenderManager.getModelRenderer();
 				matrices.push();
 					matrices.translate(-0.5F, 0F, -0.5F);
-					this.blockRenderManager.getModelRenderer().render(matrices.peek(), vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout()), null, bakedModelManager.getModel(mainModel(chair.getItem())), 1F, 1F, 1F, light, OverlayTexture.DEFAULT_UV);
 					
 					int color = entity.getColor();
 					float r = ((color & 0xFF0000) >> 16) / 255F;
 					float g = ((color & 0xFF00) >> 8) / 255F;
 					float b = ((color & 0xFF) >> 0) / 255F;
-					this.blockRenderManager.getModelRenderer().render(matrices.peek(), vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout()), null, bakedModelManager.getModel(seatModel(chair.getItem())), r, g, b, light, OverlayTexture.DEFAULT_UV);
+					modelRenderer.render(matrices.peek(), vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout()), null, bakedModelManager.getModel(seatModel(chair.getItem())), r, g, b, light, OverlayTexture.DEFAULT_UV);
 				matrices.pop();
 			}
 			renderWheels(matrices, vertexConsumers, light, 0, entity.getLeftWheel(), entity.getRightWheel(), entity.getEntityWorld(), entity.getId());
@@ -99,15 +100,9 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 		matrices.pop();
 	}
 	
-	public static ModelIdentifier mainModel(Item chairIn)
-	{
-		Identifier registry = Registries.ITEM.getId(chairIn);
-		return new ModelIdentifier(registry, "overlay=false");
-	}
-	
 	public static ModelIdentifier seatModel(Item chairIn)
 	{
 		Identifier registry = Registries.ITEM.getId(chairIn);
-		return new ModelIdentifier(registry, "overlay=true");
+		return new ModelIdentifier(registry, "");
 	}
 }
