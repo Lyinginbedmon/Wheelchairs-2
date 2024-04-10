@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -29,6 +28,6 @@ public class WHCEntityTypes
 	
 	public static void init()
 	{
-		FabricDefaultAttributeRegistry.register(WHEELCHAIR, LivingEntity.createLivingAttributes());
+		FabricDefaultAttributeRegistry.register(WHEELCHAIR, EntityWheelchair.createChairAttributes());
 	}
 }

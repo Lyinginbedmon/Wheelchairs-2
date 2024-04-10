@@ -16,6 +16,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 
+// TODO Ensure blocks used solely for model rendering are inaccessible even with commands
 public class WHCBlocks
 {
 	private static final Map<Identifier, Block> BLOCKS = new HashMap<>();

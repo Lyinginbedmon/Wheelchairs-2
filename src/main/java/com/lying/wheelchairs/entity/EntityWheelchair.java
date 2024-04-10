@@ -3,26 +3,35 @@ package com.lying.wheelchairs.entity;
 import java.util.OptionalInt;
 
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.item.ItemWheelchair;
 
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Mount;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -32,9 +41,11 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
-public class EntityWheelchair extends LivingEntity
+public class EntityWheelchair extends LivingEntity implements Mount
 {
 	private static final TrackedData<ItemStack> CHAIR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
@@ -55,6 +66,11 @@ public class EntityWheelchair extends LivingEntity
 		this.getDataTracker().startTracking(COLOR, OptionalInt.of(DyeableItem.DEFAULT_COLOR));
 		this.getDataTracker().startTracking(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
+	}
+	
+	public static DefaultAttributeContainer.Builder createChairAttributes()
+	{
+		return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 1F).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.1F);
 	}
 	
 	public void readCustomDataFromNbt(NbtCompound data)
@@ -123,7 +139,17 @@ public class EntityWheelchair extends LivingEntity
 	
 	protected boolean canAddPassenger(Entity passenger) { return !hasPassengers() && passenger instanceof LivingEntity; }
 	
-	public LivingEntity getControllingPassenger() { return hasPassengers() && getFirstPassenger() instanceof PlayerEntity ? (PlayerEntity)getFirstPassenger() : null; }
+	public LivingEntity getControllingPassenger()
+	{
+		return getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
+	}
+	
+	public void tick()
+	{
+		super.tick();
+//		if(!this.inNetherPortal && hasPortalCooldown())
+//			this.setPortalCooldown(0);
+	}
 	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
@@ -135,24 +161,80 @@ public class EntityWheelchair extends LivingEntity
 		this.prevYaw = this.headYaw;
 	}
 	
+	/**
+	 * Identical to standard behaviour, except can use portals whilst ridden
+	 * FIXME Ensure that riding players travel with their chair
+	 * */
+	public boolean canUsePortals() { return hasPassengers() && getPlayerPassengers() == 0; }
+	
+	public Entity moveToWorld(ServerWorld destination)
+	{
+		if(getPlayerPassengers() > 0)
+			return null;
+		
+		if(!(getWorld() instanceof ServerWorld) || isRemoved())
+			return null;
+		
+		Profiler profiler = getWorld().getProfiler();
+		profiler.push("changeDimension");
+		if(hasVehicle())
+			dismountVehicle();
+		profiler.push("reposition");
+		TeleportTarget teleportTarget = getTeleportTarget(destination);
+		if(teleportTarget == null)
+			return null;
+		profiler.swap("reloading");
+		Entity entity = recreateInDimension(destination);
+		if(entity != null)
+		{
+			entity.refreshPositionAndAngles(teleportTarget.position.x, teleportTarget.position.y, teleportTarget.position.z, teleportTarget.yaw, entity.getPitch());
+			entity.setVelocity(teleportTarget.velocity);
+			destination.spawnNewEntityAndPassengers(entity);
+			if(destination.getRegistryKey() == World.END)
+				ServerWorld.createEndSpawnPlatform(destination);
+		}
+		removeFromDimension();
+		profiler.pop();
+		((ServerWorld)getWorld()).resetIdleTimeout();
+		destination.resetIdleTimeout();
+		profiler.pop();
+		return entity;
+	}
+	
+	private Entity recreateInDimension(ServerWorld destination)
+	{
+		NbtCompound chairData = new NbtCompound();
+		saveNbt(chairData);
+		
+		return EntityType.loadEntityWithPassengers(chairData, destination, entity -> {
+			entity.refreshPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
+            return entity;
+        });
+	}
+	
 	protected Vec2f getControlledRotation(LivingEntity controllingPassenger)
 	{
 		return new Vec2f(controllingPassenger.getPitch(), controllingPassenger.getYaw());
 	}
 	
-	// FIXME Ensure movement input is actually applied
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
-		if(!this.isOnGround())
-			return Vec3d.ZERO;
-		
-		return new Vec3d(controllingPlayer.horizontalSpeed, 0D, controllingPlayer.forwardSpeed);
+		return isOnGround() ? new Vec3d(0, 0, controllingPlayer.forwardSpeed) : Vec3d.ZERO;
 	}
 	
-	public void tickMovement()
+	// FIXME Allow for sprinting whilst riding
+	protected float getSaddledSpeed(PlayerEntity controllingPlayer) { return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED); }
+	
+	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
 	{
-		super.tickMovement();
-		
+		return new Vector3f(0F, dimensions.height * 0.85F * scaleFactor, 0F);
+	}
+	
+	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
+	{
+		super.updatePassengerPosition(passenger, positionUpdater);
+		if(passenger instanceof LivingEntity)
+			((LivingEntity)passenger).bodyYaw = this.bodyYaw;
 	}
 	
 	public Vec3d updatePassengerForDismount(LivingEntity passenger)
@@ -202,6 +284,15 @@ public class EntityWheelchair extends LivingEntity
 			while ((double)mutable.getY() < g);
 		}
 		return null;
+	}
+	
+	public boolean isInvulnerableTo(DamageSource damageSource)
+	{
+		DamageSources sources = getWorld().getDamageSources();
+		return !(
+				damageSource == sources.outOfWorld() ||
+				damageSource == sources.genericKill()
+				);
 	}
 	
 	public Iterable<ItemStack> getArmorItems() { return DefaultedList.ofSize(4, ItemStack.EMPTY); }

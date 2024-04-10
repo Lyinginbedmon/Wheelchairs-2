@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheels",
+  "key": {
+    "S": {
+      "item": "minecraft:dark_oak_slab"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " S ",
+    "SsS",
+    " S "
+  ],
+  "result": {
+    "item": "wheelchairs:dark_oak_wheel"
+  }
+}

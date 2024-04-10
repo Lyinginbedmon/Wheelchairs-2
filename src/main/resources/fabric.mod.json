@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"com.lying.wheelchairs.WheelchairsClient"
+		],
+		"fabric-datagen": [
+			"com.lying.wheelchairs.data.WHCDataGenerators"
 		]
 	},
 	"mixins": [

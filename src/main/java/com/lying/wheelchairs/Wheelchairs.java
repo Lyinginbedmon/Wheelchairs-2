@@ -7,6 +7,7 @@ import com.lying.wheelchairs.init.WHCBlocks;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.reference.Reference;
+import com.lying.wheelchairs.utility.ServerBus;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -16,6 +17,7 @@ public class Wheelchairs implements ModInitializer
     
 	public void onInitialize()
 	{
+		ServerBus.registerEventCallbacks();
 		WHCItems.init();
 		WHCBlocks.init();
 		WHCEntityTypes.init();
