@@ -31,6 +31,7 @@ import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
@@ -144,12 +145,7 @@ public class EntityWheelchair extends LivingEntity implements Mount
 		return getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
 	}
 	
-	public void tick()
-	{
-		super.tick();
-//		if(!this.inNetherPortal && hasPortalCooldown())
-//			this.setPortalCooldown(0);
-	}
+	public int getDefaultPortalCooldown() { return 10; }
 	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
@@ -161,19 +157,15 @@ public class EntityWheelchair extends LivingEntity implements Mount
 		this.prevYaw = this.headYaw;
 	}
 	
-	/**
-	 * Identical to standard behaviour, except can use portals whilst ridden
-	 * FIXME Ensure that riding players travel with their chair
-	 * */
-	public boolean canUsePortals() { return hasPassengers() && getPlayerPassengers() == 0; }
+	/** Identical to standard behaviour, except can use portals whilst ridden */
+	public boolean canUsePortals() { return !hasVehicle() && !isSleeping(); }
 	
 	public Entity moveToWorld(ServerWorld destination)
 	{
-		if(getPlayerPassengers() > 0)
-			return null;
-		
 		if(!(getWorld() instanceof ServerWorld) || isRemoved())
 			return null;
+		else if(!hasPassengers())
+			return super.moveToWorld(destination);
 		
 		Profiler profiler = getWorld().getProfiler();
 		profiler.push("changeDimension");
@@ -187,11 +179,26 @@ public class EntityWheelchair extends LivingEntity implements Mount
 		Entity entity = recreateInDimension(destination);
 		if(entity != null)
 		{
+			ServerPlayerEntity player = null;
+			if(getPlayerPassengers() > 0)
+			{
+				player = (ServerPlayerEntity)getFirstPassenger();
+				player.dismountVehicle();
+			}
+			
 			entity.refreshPositionAndAngles(teleportTarget.position.x, teleportTarget.position.y, teleportTarget.position.z, teleportTarget.yaw, entity.getPitch());
 			entity.setVelocity(teleportTarget.velocity);
 			destination.spawnNewEntityAndPassengers(entity);
 			if(destination.getRegistryKey() == World.END)
 				ServerWorld.createEndSpawnPlatform(destination);
+			
+			if(player != null)
+			{
+				Vector3f seatOffset = getPassengerAttachmentPos(player, entity.getDimensions(EntityPose.STANDING), 1F);
+				Vec3d offsetPos = entity.getPos().add(seatOffset.x, seatOffset.y, seatOffset.z);
+				player.teleport(destination, offsetPos.x, offsetPos.y, offsetPos.z, entity.getYaw(), entity.getPitch());
+				player.startRiding(entity);
+			}
 		}
 		removeFromDimension();
 		profiler.pop();
