@@ -9,5 +9,6 @@ public class WHCDataGenerators implements DataGeneratorEntrypoint
 	{
 		FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
 		pack.addProvider(WHCRecipeProvider::new);
+		pack.addProvider(WHCItemTags::new);
 	}
 }

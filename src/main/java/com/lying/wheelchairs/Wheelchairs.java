@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.lying.wheelchairs.init.WHCBlocks;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
+import com.lying.wheelchairs.init.WHCSpecialRecipes;
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.utility.ServerBus;
 
@@ -21,5 +22,6 @@ public class Wheelchairs implements ModInitializer
 		WHCItems.init();
 		WHCBlocks.init();
 		WHCEntityTypes.init();
+		WHCSpecialRecipes.init();
 	}
 }

@@ -2,12 +2,14 @@ package com.lying.wheelchairs.data;
 
 import java.util.Map;
 
+import com.lying.wheelchairs.data.recipe.RecipeWheelchair;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.reference.Reference;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.ComplexRecipeJsonBuilder;
 import net.minecraft.data.server.recipe.RecipeExporter;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
 import net.minecraft.item.Item;
@@ -39,7 +41,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	public void generate(RecipeExporter exporter)
 	{
 		// FIXME Complex recipe to support wheelchair creation
-//		ComplexRecipeJsonBuilder.create(TFSpecialRecipes.NOTE_INTEGER_SERIALIZER).offerTo(exporter, "note_integer");
+		ComplexRecipeJsonBuilder.create(RecipeWheelchair::new).offerTo(exporter, "wheelchair");
 		
 		WHEEL_GUIDE.entrySet().forEach(entry -> makeWheelRecipe(entry.getKey(), entry.getValue()).offerTo(exporter));
 	}

@@ -232,6 +232,8 @@ public class EntityWheelchair extends LivingEntity implements Mount
 	// FIXME Allow for sprinting whilst riding
 	protected float getSaddledSpeed(PlayerEntity controllingPlayer) { return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED); }
 	
+	public boolean canSprintAsVehicle() { return true; }
+	
 	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
 	{
 		return new Vector3f(0F, dimensions.height * 0.85F * scaleFactor, 0F);
