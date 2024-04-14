@@ -8,6 +8,10 @@ import org.joml.Vector3f;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.item.ItemWheelchair;
 
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.enchantment.FrostWalkerEnchantment;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
@@ -229,10 +233,27 @@ public class EntityWheelchair extends LivingEntity implements Mount
 		return isOnGround() ? new Vec3d(0, 0, controllingPlayer.forwardSpeed) : Vec3d.ZERO;
 	}
 	
-	// FIXME Allow for sprinting whilst riding
 	protected float getSaddledSpeed(PlayerEntity controllingPlayer) { return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED); }
 	
 	public boolean canSprintAsVehicle() { return true; }
+	
+	@SuppressWarnings("deprecation")
+	protected void applyMovementEffects(BlockPos pos)
+	{
+		int frostWalker = getEnchantmentLevel(Enchantments.FROST_WALKER);
+		if(frostWalker > 0)
+			FrostWalkerEnchantment.freezeWater(this, getEntityWorld(), pos, frostWalker);
+		
+		// FIXME Soul Speed boosting only partially implemented as the functions used reference boots
+		if(this.shouldRemoveSoulSpeedBoost(getLandingBlockState()))
+			this.removeSoulSpeedBoost();
+		addSoulSpeedBoostIfNeeded();
+	}
+	
+	public int getEnchantmentLevel(Enchantment ench)
+	{
+		return Math.max(EnchantmentHelper.getLevel(ench, getWheel(Arm.LEFT)), EnchantmentHelper.getLevel(ench, getWheel(Arm.RIGHT)));
+	}
 	
 	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
 	{

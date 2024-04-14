@@ -9,7 +9,6 @@ import com.lying.wheelchairs.reference.Reference;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -19,11 +18,11 @@ public class WHCSpecialRecipes
 	private static final Map<RecipeSerializer<?>, Identifier> RECIPE_SERIALIZERS = new HashMap<>();
 	private static final Map<RecipeType<?>, Identifier> RECIPE_TYPES = new HashMap<>();
 	
-	public static final RecipeSerializer<RecipeWheelchair> WHEELCHAIR_SERIALIZER = makeSerializer("wheelchair", new SpecialRecipeSerializer<RecipeWheelchair>(RecipeWheelchair::new));
+	public static final RecipeSerializer<RecipeWheelchair> WHEELCHAIR_SERIALIZER = makeSerializer(RecipeWheelchair.ID, new RecipeWheelchair.Serializer());
 	
-	static <T extends Recipe<?>> RecipeSerializer<T> makeSerializer(String name, RecipeSerializer<T> serializer)
+	static <T extends Recipe<?>> RecipeSerializer<T> makeSerializer(Identifier name, RecipeSerializer<T> serializer)
 	{
-		RECIPE_SERIALIZERS.put(serializer, new Identifier(Reference.ModInfo.MOD_ID, name));
+		RECIPE_SERIALIZERS.put(serializer, name);
 		return serializer;
 	}
 	

@@ -1,24 +1,26 @@
 package com.lying.wheelchairs.data.recipe;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.wheelchairs.data.WHCItemTags;
-import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCSpecialRecipes;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.DyeableItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.tag.ItemTags;
@@ -26,12 +28,29 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-public class RecipeWheelchair extends SpecialCraftingRecipe
+/**
+ * Defines a shaped recipe with the immutable arrangement of a 2x3 space with items occupying an upside-down T form.<br>
+ * This structure then informs the NBT data applied to the result item.
+ * @author Lying
+ *
+ */
+public class RecipeWheelchair implements CraftingRecipe
 {
 	public static final Identifier ID = new Identifier(Reference.ModInfo.MOD_ID, "wheelchair");
-	protected static final Map<Item, Item> BACKING_MAP = new HashMap<>();
 	
-	public RecipeWheelchair(CraftingRecipeCategory category) { super(CraftingRecipeCategory.MISC); }
+	private final ItemStack result;
+	private final Ingredient backing, cushion, wheelLeft, wheelRight;
+	
+	public RecipeWheelchair(ItemStack result, Ingredient backing, Ingredient cushion, Ingredient wheelL, Ingredient wheelR)
+	{
+		this.result = result;
+		this.backing = backing;
+		this.cushion = cushion;
+		this.wheelLeft = wheelL;
+		this.wheelRight = wheelR;
+	}
+	
+	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	
 	public boolean fits(int width, int height) { return width >= 3 && height >= 2; }
 	
@@ -44,6 +63,8 @@ public class RecipeWheelchair extends SpecialCraftingRecipe
 		return false;
 	}
 	
+	public ItemStack getResult(DynamicRegistryManager var2) { return this.result.copy(); }
+	
 	public ItemStack craft(RecipeInputInventory inv, DynamicRegistryManager var2)
 	{
 		for(int x=0; x<(inv.getWidth() - 2); x++)
@@ -53,9 +74,22 @@ public class RecipeWheelchair extends SpecialCraftingRecipe
 				if(contents == null)
 					continue;
 				
-				ItemStack chair = BACKING_MAP.get(contents.get(0).getItem()).getDefaultStack().copy();
-				ItemWheelchair.setWheels(chair, contents.get(2), contents.get(3));
-				((DyeableItem)chair.getItem()).setColor(chair, ((BlockItem)contents.get(1).getItem()).getBlock().getDefaultMapColor().color);
+				ItemStack chair = this.result.copy();
+				if(chair.getItem() instanceof ItemWheelchair)
+					ItemWheelchair.setWheels(chair, contents.get(2), contents.get(3));
+				if(chair.getItem() instanceof DyeableItem)
+				{
+					ItemStack dye = contents.get(1);
+					int colour = 0xF9FFFE;
+					if(dye.getItem() instanceof BlockItem)
+						colour = ((BlockItem)dye.getItem()).getBlock().getDefaultMapColor().color;
+					else if(dye.getItem() instanceof DyeItem)
+						colour = componentsToColor(((DyeItem)dye.getItem()).getColor().getColorComponents());
+					else if(dye.getItem() instanceof DyeableItem)
+						colour = ((DyeableItem)dye.getItem()).getColor(dye);
+					((DyeableItem)chair.getItem()).setColor(chair, colour);
+				}
+				
 				return chair;
 			}
 		
@@ -72,28 +106,33 @@ public class RecipeWheelchair extends SpecialCraftingRecipe
 		if(!inv.getStack(emptyA).isEmpty() || !inv.getStack(emptyB).isEmpty())
 			return null;
 		
+		int backing = coordsToIndex(x + 1, y, inv.getWidth());
+		if(this.backing.test(inv.getStack(backing)))
+			entries.set(0, inv.getStack(backing));
+		else
+			return null;
+		
 		int cushion = coordsToIndex(x + 1, y + 1, inv.getWidth());
-		if(inv.getStack(cushion).isIn(ItemTags.WOOL) && inv.getStack(cushion).getItem() instanceof BlockItem)
+		if(this.cushion.test(inv.getStack(cushion)))
 			entries.set(1, inv.getStack(cushion));
 		else
 			return null;
 		
 		int leftWheel = coordsToIndex(x, y + 1, inv.getWidth());
-		if(inv.getStack(leftWheel).isIn(WHCItemTags.WHEEL))
+		if(this.wheelLeft.test(inv.getStack(leftWheel)))
 			entries.set(2, inv.getStack(leftWheel));
 		else
 			return null;
 		int rightWheel = coordsToIndex(x + 2, y + 1, inv.getWidth());
-		if(inv.getStack(rightWheel).isIn(WHCItemTags.WHEEL))
+		if(this.wheelRight.test(inv.getStack(rightWheel)))
 			entries.set(3, inv.getStack(rightWheel));
 		else
 			return null;
 		
-		int backing = coordsToIndex(x + 1, y, inv.getWidth());
-		if(BACKING_MAP.containsKey(inv.getStack(backing).getItem()))
-			entries.set(0, inv.getStack(backing));
-		else
-			return null;
+		List<Integer> usedIndices = List.of(emptyA, backing, emptyB, leftWheel, cushion, rightWheel);
+		for(int i=0; i<inv.size(); i++)
+			if(!usedIndices.contains(i) && !inv.getStack(i).isEmpty())
+				return null;
 		
 		return entries.stream().anyMatch(ItemStack::isEmpty) ? null : entries;
 	}
@@ -102,17 +141,50 @@ public class RecipeWheelchair extends SpecialCraftingRecipe
 	
 	public RecipeSerializer<?> getSerializer() { return WHCSpecialRecipes.WHEELCHAIR_SERIALIZER; }
 	
-	private static void mapChair(Item item1, Item item2) { BACKING_MAP.put(item1, item2); }
-	
-	static
+	public static int componentsToColor(float[] comp)
 	{
-		mapChair(Items.OAK_LOG, WHCItems.WHEELCHAIR_OAK);
-		mapChair(Items.SPRUCE_LOG, WHCItems.WHEELCHAIR_SPRUCE);
-		mapChair(Items.BIRCH_LOG, WHCItems.WHEELCHAIR_BIRCH);
-		mapChair(Items.DARK_OAK_LOG, WHCItems.WHEELCHAIR_DARK_OAK);
-		mapChair(Items.JUNGLE_LOG, WHCItems.WHEELCHAIR_JUNGLE);
-		mapChair(Items.ACACIA_LOG, WHCItems.WHEELCHAIR_ACACIA);
-		mapChair(Items.CRIMSON_STEM, WHCItems.WHEELCHAIR_CRIMSON);
-		mapChair(Items.WARPED_STEM, WHCItems.WHEELCHAIR_WARPED);
+		int r = (int)(comp[0] * 255);
+		int g = (int)(comp[1] * 255);
+		int b = (int)(comp[2] * 255);
+		
+		// Recompose original decimal value of the dye colour from derived RGB values
+		int col = r;
+		col = (col << 8) + g;
+		col = (col << 8) + b;
+		
+		return col;
 	}
+	
+    public static class Serializer implements RecipeSerializer<RecipeWheelchair>
+    {
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+		private static final Codec<RecipeWheelchair> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			((MapCodec)ItemStack.RECIPE_RESULT_CODEC.fieldOf("result")).forGetter(recipe -> ((RecipeWheelchair)recipe).result),
+        	((MapCodec)Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("backing")).forGetter(recipe -> ((RecipeWheelchair)recipe).backing), 
+        	((MapCodec)Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("cushion")).orElse(Ingredient.fromTag(ItemTags.WOOL)).forGetter(recipe -> ((RecipeWheelchair)recipe).cushion), 
+        	((MapCodec)Ingredient.ALLOW_EMPTY_CODEC.fieldOf("left_wheel")).orElse(Ingredient.fromTag(WHCItemTags.WHEEL)).forGetter(recipe -> ((RecipeWheelchair)recipe).wheelLeft), 
+        	((MapCodec)Ingredient.ALLOW_EMPTY_CODEC.fieldOf("right_wheel")).orElse(Ingredient.fromTag(WHCItemTags.WHEEL)).forGetter(recipe -> ((RecipeWheelchair)recipe).wheelRight))
+				.apply(instance, (a,b,c,d,e) -> new RecipeWheelchair((ItemStack)a, (Ingredient)b, (Ingredient)c, (Ingredient)d, (Ingredient)e)));
+        
+        public Codec<RecipeWheelchair> codec() { return CODEC; }
+        
+        public RecipeWheelchair read(PacketByteBuf packetByteBuf)
+        {
+        	ItemStack result = packetByteBuf.readItemStack();
+            Ingredient backing = Ingredient.fromPacket(packetByteBuf);
+            Ingredient cushion = Ingredient.fromPacket(packetByteBuf);
+            Ingredient wheelL = Ingredient.fromPacket(packetByteBuf);
+            Ingredient wheelR = Ingredient.fromPacket(packetByteBuf);
+            return new RecipeWheelchair(result, backing, cushion, wheelL, wheelR);
+        }
+        
+        public void write(PacketByteBuf packetByteBuf, RecipeWheelchair wheelchairRecipe)
+        {
+        	packetByteBuf.writeItemStack(wheelchairRecipe.result);
+        	wheelchairRecipe.backing.write(packetByteBuf);
+        	wheelchairRecipe.cushion.write(packetByteBuf);
+        	wheelchairRecipe.wheelLeft.write(packetByteBuf);
+        	wheelchairRecipe.wheelRight.write(packetByteBuf);
+        }
+    }
 }
