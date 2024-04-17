@@ -21,9 +21,9 @@ public class Wheelchairs implements ModInitializer
 	{
 		ServerBus.registerEventCallbacks();
 		WHCItems.init();
+		WHCUpgrades.init();
 		WHCBlocks.init();
 		WHCEntityTypes.init();
 		WHCSpecialRecipes.init();
-		WHCUpgrades.init();
 	}
 }

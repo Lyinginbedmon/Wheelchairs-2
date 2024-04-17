@@ -36,6 +36,8 @@ public class WHCItems
     public static final Item WHEELCHAIR_CRIMSON = wheelchair("crimson");
     public static final Item WHEELCHAIR_WARPED = wheelchair("warped");
     public static final Item WHEELCHAIR_MANGROVE = wheelchair("mangrove");
+    public static final Item WHEELCHAIR_CHERRY = wheelchair("cherry");
+    public static final Item WHEELCHAIR_BAMBOO = wheelchair("bamboo");
     
     public static final Item WHEEL_OAK = wheel("oak");
     public static final Item WHEEL_SPRUCE = wheel("spruce");
@@ -46,6 +48,8 @@ public class WHCItems
     public static final Item WHEEL_CRIMSON = wheel("crimson");
     public static final Item WHEEL_WARPED = wheel("warped");
     public static final Item WHEEL_MANGROVE = wheel("mangrove");
+    public static final Item WHEEL_CHERRY = wheel("cherry");
+    public static final Item WHEEL_BAMBOO = wheel("bamboo");
     
     public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings(), WHCEntityTypes.WHEELCHAIR, 0));
     
@@ -77,7 +81,7 @@ public class WHCItems
     	if(itemIn instanceof ItemWheelchair)
     	{
     		WHEELCHAIRS.add(itemIn);
-    		WHCBlocks.registerSeat(nameIn);
+    		WHCBlocks.registerFakeBlock(nameIn);
     	}
     	ITEMS.put(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
     	return itemIn;

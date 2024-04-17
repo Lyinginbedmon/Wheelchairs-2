@@ -2,6 +2,7 @@ package com.lying.wheelchairs.renderer.entity;
 
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.item.ItemWheelchair;
+import com.lying.wheelchairs.reference.Reference;
 
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.TexturedRenderLayers;
@@ -52,26 +53,38 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 		matrices.push();
 			float h = MathHelper.lerpAngleDegrees((float)tickDelta, (float)(entity).prevBodyYaw, (float)(entity).bodyYaw);
 			matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f - h));
+			int color = entity.getColor();
+			float r = ((color & 0xFF0000) >> 16) / 255F;
+			float g = ((color & 0xFF00) >> 8) / 255F;
+			float b = ((color & 0xFF) >> 0) / 255F;
+			BakedModelManager bakedModelManager = this.blockRenderManager.getModels().getModelManager();
+			BlockModelRenderer modelRenderer = this.blockRenderManager.getModelRenderer();
+			
+			// Upgrades
+			entity.getUpgrades().forEach(upgrade -> 
+			{
+				matrices.push();
+					matrices.translate(-0.5F, 0F, -0.5F);
+					modelRenderer.render(matrices.peek(), vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout()), null, bakedModelManager.getModel(upgradeModel(upgrade.registryName())), r, g, b, light, OverlayTexture.DEFAULT_UV);
+				matrices.pop();
+			});
+			
+			// Seat
 			ItemStack chair = entity.getChair();
 			if(chair.getItem() instanceof ItemWheelchair)
 			{
-				BakedModelManager bakedModelManager = this.blockRenderManager.getModels().getModelManager();
-				BlockModelRenderer modelRenderer = this.blockRenderManager.getModelRenderer();
 				matrices.push();
 					matrices.translate(-0.5F, 0F, -0.5F);
-					
-					int color = entity.getColor();
-					float r = ((color & 0xFF0000) >> 16) / 255F;
-					float g = ((color & 0xFF00) >> 8) / 255F;
-					float b = ((color & 0xFF) >> 0) / 255F;
 					modelRenderer.render(matrices.peek(), vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout()), null, bakedModelManager.getModel(seatModel(chair.getItem())), r, g, b, light, OverlayTexture.DEFAULT_UV);
 				matrices.pop();
 			}
-			renderWheels(matrices, vertexConsumers, light, 0, entity.getLeftWheel(), entity.getRightWheel(), entity.getEntityWorld(), entity.getId());
+			
+			// Wheels
+			renderWheels(matrices, vertexConsumers, light, entity.getLeftWheel(), entity.spinLeft, entity.getRightWheel(), entity.spinRight, entity.getEntityWorld(), entity.getId());
 		matrices.pop();
 	}
 	
-	private void renderWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, float spin, ItemStack left, ItemStack right, World world, int seed)
+	private void renderWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, ItemStack left, float leftSpin, ItemStack right, float rightSpin, World world, int seed)
 	{
 		// Right wheel
 		matrices.push();
@@ -81,7 +94,7 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 				matrices.scale(1F, 1F, 1F);
 				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90F));
 				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(10F));
-				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-spin));
+				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-rightSpin));
 				renderItem.renderItem(right, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
 			matrices.pop();
 		matrices.pop();
@@ -94,7 +107,7 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 				matrices.scale(1F, 1F, 1F);
 				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90F));
 				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-10F));
-				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-spin));
+				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-leftSpin));
 				renderItem.renderItem(left, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
 			matrices.pop();
 		matrices.pop();
@@ -104,5 +117,10 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 	{
 		Identifier registry = Registries.ITEM.getId(chairIn);
 		return new ModelIdentifier(registry, "");
+	}
+	
+	public static ModelIdentifier upgradeModel(Identifier upgrade)
+	{
+		return new ModelIdentifier(new Identifier(Reference.ModInfo.MOD_ID, "upgrade_"+upgrade.getPath()), "");
 	}
 }

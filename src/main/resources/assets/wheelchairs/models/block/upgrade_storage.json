@@ -1,0 +1,33 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"chest": "wheelchairs:block/upgrade_storage"
+	},
+	"elements": [
+		{
+			"name": "chest",
+			"from": [4, 8, 10.5],
+			"to": [12, 16, 12.5],
+			"faces": {
+				"north": {"uv": [8, 0, 16, 8], "texture": "#chest"},
+				"east": {"uv": [8, 8, 10, 16], "texture": "#chest"},
+				"south": {"uv": [0, 0, 8, 8], "texture": "#chest"},
+				"west": {"uv": [14, 8, 16, 16], "texture": "#chest"},
+				"up": {"uv": [0, 8, 8, 10], "texture": "#chest"},
+				"down": {"uv": [0, 10, 8, 12], "texture": "#chest"}
+			}
+		},
+		{
+			"name": "buckle",
+			"from": [7, 11.5, 12.5],
+			"to": [9, 14.5, 13.5],
+			"faces": {
+				"east": {"uv": [0, 12, 1, 15], "texture": "#chest"},
+				"south": {"uv": [1, 12, 3, 15], "texture": "#chest"},
+				"west": {"uv": [0, 12, 1, 15], "texture": "#chest"},
+				"up": {"uv": [1, 15, 3, 16], "texture": "#chest"},
+				"down": {"uv": [1, 15, 3, 16], "texture": "#chest"}
+			}
+		}
+	]
+}

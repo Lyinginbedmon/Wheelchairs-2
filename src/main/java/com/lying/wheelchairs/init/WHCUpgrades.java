@@ -25,23 +25,32 @@ public class WHCUpgrades
 	
 	private static final List<ChairUpgrade> UPGRADES = Lists.newArrayList();
 	
-	public static final ChairUpgrade POWERED = make("powered")
+	public static final ChairUpgrade POWERED = register(ChairUpgrade.Builder.of("powered").modelled()
 			.keyItem(Items.FURNACE_MINECART)
 			.applied(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, true))
-			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false));
-	public static final ChairUpgrade STORAGE = make("storage");
-	public static final ChairUpgrade GLIDER = make("glider");
+			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
+	public static final ChairUpgrade STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
+			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))));
+	public static final ChairUpgrade FLOATING = register(ChairUpgrade.Builder.of("floating"));
+	public static final ChairUpgrade GLIDER = register(ChairUpgrade.Builder.of("glider"));
+	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles"));
 	
-	private static ChairUpgrade make(String nameIn)
+	private static ChairUpgrade register(ChairUpgrade.Builder builder)
 	{
-		ChairUpgrade made = new ChairUpgrade(new Identifier(Reference.ModInfo.MOD_ID, nameIn));
+		ChairUpgrade made = builder.build();
 		UPGRADES.add(made);
 		return made;
 	}
 	
 	public static void init()
 	{
-		UPGRADES.forEach(acc -> Registry.register(REGISTRY, acc.registryName(), acc));
+		UPGRADES.forEach(acc -> 
+		{
+			Registry.register(REGISTRY, acc.registryName(), acc);
+			
+			if(acc.hasModel())
+				WHCBlocks.registerFakeBlock("upgrade_"+acc.registryName().getPath());
+		});
 	}
 	
 	@Nullable

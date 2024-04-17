@@ -1,0 +1,20 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"furnace": "wheelchairs:block/upgrade_powered"
+	},
+	"elements": [
+		{
+			"name": "engine",
+			"from": [3, 7, 3],
+			"to": [13, 9, 10],
+			"faces": {
+				"north": {"uv": [0, 0, 10, 2], "texture": "#furnace"},
+				"east": {"uv": [0, 9, 7, 11], "texture": "#furnace"},
+				"south": {"uv": [0, 0, 10, 2], "texture": "#furnace"},
+				"west": {"uv": [0, 9, 7, 11], "texture": "#furnace"},
+				"down": {"uv": [0, 2, 10, 9], "texture": "#furnace"}
+			}
+		}
+	]
+}

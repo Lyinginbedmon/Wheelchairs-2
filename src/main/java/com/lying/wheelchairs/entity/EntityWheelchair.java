@@ -45,6 +45,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -68,12 +69,14 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	private static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
 	private static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
-
+	
 	private static final TrackedData<NbtCompound> UPGRADES = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.NBT_COMPOUND);
 	
 	public static final TrackedData<Boolean> POWERED = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Integer> BOOST_TIME = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.INTEGER);
 	private final SaddledComponent saddledComponent;
+	
+	public float spinLeft, spinRight;
 	
 	public EntityWheelchair(EntityType<? extends EntityWheelchair> entityType, World world)
 	{
@@ -260,8 +263,8 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		getDataTracker().set(LEFT_WHEEL, ItemWheelchair.getWheel(stack, Arm.LEFT));
 		getDataTracker().set(RIGHT_WHEEL, ItemWheelchair.getWheel(stack, Arm.RIGHT));
 		
-		NbtCompound stackData = stack.getNbt();
-		if(stackData.contains("Upgrades", NbtElement.LIST_TYPE))
+		NbtCompound stackData;
+		if(stack.hasNbt() && (stackData = stack.getNbt()).contains("Upgrades", NbtElement.LIST_TYPE))
 			setUpgrades(stackData.getList("Upgrades", NbtElement.STRING_TYPE));
 	}
 	
@@ -287,8 +290,18 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	
 	public boolean canStartRiding(Entity entity) { return false; }
 	
-	/** Returns true if the wheelchair is under manual control ie. not using a wheelchair controller */
-	public boolean isManual(PlayerEntity controllingPlayer) { return !(hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER)); }
+	/** Returns true if the wheelchair is under manual control ie. not using a chair controller */
+	public boolean isManual(PlayerEntity controllingPlayer) { return !isAutomatic(controllingPlayer); }
+	
+	/** Returns true if the wheelchair is under automatic control ie. using a chair controller*/
+	public boolean isAutomatic(PlayerEntity controllingPlayer) { return hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER); }
+	
+	public void tick()
+	{
+		super.tick();
+		if(this.saddledComponent.getMovementSpeedMultiplier() > 1F)
+			getWorld().addParticle(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0.0, 0.0, 0.0);
+	}
 	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
@@ -403,14 +416,9 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
-		if(isOnGround())
-		{
-			if(!isManual(controllingPlayer))
-				return new Vec3d(0, 0, 1.0D);
-			else
-				return new Vec3d(0, 0, controllingPlayer.forwardSpeed);
-		}
-		return Vec3d.ZERO;
+		double modifier = isOnGround() ? 1D : 0.7D;
+		Vec3d speed = isAutomatic(controllingPlayer) ? new Vec3d(0, 0, 1D) : new Vec3d(0, 0, controllingPlayer.forwardSpeed);
+		return speed.multiply(modifier);
 	}
 	
 	protected float getSaddledSpeed(PlayerEntity controllingPlayer)

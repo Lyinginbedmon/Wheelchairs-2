@@ -27,7 +27,7 @@ public class WHCBlocks
 		return blockIn;
 	}
 	
-	public static void registerSeat(String nameIn)
+	public static void registerFakeBlock(String nameIn)
 	{
 		register(nameIn, new FakeBlock(FabricBlockSettings.create()));
 	}
