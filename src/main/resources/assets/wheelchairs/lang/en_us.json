@@ -19,6 +19,9 @@
 	"item.wheelchairs.crimson_wheel": "Crimson Wheel",
 	"item.wheelchairs.warped_wheel": "Warped Wheel",
 	"item.wheelchairs.mangrove_wheel": "Mangrove Wheel",
+	"item.wheelchairs.controller": "Wheelchair Controller",
+	"upgrade.wheelchairs.powered": "Powered",
 	"gui.wheelchairs.wheelchair.wheel_left": " Left: %s",
-	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s"
+	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s",
+	"gui.wheelchairs.upgrades": "Upgrades:"
 }

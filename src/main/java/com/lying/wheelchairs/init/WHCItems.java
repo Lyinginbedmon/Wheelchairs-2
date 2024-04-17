@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
+import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -14,6 +15,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.OnAStickItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
@@ -45,6 +47,8 @@ public class WHCItems
     public static final Item WHEEL_WARPED = wheel("warped");
     public static final Item WHEEL_MANGROVE = wheel("mangrove");
     
+    public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings(), WHCEntityTypes.WHEELCHAIR, 0));
+    
     public static final ItemGroup WHEELCHAIR_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(WHEELCHAIR_OAK)).displayName(Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group")).entries((ctx,entries) -> 
 	    {
 			entries.add(WHEELCHAIR_OAK);
@@ -64,6 +68,8 @@ public class WHCItems
 			entries.add(WHEEL_ACACIA);
 			entries.add(WHEEL_CRIMSON);
 			entries.add(WHEEL_WARPED);
+			
+			entries.add(CONTROLLER);
 	    }).build();
     
     private static Item register(String nameIn, Item itemIn)

@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.wheelchairs.entity.EntityWheelchair;
+import com.lying.wheelchairs.entity.EntityWheelchair.Upgrades;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
 
@@ -19,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -63,7 +65,7 @@ public class ItemWheelchair extends Item implements DyeableItem
 			if (wheelchair == null)
 				return ActionResult.FAIL;
 			
-			wheelchair.copyPartsFromItem(itemStack);
+			wheelchair.copyFromItem(itemStack);
 			
 			float f = (float)MathHelper.floor((MathHelper.wrapDegrees(context.getPlayerYaw() - 180.0f) + 22.5f) / 45.0f) * 45.0f;
 			wheelchair.refreshPositionAndAngles(wheelchair.getX(), wheelchair.getY(), wheelchair.getZ(), f, 0.0f);
@@ -80,6 +82,16 @@ public class ItemWheelchair extends Item implements DyeableItem
 	{
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_left", getWheel(stack, Arm.LEFT).getName()));
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_right", getWheel(stack, Arm.RIGHT).getName()));
+		
+		NbtList upgrades = stack.getNbt().getList("Upgrades", NbtElement.STRING_TYPE);
+		if(upgrades.size() > 0)
+		{
+			tooltip.add(Text.translatable("gui.wheelchairs.upgrades"));
+			for(int i = 0; i<upgrades.size(); i++)
+				tooltip.add(Text.literal(" * ").append(Upgrades.fromString(upgrades.getString(i)).translate()));
+		}
+		
+		ItemStack.appendEnchantments(tooltip, EntityWheelchair.getEnchantments(getWheel(stack, Arm.LEFT), getWheel(stack, Arm.RIGHT)).getEnchantments());
 	}
 	
 	public static Iterable<ItemStack> getWheels(ItemStack stack)

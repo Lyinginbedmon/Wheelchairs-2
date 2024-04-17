@@ -1,86 +1,74 @@
 package com.lying.wheelchairs.utility;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.lying.wheelchairs.init.WHCEntityTypes;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.GameMode;
 
 public class ServerBus
 {
 	/**
 	 * Fired BEFORE the player changes dimension, such as through using a portal
 	 */
-	public static final Event<BeforePlayerChange> BEFORE_PLAYER_CHANGE_WORLD = EventFactory.createArrayBacked(BeforePlayerChange.class, callbacks -> (originalEntity, origin, destination) -> 
+	public static final Event<PlayerChangeGameMode> AFTER_PLAYER_CHANGE_GAME_MODE = EventFactory.createArrayBacked(PlayerChangeGameMode.class, callbacks -> (player, mode) -> 
 	{
-		for(BeforePlayerChange callback : callbacks)
-			callback.beforeChangeWorld(originalEntity, origin, destination);
+		for(PlayerChangeGameMode callback : callbacks)
+			callback.afterChangeGameMode(player, mode);
 	});
 	
 	@FunctionalInterface
-	public interface BeforePlayerChange
+	public interface PlayerChangeGameMode
 	{
-		void beforeChangeWorld(PlayerEntity player, ServerWorld origin, ServerWorld destination);
+		void afterChangeGameMode(PlayerEntity player, GameMode gameMode);
 	}
-	
-	/** Map of player UUIDs to the NBT data of the wheelchair they changed dimension whilst riding, if any */
-	private static final Map<UUID, NbtCompound> DIMENSIONAL_WHEELCHAIRS = new HashMap<>();
 	
 	public static void registerEventCallbacks()
 	{
-		BEFORE_PLAYER_CHANGE_WORLD.register((original, origin, dest) -> storeEntityWheelchairIfNeeded(original));
+		ServerLivingEntityEvents.AFTER_DEATH.register((entity,damage) -> 
+		{
+			if(entity.getType() != EntityType.PLAYER || entity.getVehicle() == null || entity.getVehicle().getType() != WHCEntityTypes.WHEELCHAIR || entity.getWorld().isClient())
+				return;
+			
+			Entity vehicle = entity.getVehicle();
+			Chairspace chairs = Chairspace.getChairspace(entity.getServer());
+			chairs.storeChair(vehicle, entity.getUuid());
+		});
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, oldIsAlive) -> 
+		{
+			if(newPlayer.getWorld().isClient())
+				return;
+			
+			Chairspace chairs = Chairspace.getChairspace(newPlayer.getServer());
+			chairs.tryRespawnChair(newPlayer.getUuid(), newPlayer);
+		});
 		
-		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> loadEntityWheelchairIfNeeded(player, player, destination));
-	}
-	
-	private static void storeEntityWheelchairIfNeeded(Entity original)
-	{
-		/**
-		 * When entity changes dimension,
-		 * IF it was riding a wheelchair
-		 * THEN store wheelchair in memory
-		 * THEN, after entity finishes moving, teleport wheelchair to entity & mount up
-		 */
-		
-		if(!original.hasVehicle() || original.getVehicle().getType() != WHCEntityTypes.WHEELCHAIR)
-			return;
-		
-		Entity wheelchair = original.getVehicle();
-		NbtCompound chairData = new NbtCompound();
-		wheelchair.saveNbt(chairData);
-		DIMENSIONAL_WHEELCHAIRS.put(original.getUuid(), chairData);
-		original.dismountVehicle();
-		wheelchair.discard();
-		
-		System.out.println("Stored wheelchair ridden by "+original.getName().getString());
-	}
-	
-	private static void loadEntityWheelchairIfNeeded(Entity originalEntity, Entity newEntity, ServerWorld destination)
-	{
-		UUID uuid = originalEntity.getUuid();
-		if(!DIMENSIONAL_WHEELCHAIRS.containsKey(uuid))
-			return;
-		
-		NbtCompound chairData = DIMENSIONAL_WHEELCHAIRS.remove(uuid);
-		Optional<Entity> wheelchairOpt = EntityType.getEntityFromNbt(chairData, destination);
-		if(wheelchairOpt.isEmpty())
-			return;
-		
-		Entity wheelchair = wheelchairOpt.get();
-		wheelchair.copyPositionAndRotation(newEntity);
-		destination.spawnEntity(wheelchair);
-		newEntity.startRiding(wheelchair);
-		
-		System.out.println("Reloaded wheelchair ridden by "+newEntity.getName().getString());
+		ServerBus.AFTER_PLAYER_CHANGE_GAME_MODE.register((player, mode) -> 
+		{
+			if(player.getWorld().isClient())
+				return;
+			
+			Chairspace chairs = Chairspace.getChairspace(player.getServer());
+			if(mode == GameMode.SPECTATOR)
+			{
+				// Store the wheelchair
+				if(player.hasVehicle() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR)
+				{
+					Entity vehicle = player.getVehicle();
+					player.stopRiding();
+					chairs.storeChair(vehicle, player.getUuid());
+				}
+			}
+			else
+			{
+				// Respawn the wheelchair
+				chairs.tryRespawnChair(player.getUuid(), player);
+			}
+		});
 	}
 }

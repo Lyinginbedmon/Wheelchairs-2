@@ -3,7 +3,7 @@
 	"package": "com.lying.wheelchairs.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		
+		"ServerPlayerInteractionManagerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

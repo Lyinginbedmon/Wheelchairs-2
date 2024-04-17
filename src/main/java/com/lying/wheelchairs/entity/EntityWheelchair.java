@@ -1,5 +1,6 @@
 package com.lying.wheelchairs.entity;
 
+import java.util.Map;
 import java.util.OptionalInt;
 
 import org.jetbrains.annotations.Nullable;
@@ -7,11 +8,10 @@ import org.joml.Vector3f;
 
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.item.ItemWheelchair;
+import com.lying.wheelchairs.reference.Reference;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.enchantment.FrostWalkerEnchantment;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
@@ -19,8 +19,10 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.ItemSteerable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mount;
+import net.minecraft.entity.SaddledComponent;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -28,18 +30,25 @@ import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -50,17 +59,22 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
-public class EntityWheelchair extends LivingEntity implements Mount
+public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerable
 {
 	private static final TrackedData<ItemStack> CHAIR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
 	private static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	
+	private static final TrackedData<Boolean> POWERED = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
+	private static final TrackedData<Integer> BOOST_TIME = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.INTEGER);
+	private final SaddledComponent saddledComponent;
+	
 	public EntityWheelchair(EntityType<? extends EntityWheelchair> entityType, World world)
 	{
 		super(entityType, world);
 		this.setStepHeight(1.0f);
+		this.saddledComponent = new SaddledComponent(this.dataTracker, BOOST_TIME, POWERED);
 	}
 	
 	public void initDataTracker()
@@ -71,6 +85,16 @@ public class EntityWheelchair extends LivingEntity implements Mount
 		this.getDataTracker().startTracking(COLOR, OptionalInt.of(DyeableItem.DEFAULT_COLOR));
 		this.getDataTracker().startTracking(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
+		
+		this.getDataTracker().startTracking(POWERED, false);
+		this.getDataTracker().startTracking(BOOST_TIME, 0);
+	}
+	
+	public void onTrackedDataSet(TrackedData<?> data)
+	{
+		if(BOOST_TIME.equals(data) && getWorld().isClient())
+			this.saddledComponent.boost();
+		super.onTrackedDataSet(data);
 	}
 	
 	public static DefaultAttributeContainer.Builder createChairAttributes()
@@ -93,6 +117,9 @@ public class EntityWheelchair extends LivingEntity implements Mount
 			getDataTracker().set(LEFT_WHEEL, ItemStack.fromNbt(wheels.getCompound("Left")));
 			getDataTracker().set(RIGHT_WHEEL, ItemStack.fromNbt(wheels.getCompound("Right")));
 		}
+		
+		getDataTracker().set(POWERED, data.getBoolean("Powered"));
+		this.saddledComponent.readNbt(data);
 	}
 	
 	public void writeCustomDataToNbt(NbtCompound data)
@@ -105,17 +132,25 @@ public class EntityWheelchair extends LivingEntity implements Mount
 			wheels.put("Left", getLeftWheel().writeNbt(new NbtCompound()));
 			wheels.put("Right", getRightWheel().writeNbt(new NbtCompound()));
 		data.put("Wheels", wheels);
+		data.putBoolean("Powered", getDataTracker().get(POWERED));
+		this.saddledComponent.writeNbt(data);
 	}
 	
 	public ActionResult interact(PlayerEntity player, Hand hand)
 	{
+		ItemStack heldStack = player.getStackInHand(hand);
+		if(heldStack.getItem() == Items.FURNACE_MINECART && player.shouldCancelInteraction() && !saddledComponent.isSaddled())
+		{
+			getDataTracker().set(POWERED, true);
+			if(!player.getAbilities().creativeMode)
+				heldStack.decrement(1);
+			return ActionResult.success(getWorld().isClient());
+		}
+		
 		if(!hasPassengers())
 			if(player.shouldCancelInteraction())
 			{
-				ItemStack stack = getChair();
-				ItemWheelchair.setWheels(stack, getLeftWheel(), getRightWheel());
-				if(hasColor() && stack.getItem() instanceof ItemWheelchair)
-					((ItemWheelchair)stack.getItem()).setColor(stack, getColor());
+				ItemStack stack = chairToItem(this);
 				
 				ItemEntity item = new ItemEntity(getWorld(), getX(), getY(), getZ(), stack);
 				if(!getWorld().isClient())
@@ -129,6 +164,46 @@ public class EntityWheelchair extends LivingEntity implements Mount
 				return putPlayerInChair(player) ? ActionResult.CONSUME : ActionResult.PASS;
 		
 		return ActionResult.SUCCESS;
+	}
+	
+	public static ItemStack chairToItem(EntityWheelchair chair)
+	{
+		ItemStack stack = chair.getChair();
+		ItemWheelchair.setWheels(stack, chair.getLeftWheel(), chair.getRightWheel());
+		if(chair.hasColor() && stack.getItem() instanceof ItemWheelchair)
+			((ItemWheelchair)stack.getItem()).setColor(stack, chair.getColor());
+		
+		NbtList upgrades = new NbtList();
+		if(chair.saddledComponent.isSaddled())
+			upgrades.add(NbtString.of(Upgrades.POWERED.asString()));
+		stack.getNbt().put("Upgrades", upgrades);
+		
+		return stack;
+	}
+	
+	public void copyFromItem(ItemStack stack)
+	{
+		getDataTracker().set(CHAIR, stack);
+		getDataTracker().set(COLOR, stack.getItem() instanceof DyeableItem ? OptionalInt.of(((DyeableItem)stack.getItem()).getColor(stack)) : OptionalInt.empty());
+		getDataTracker().set(LEFT_WHEEL, ItemWheelchair.getWheel(stack, Arm.LEFT));
+		getDataTracker().set(RIGHT_WHEEL, ItemWheelchair.getWheel(stack, Arm.RIGHT));
+		
+		NbtCompound stackData = stack.getNbt();
+		if(stackData.contains("Upgrades", NbtElement.LIST_TYPE))
+		{
+			NbtList upgrades = stackData.getList("Upgrades", NbtElement.STRING_TYPE);
+			for(int i=0; i<upgrades.size(); i++)
+			{
+				Upgrades upgrade = Upgrades.fromString(upgrades.getString(i));
+				switch(upgrade)
+				{
+					case POWERED:
+						getDataTracker().set(POWERED, true);
+					default:
+						break;
+				}
+			}
+		}
 	}
 	
 	protected boolean putPlayerInChair(PlayerEntity player)
@@ -151,14 +226,50 @@ public class EntityWheelchair extends LivingEntity implements Mount
 	
 	public int getDefaultPortalCooldown() { return 10; }
 	
+	/** Returns true if the wheelchair is under manual control ie. not using a wheelchair controller */
+	public boolean isManual(PlayerEntity controllingPlayer) { return !(controllingPlayer.isHolding(WHCItems.CONTROLLER) && saddledComponent.isSaddled()); }
+	
+	// FIXME Ensure that manual control appropriately uses up player hunger
+	public void tickMovement()
+	{
+		double deltaX = this.getX();
+		double deltaY = this.getY();
+		double deltaZ = this.getZ();
+		super.tickMovement();
+		deltaX = getX() - deltaX;
+		deltaY = getY() - deltaY;
+		deltaZ = getZ() - deltaZ;
+		
+		if(hasPassengers())
+		{
+			PlayerEntity controllingPlayer = getControllingPassenger() == null || getControllingPassenger().getType() != EntityType.PLAYER ? null : (PlayerEntity)getControllingPassenger();
+			if(controllingPlayer == null || !isManual(controllingPlayer))
+				return;
+			
+			int i = Math.round((float)Math.sqrt(deltaX * deltaX + deltaZ * deltaZ) * 100.0f);
+			if(i > 0)
+				if(controllingPlayer.isSprinting())
+					controllingPlayer.getHungerManager().addExhaustion(0.1F * (float)i * 0.01F);
+				else
+					controllingPlayer.getHungerManager().addExhaustion(0F * (float)i * 0.01F);
+		}
+	}
+	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
 		super.tickControlled(controllingPlayer, movementMultiplier);
+		if(!isManual(controllingPlayer) && isSprinting())
+		{
+			setSprinting(false);
+			controllingPlayer.setSprinting(false);
+		}
 		
 		Vec2f orientation = getControlledRotation(controllingPlayer);
 		this.setRotation(orientation.y, orientation.x);
 		this.bodyYaw = this.headYaw = this.getYaw();
 		this.prevYaw = this.headYaw;
+		
+		this.saddledComponent.tickBoost();
 	}
 	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
@@ -223,6 +334,8 @@ public class EntityWheelchair extends LivingEntity implements Mount
         });
 	}
 	
+	public boolean isSaddled() { return true; }
+	
 	protected Vec2f getControlledRotation(LivingEntity controllingPassenger)
 	{
 		return new Vec2f(controllingPassenger.getPitch(), controllingPassenger.getYaw());
@@ -230,24 +343,25 @@ public class EntityWheelchair extends LivingEntity implements Mount
 	
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
-		return isOnGround() ? new Vec3d(0, 0, controllingPlayer.forwardSpeed) : Vec3d.ZERO;
+		if(isOnGround())
+		{
+			if(!isManual(controllingPlayer))
+				return new Vec3d(0, 0, 1.0D);
+			else
+				return new Vec3d(0, 0, controllingPlayer.forwardSpeed);
+		}
+		return Vec3d.ZERO;
 	}
 	
-	protected float getSaddledSpeed(PlayerEntity controllingPlayer) { return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED); }
-	
-	public boolean canSprintAsVehicle() { return true; }
-	
-	@SuppressWarnings("deprecation")
-	protected void applyMovementEffects(BlockPos pos)
+	protected float getSaddledSpeed(PlayerEntity controllingPlayer)
 	{
-		int frostWalker = getEnchantmentLevel(Enchantments.FROST_WALKER);
-		if(frostWalker > 0)
-			FrostWalkerEnchantment.freezeWater(this, getEntityWorld(), pos, frostWalker);
-		
-		// FIXME Soul Speed boosting only partially implemented as the functions used reference boots
-		if(this.shouldRemoveSoulSpeedBoost(getLandingBlockState()))
-			this.removeSoulSpeedBoost();
-		addSoulSpeedBoostIfNeeded();
+		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * (isManual(controllingPlayer) ? 1 : this.saddledComponent.getMovementSpeedMultiplier());
+	}
+	
+	public boolean canSprintAsVehicle()
+	{
+		LivingEntity player = getControllingPassenger();
+		return (player.getType() == EntityType.PLAYER && isManual((PlayerEntity)player)) && !saddledComponent.isSaddled();
 	}
 	
 	public int getEnchantmentLevel(Enchantment ench)
@@ -325,23 +439,50 @@ public class EntityWheelchair extends LivingEntity implements Mount
 				);
 	}
 	
+	public boolean canHaveStatusEffect(StatusEffectInstance effect) { return false; }
+	
+	public boolean hasStatusEffect(StatusEffect effect)
+	{
+		if(hasPassengers() && getControllingPassenger() instanceof LivingEntity)
+			return getControllingPassenger().hasStatusEffect(effect);
+		return false;
+	}
+	
+	public StatusEffectInstance getStatusEffect(StatusEffect effect)
+	{
+		if(hasPassengers() && getControllingPassenger() instanceof LivingEntity)
+			return getControllingPassenger().getStatusEffect(effect);
+		return null;
+	}
+	
+	public int getAir() { return 20; }
+	
 	public Iterable<ItemStack> getArmorItems() { return DefaultedList.ofSize(4, ItemStack.EMPTY); }
 	
 	public boolean canEquip(ItemStack stack) { return false; }
 	
-	public ItemStack getEquippedStack(EquipmentSlot var1) { return ItemStack.EMPTY; }
+	public ItemStack getEquippedStack(EquipmentSlot slot)
+	{
+		return slot == EquipmentSlot.FEET ? getEnchantments(getWheel(Arm.LEFT), getWheel(Arm.RIGHT)) : ItemStack.EMPTY;
+	}
+	
+	public static ItemStack getEnchantments(ItemStack leftWheel, ItemStack rightWheel)
+	{
+		ItemStack spoof = Items.STONE.getDefaultStack();
+		
+		Map<Enchantment, Integer> ench = EnchantmentHelper.get(leftWheel);
+		EnchantmentHelper.get(rightWheel).forEach((enchant,lvl) -> {
+			if(lvl > ench.get(enchant))
+				ench.put(enchant, lvl);
+		});
+		ench.forEach((enchant, lvl) -> spoof.addEnchantment(enchant, lvl));
+		
+		return spoof;
+	}
 	
 	public void equipStack(EquipmentSlot var1, ItemStack var2) { }
 	
 	public Arm getMainArm() { return Arm.RIGHT; }
-	
-	public void copyPartsFromItem(ItemStack stack)
-	{
-		getDataTracker().set(CHAIR, stack);
-		getDataTracker().set(COLOR, stack.getItem() instanceof DyeableItem ? OptionalInt.of(((DyeableItem)stack.getItem()).getColor(stack)) : OptionalInt.empty());
-		getDataTracker().set(LEFT_WHEEL, ItemWheelchair.getWheel(stack, Arm.LEFT));
-		getDataTracker().set(RIGHT_WHEEL, ItemWheelchair.getWheel(stack, Arm.RIGHT));
-	}
 	
 	public ItemStack getChair()
 	{
@@ -355,4 +496,25 @@ public class EntityWheelchair extends LivingEntity implements Mount
 	public ItemStack getWheel(Arm arm) { return arm == Arm.LEFT ? getLeftWheel() : getRightWheel(); }
 	public ItemStack getLeftWheel() { return getDataTracker().get(LEFT_WHEEL); }
 	public ItemStack getRightWheel() { return getDataTracker().get(RIGHT_WHEEL); }
+	
+	public boolean consumeOnAStickItem() { return this.saddledComponent.boost(this.getRandom()); }
+	
+	public static enum Upgrades implements StringIdentifiable
+	{
+		POWERED;
+
+		@Override
+		public String asString() { return name().toLowerCase(); }
+		
+		public Text translate() { return Text.translatable("upgrade."+Reference.ModInfo.MOD_ID+"."+asString()); }
+		
+		@Nullable
+		public static Upgrades fromString(String nameIn)
+		{
+			for(Upgrades upgrade : values())
+				if(upgrade.asString().equalsIgnoreCase(nameIn))
+					return upgrade;
+			return null;
+		}
+	}
 }

@@ -22,12 +22,18 @@ loom {
     splitEnvironmentSourceSets()
 
 	mods {
-		"modid" {
+		"wheelchairs" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}
 	}
+	
+	accessWidenerPath = file("src/main/resources/wheelchairs.accesswidener")
 
+}
+
+fabricApi {
+	configureDataGeneration()
 }
 
 dependencies {
