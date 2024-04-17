@@ -1,14 +1,16 @@
 package com.lying.wheelchairs.entity;
 
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import com.google.common.collect.Lists;
 import com.lying.wheelchairs.init.WHCItems;
+import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.item.ItemWheelchair;
-import com.lying.wheelchairs.reference.Reference;
 
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -22,6 +24,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ItemSteerable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mount;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.SaddledComponent;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -44,15 +47,15 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
@@ -65,8 +68,10 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	private static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
 	private static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
+
+	private static final TrackedData<NbtCompound> UPGRADES = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.NBT_COMPOUND);
 	
-	private static final TrackedData<Boolean> POWERED = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final TrackedData<Boolean> POWERED = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Integer> BOOST_TIME = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.INTEGER);
 	private final SaddledComponent saddledComponent;
 	
@@ -86,6 +91,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		this.getDataTracker().startTracking(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		
+		this.getDataTracker().startTracking(UPGRADES, new NbtCompound());
 		this.getDataTracker().startTracking(POWERED, false);
 		this.getDataTracker().startTracking(BOOST_TIME, 0);
 	}
@@ -118,7 +124,9 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 			getDataTracker().set(RIGHT_WHEEL, ItemStack.fromNbt(wheels.getCompound("Right")));
 		}
 		
-		getDataTracker().set(POWERED, data.getBoolean("Powered"));
+		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
+			setUpgrades(data.getList("Upgrades", NbtElement.STRING_TYPE));
+		
 		this.saddledComponent.readNbt(data);
 	}
 	
@@ -132,19 +140,86 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 			wheels.put("Left", getLeftWheel().writeNbt(new NbtCompound()));
 			wheels.put("Right", getRightWheel().writeNbt(new NbtCompound()));
 		data.put("Wheels", wheels);
-		data.putBoolean("Powered", getDataTracker().get(POWERED));
+		
+		data.put("Upgrades", getUpgradeList());
 		this.saddledComponent.writeNbt(data);
+	}
+	
+	protected void setUpgrades(NbtList data)
+	{
+		List<ChairUpgrade> oldSet = getUpgrades();
+		List<ChairUpgrade> newSet = WHCUpgrades.nbtToList(data);
+		
+		// Remove any upgrades currently applied that aren't in the new set
+		oldSet.forEach(upgrade -> 
+		{
+			if(!newSet.contains(upgrade))
+				upgrade.removeFrom(this);
+		});
+		
+		NbtCompound upgrades = new NbtCompound();
+		NbtList set = new NbtList();
+		for(int i=0; i<data.size(); i++)
+		{
+			String name = data.getString(i);
+			ChairUpgrade upgrade = WHCUpgrades.get(new Identifier(name));
+			if(upgrade == null)
+				continue;
+			
+			if(!oldSet.contains(upgrade))
+				upgrade.applyTo(this);
+			set.add(NbtString.of(name));
+		}
+		
+		upgrades.put("Set", set);
+		getDataTracker().set(UPGRADES, upgrades);
+	}
+	
+	public NbtList getUpgradeList()
+	{
+		NbtCompound data = getDataTracker().get(UPGRADES);
+		if(data.contains("Set", NbtElement.LIST_TYPE))
+			return data.getList("Set", NbtElement.STRING_TYPE);
+		else
+			return new NbtList();
+	}
+	
+	public List<ChairUpgrade> getUpgrades() { return WHCUpgrades.nbtToList(getUpgradeList()); }
+	
+	public boolean hasUpgrade(ChairUpgrade upgrade)
+	{
+		return getUpgrades().contains(upgrade);
+	}
+	
+	public void addUpgrade(ChairUpgrade upgrade)
+	{
+		if(hasUpgrade(upgrade))
+			return;
+		
+		NbtList upgrades = getUpgradeList();
+		upgrades.add(NbtString.of(upgrade.registryName().toString()));
+		setUpgrades(upgrades);
 	}
 	
 	public ActionResult interact(PlayerEntity player, Hand hand)
 	{
 		ItemStack heldStack = player.getStackInHand(hand);
-		if(heldStack.getItem() == Items.FURNACE_MINECART && player.shouldCancelInteraction() && !saddledComponent.isSaddled())
+		if(player.shouldCancelInteraction())
 		{
-			getDataTracker().set(POWERED, true);
-			if(!player.getAbilities().creativeMode)
-				heldStack.decrement(1);
-			return ActionResult.success(getWorld().isClient());
+			List<ChairUpgrade> possibleUpgrades = Lists.newArrayList();
+			WHCUpgrades.fromItem(heldStack).forEach(upgr -> 
+			{
+				if(!hasUpgrade(upgr))
+					possibleUpgrades.add(upgr);
+			});
+			
+			if(!possibleUpgrades.isEmpty())
+			{
+				addUpgrade(possibleUpgrades.toArray(new ChairUpgrade[0])[0]);
+				if(!player.getAbilities().creativeMode)
+					heldStack.decrement(1);
+				return ActionResult.success(getWorld().isClient());
+			}
 		}
 		
 		if(!hasPassengers())
@@ -173,10 +248,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		if(chair.hasColor() && stack.getItem() instanceof ItemWheelchair)
 			((ItemWheelchair)stack.getItem()).setColor(stack, chair.getColor());
 		
-		NbtList upgrades = new NbtList();
-		if(chair.saddledComponent.isSaddled())
-			upgrades.add(NbtString.of(Upgrades.POWERED.asString()));
-		stack.getNbt().put("Upgrades", upgrades);
+		stack.getNbt().put("Upgrades", chair.getUpgradeList());
 		
 		return stack;
 	}
@@ -190,20 +262,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		
 		NbtCompound stackData = stack.getNbt();
 		if(stackData.contains("Upgrades", NbtElement.LIST_TYPE))
-		{
-			NbtList upgrades = stackData.getList("Upgrades", NbtElement.STRING_TYPE);
-			for(int i=0; i<upgrades.size(); i++)
-			{
-				Upgrades upgrade = Upgrades.fromString(upgrades.getString(i));
-				switch(upgrade)
-				{
-					case POWERED:
-						getDataTracker().set(POWERED, true);
-					default:
-						break;
-				}
-			}
-		}
+			setUpgrades(stackData.getList("Upgrades", NbtElement.STRING_TYPE));
 	}
 	
 	protected boolean putPlayerInChair(PlayerEntity player)
@@ -226,34 +285,10 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	
 	public int getDefaultPortalCooldown() { return 10; }
 	
-	/** Returns true if the wheelchair is under manual control ie. not using a wheelchair controller */
-	public boolean isManual(PlayerEntity controllingPlayer) { return !(controllingPlayer.isHolding(WHCItems.CONTROLLER) && saddledComponent.isSaddled()); }
+	public boolean canStartRiding(Entity entity) { return false; }
 	
-	// FIXME Ensure that manual control appropriately uses up player hunger
-	public void tickMovement()
-	{
-		double deltaX = this.getX();
-		double deltaY = this.getY();
-		double deltaZ = this.getZ();
-		super.tickMovement();
-		deltaX = getX() - deltaX;
-		deltaY = getY() - deltaY;
-		deltaZ = getZ() - deltaZ;
-		
-		if(hasPassengers())
-		{
-			PlayerEntity controllingPlayer = getControllingPassenger() == null || getControllingPassenger().getType() != EntityType.PLAYER ? null : (PlayerEntity)getControllingPassenger();
-			if(controllingPlayer == null || !isManual(controllingPlayer))
-				return;
-			
-			int i = Math.round((float)Math.sqrt(deltaX * deltaX + deltaZ * deltaZ) * 100.0f);
-			if(i > 0)
-				if(controllingPlayer.isSprinting())
-					controllingPlayer.getHungerManager().addExhaustion(0.1F * (float)i * 0.01F);
-				else
-					controllingPlayer.getHungerManager().addExhaustion(0F * (float)i * 0.01F);
-		}
-	}
+	/** Returns true if the wheelchair is under manual control ie. not using a wheelchair controller */
+	public boolean isManual(PlayerEntity controllingPlayer) { return !(hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER)); }
 	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
@@ -265,11 +300,36 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		}
 		
 		Vec2f orientation = getControlledRotation(controllingPlayer);
-		this.setRotation(orientation.y, orientation.x);
-		this.bodyYaw = this.headYaw = this.getYaw();
-		this.prevYaw = this.headYaw;
+		if(movementInput.length() > 0 || !hasUpgrade(WHCUpgrades.POWERED))
+		{
+			this.setRotation(orientation.y, orientation.x);
+			this.prevYaw = this.headYaw;
+			this.bodyYaw = this.headYaw = this.getYaw();
+		}
 		
 		this.saddledComponent.tickBoost();
+	}
+	
+	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
+	{
+		super.updatePassengerPosition(passenger, positionUpdater);
+		if(passenger instanceof LivingEntity)
+			clampPassengerYaw(passenger);
+	}
+	
+	public void onPassengerLookAround(Entity passenger)
+	{
+		clampPassengerYaw(passenger);
+	}
+	
+	protected void clampPassengerYaw(Entity passenger)
+	{
+		passenger.setBodyYaw(this.getYaw());
+		float f = MathHelper.wrapDegrees(passenger.getYaw() - this.getYaw());
+		float g = MathHelper.clamp(f, -105F, 105F);
+		passenger.prevYaw += g - f;
+		passenger.setYaw(passenger.getYaw() + g - f);
+		passenger.setHeadYaw(passenger.getYaw());
 	}
 	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
@@ -358,10 +418,41 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * (isManual(controllingPlayer) ? 1 : this.saddledComponent.getMovementSpeedMultiplier());
 	}
 	
+	public void move(MovementType type, Vec3d movementInput)
+	{
+		double x = getX();
+		double z = getZ();
+		super.move(type, movementInput);
+		this.tickExhaustion(getX() - x, getZ() - z);
+	}
+	
+	protected void tickExhaustion(double deltaX, double deltaZ)
+	{
+		if(getWorld().isClient() || !hasPassengers()) return;
+		
+		PlayerEntity rider = getControllingPassenger() == null || getControllingPassenger().getType() != EntityType.PLAYER ? null : (PlayerEntity)getControllingPassenger();
+		if(rider == null || !isManual(rider))
+			return;
+		
+		int i = Math.round((float)Math.sqrt(deltaX * deltaX + deltaZ * deltaZ) * 100.0f);
+		if(i > 0)
+		{
+			float exhaust = 0F;
+			if(rider.isSprinting())
+				exhaust = 0.1F * (float)i * 0.01F;
+			else if(rider.isSneaking())	// These last two formulae always equal zero but are here for consistency with {@link ServerPlayerEntity}
+				exhaust = 0.0f * (float)i * 0.01f;
+			else
+				exhaust = 0F * (float)i * 0.01F;
+			
+			rider.addExhaustion(exhaust);
+		}
+	}
+	
 	public boolean canSprintAsVehicle()
 	{
 		LivingEntity player = getControllingPassenger();
-		return (player.getType() == EntityType.PLAYER && isManual((PlayerEntity)player)) && !saddledComponent.isSaddled();
+		return player.getType() == EntityType.PLAYER && !hasUpgrade(WHCUpgrades.POWERED);
 	}
 	
 	public int getEnchantmentLevel(Enchantment ench)
@@ -372,13 +463,6 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
 	{
 		return new Vector3f(0F, dimensions.height * 0.85F * scaleFactor, 0F);
-	}
-	
-	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
-	{
-		super.updatePassengerPosition(passenger, positionUpdater);
-		if(passenger instanceof LivingEntity)
-			((LivingEntity)passenger).bodyYaw = this.bodyYaw;
 	}
 	
 	public Vec3d updatePassengerForDismount(LivingEntity passenger)
@@ -498,23 +582,4 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	public ItemStack getRightWheel() { return getDataTracker().get(RIGHT_WHEEL); }
 	
 	public boolean consumeOnAStickItem() { return this.saddledComponent.boost(this.getRandom()); }
-	
-	public static enum Upgrades implements StringIdentifiable
-	{
-		POWERED;
-
-		@Override
-		public String asString() { return name().toLowerCase(); }
-		
-		public Text translate() { return Text.translatable("upgrade."+Reference.ModInfo.MOD_ID+"."+asString()); }
-		
-		@Nullable
-		public static Upgrades fromString(String nameIn)
-		{
-			for(Upgrades upgrade : values())
-				if(upgrade.asString().equalsIgnoreCase(nameIn))
-					return upgrade;
-			return null;
-		}
-	}
 }

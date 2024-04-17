@@ -5,10 +5,11 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.lying.wheelchairs.entity.ChairUpgrade;
 import com.lying.wheelchairs.entity.EntityWheelchair;
-import com.lying.wheelchairs.entity.EntityWheelchair.Upgrades;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
+import com.lying.wheelchairs.init.WHCUpgrades;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
@@ -27,6 +28,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -88,7 +90,11 @@ public class ItemWheelchair extends Item implements DyeableItem
 		{
 			tooltip.add(Text.translatable("gui.wheelchairs.upgrades"));
 			for(int i = 0; i<upgrades.size(); i++)
-				tooltip.add(Text.literal(" * ").append(Upgrades.fromString(upgrades.getString(i)).translate()));
+			{
+				ChairUpgrade upgrade = WHCUpgrades.get(new Identifier(upgrades.getString(i)));
+				if(upgrade != null)
+					tooltip.add(Text.literal(" * ").append(upgrade.translate()));
+			}
 		}
 		
 		ItemStack.appendEnchantments(tooltip, EntityWheelchair.getEnchantments(getWheel(stack, Arm.LEFT), getWheel(stack, Arm.RIGHT)).getEnchantments());

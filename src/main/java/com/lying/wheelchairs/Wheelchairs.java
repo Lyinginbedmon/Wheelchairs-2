@@ -7,6 +7,7 @@ import com.lying.wheelchairs.init.WHCBlocks;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCSpecialRecipes;
+import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.utility.ServerBus;
 
@@ -23,5 +24,6 @@ public class Wheelchairs implements ModInitializer
 		WHCBlocks.init();
 		WHCEntityTypes.init();
 		WHCSpecialRecipes.init();
+		WHCUpgrades.init();
 	}
 }
