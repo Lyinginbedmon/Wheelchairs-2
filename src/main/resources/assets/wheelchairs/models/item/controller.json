@@ -1,7 +1,68 @@
 {
-    "parent": "item/generated",
-    "textures":
-    {
-    	"layer0": "wheelchairs:item/controller"
-    }
+    "textures": {
+		"particle": "block/anvil",
+		"base": "block/anvil",
+		"hat": "block/redstone_block",
+		"stick": "block/oak_planks"
+	},
+	"elements": [
+		{
+			"name": "base",
+			"from": [6.5, 7, 5],
+			"to": [9.5, 9, 10],
+			"faces": {
+				"north": {"uv": [0, 0, 3, 2], "texture": "#base"},
+				"east": {"uv": [0, 0, 5, 2], "texture": "#base"},
+				"south": {"uv": [0, 0, 3, 2], "texture": "#base"},
+				"west": {"uv": [0, 0, 5, 2], "texture": "#base"},
+				"up": {"uv": [0, 0, 3, 5], "texture": "#base"},
+				"down": {"uv": [0, 0, 3, 5], "texture": "#base"}
+			}
+		},
+		{
+			"name": "stick",
+			"from": [7.5, 9, 8],
+			"to": [8.5, 11, 9],
+			"faces": {
+				"north": {"uv": [0, 0, 1, 2], "texture": "#stick"},
+				"east": {"uv": [0, 0, 1, 2], "texture": "#stick"},
+				"south": {"uv": [0, 0, 1, 2], "texture": "#stick"},
+				"west": {"uv": [0, 0, 1, 2], "texture": "#stick"},
+				"up": {"uv": [0, 0, 1, 1], "texture": "#stick"},
+				"down": {"uv": [0, 0, 1, 1], "texture": "#stick"}
+			}
+		},
+		{
+			"name": "hat",
+			"from": [7, 11, 7.5],
+			"to": [9, 13, 9.5],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 2], "texture": "#hat"},
+				"east": {"uv": [0, 0, 2, 2], "texture": "#hat"},
+				"south": {"uv": [0, 0, 2, 2], "texture": "#hat"},
+				"west": {"uv": [0, 0, 2, 2], "texture": "#hat"},
+				"up": {"uv": [0, 0, 2, 2], "texture": "#hat"},
+				"down": {"uv": [0, 0, 2, 2], "texture": "#hat"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [44.25, 0, 0],
+			"translation": [0, 0.25, 0]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [44.25, 0, 0],
+			"translation": [0, 0.25, 0]
+		},
+		"gui": {
+			"rotation": [30, 225, 0],
+			"translation": [0, -2.75, 0],
+			"scale": [1.76563, 1.76563, 1.76563]
+		},
+		"fixed": {
+			"translation": [0, -3, 0],
+			"scale": [2.24414, 2.24414, 2.24414]
+		}
+	}
 }

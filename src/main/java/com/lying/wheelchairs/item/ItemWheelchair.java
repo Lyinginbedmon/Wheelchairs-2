@@ -45,6 +45,13 @@ public class ItemWheelchair extends Item implements DyeableItem
 		super(settings);
 	}
 	
+	public static ItemStack withWheels(Item chair, Item wheels)
+	{
+		ItemStack defaultStack = chair.getDefaultStack();
+		setWheels(defaultStack, wheels.getDefaultStack(), wheels.getDefaultStack());
+		return defaultStack;
+	}
+	
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		Direction direction = context.getSide();
 		if(direction == Direction.DOWN)
@@ -113,7 +120,7 @@ public class ItemWheelchair extends Item implements DyeableItem
 	
 	public static void setWheels(ItemStack stack, ItemStack left, ItemStack right)
 	{
-		NbtCompound data = stack.hasNbt() ? stack.getNbt() : new NbtCompound();
+		NbtCompound data = stack.getOrCreateNbt();
 		
 		NbtCompound wheels = new NbtCompound();
 		wheels.put("Left", left.writeNbt(new NbtCompound()));

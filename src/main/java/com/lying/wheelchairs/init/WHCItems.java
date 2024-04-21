@@ -55,14 +55,17 @@ public class WHCItems
     
     public static final ItemGroup WHEELCHAIR_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(WHEELCHAIR_OAK)).displayName(Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group")).entries((ctx,entries) -> 
 	    {
-			entries.add(WHEELCHAIR_OAK);
-			entries.add(WHEELCHAIR_SPRUCE);
-			entries.add(WHEELCHAIR_BIRCH);
-			entries.add(WHEELCHAIR_DARK_OAK);
-			entries.add(WHEELCHAIR_JUNGLE);
-			entries.add(WHEELCHAIR_ACACIA);
-			entries.add(WHEELCHAIR_CRIMSON);
-			entries.add(WHEELCHAIR_WARPED);
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_OAK, WHEEL_OAK));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_SPRUCE, WHEEL_SPRUCE));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_BIRCH, WHEEL_BIRCH));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_DARK_OAK, WHEEL_DARK_OAK));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_JUNGLE, WHEEL_JUNGLE));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_ACACIA, WHEEL_ACACIA));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_CRIMSON, WHEEL_CRIMSON));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_WARPED, WHEEL_WARPED));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_MANGROVE, WHEEL_MANGROVE));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_CHERRY, WHEEL_CHERRY));
+			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_BAMBOO, WHEEL_BAMBOO));
 			
 			entries.add(WHEEL_OAK);
 			entries.add(WHEEL_SPRUCE);
@@ -72,6 +75,9 @@ public class WHCItems
 			entries.add(WHEEL_ACACIA);
 			entries.add(WHEEL_CRIMSON);
 			entries.add(WHEEL_WARPED);
+			entries.add(WHEEL_MANGROVE);
+			entries.add(WHEEL_CHERRY);
+			entries.add(WHEEL_BAMBOO);
 			
 			entries.add(CONTROLLER);
 	    }).build();

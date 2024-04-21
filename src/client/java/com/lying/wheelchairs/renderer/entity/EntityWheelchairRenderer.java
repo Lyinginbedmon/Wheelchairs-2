@@ -63,6 +63,9 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 			// Upgrades
 			entity.getUpgrades().forEach(upgrade -> 
 			{
+				if(!upgrade.hasModel())
+					return;
+				
 				matrices.push();
 					matrices.translate(-0.5F, 0F, -0.5F);
 					modelRenderer.render(matrices.peek(), vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout()), null, bakedModelManager.getModel(upgradeModel(upgrade.registryName())), r, g, b, light, OverlayTexture.DEFAULT_UV);

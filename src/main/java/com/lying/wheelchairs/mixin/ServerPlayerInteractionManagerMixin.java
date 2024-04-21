@@ -18,6 +18,10 @@ public class ServerPlayerInteractionManagerMixin
 	@Shadow
 	protected ServerPlayerEntity player;
 	
+	/**
+	 * Used only to implement the player-change-game-mode event.<br>
+	 * This is then used in {@link ServerBus} to manage wheelchairs de/respawning when riders enter/exit Spectator mode.
+	 */
 	@Inject(method = "setGameMode(Lnet/minecraft/world/GameMode;Lnet/minecraft/world/GameMode;)V", at = @At("RETURN"), cancellable = false)
 	private void whc$setGameMode(GameMode gameMode, GameMode previousGameMode, final CallbackInfo ci)
 	{

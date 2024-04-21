@@ -51,6 +51,13 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_CRIMSON, Ingredient.ofItems(Blocks.CRIMSON_STEM), "crimson_wheelchair");
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_WARPED, Ingredient.ofItems(Blocks.WARPED_STEM), "warped_wheelchair");
 		WHEEL_GUIDE.entrySet().forEach(entry -> offerWheelRecipe(exporter, entry.getKey(), entry.getValue()));
+		
+		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER)
+			.pattern("j").pattern("b")
+			.input('j', Items.REDSTONE_TORCH)
+			.input('b', Blocks.OBSERVER)
+			.criterion(FabricRecipeProvider.hasItem(Items.REDSTONE_TORCH), FabricRecipeProvider.conditionsFromItem(Items.REDSTONE_TORCH))
+			.criterion(FabricRecipeProvider.hasItem(Blocks.OBSERVER), FabricRecipeProvider.conditionsFromItem(Blocks.OBSERVER)).offerTo(exporter);
 	}
 	
 	private static void offerWheelRecipe(RecipeExporter exporter, Item wheel, ItemConvertible slab)

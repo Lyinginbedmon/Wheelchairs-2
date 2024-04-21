@@ -46,6 +46,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
@@ -416,14 +417,19 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
-		double modifier = isOnGround() ? 1D : 0.7D;
+		double modifier = 1D;
+		if(!isOnGround())
+			if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > 0D)
+				modifier = 0.9D;
+			else
+				modifier = 0.7D;
 		Vec3d speed = isAutomatic(controllingPlayer) ? new Vec3d(0, 0, 1D) : new Vec3d(0, 0, controllingPlayer.forwardSpeed);
 		return speed.multiply(modifier);
 	}
 	
 	protected float getSaddledSpeed(PlayerEntity controllingPlayer)
 	{
-		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * (isManual(controllingPlayer) ? 1 : this.saddledComponent.getMovementSpeedMultiplier());
+		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * (isManual(controllingPlayer) ? 1F : this.saddledComponent.getMovementSpeedMultiplier());
 	}
 	
 	public void move(MovementType type, Vec3d movementInput)
@@ -432,6 +438,13 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		double z = getZ();
 		super.move(type, movementInput);
 		this.tickExhaustion(getX() - x, getZ() - z);
+	}
+	
+	public void travel(Vec3d movementInput)
+	{
+		if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > getSwimHeight())
+			addVelocity(0D, 0.08D, 0D);
+		super.travel(movementInput);
 	}
 	
 	protected void tickExhaustion(double deltaX, double deltaZ)

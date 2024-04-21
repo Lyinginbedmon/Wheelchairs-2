@@ -13,6 +13,7 @@ import net.minecraft.entity.LivingEntity;
 @Mixin(InGameHud.class)
 public class InGameHudMixin
 {
+	/** Used to allow for viewing player armour & health stats whilst riding a wheelchair */
 	@Inject(method = "getRiddenEntity()Lnet/minecraft/entity/LivingEntity;", at = @At("RETURN"), cancellable = true)
 	private void whc$getRiddenEntity(final CallbackInfoReturnable<LivingEntity> ci)
 	{
