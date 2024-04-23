@@ -38,6 +38,8 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -77,6 +79,8 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	private static final TrackedData<Integer> BOOST_TIME = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.INTEGER);
 	private final SaddledComponent saddledComponent;
 	
+	protected SimpleInventory items;
+	
 	public float spinLeft, spinRight;
 	
 	public EntityWheelchair(EntityType<? extends EntityWheelchair> entityType, World world)
@@ -84,6 +88,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		super(entityType, world);
 		this.setStepHeight(1.0f);
 		this.saddledComponent = new SaddledComponent(this.dataTracker, BOOST_TIME, POWERED);
+		this.onChestedStatusChanged();
 	}
 	
 	public void initDataTracker()
@@ -131,7 +136,18 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
 			setUpgrades(data.getList("Upgrades", NbtElement.STRING_TYPE));
 		
-		this.saddledComponent.readNbt(data);
+		this.onChestedStatusChanged();
+		if(this.hasUpgrade(WHCUpgrades.STORAGE))
+		{
+			NbtList items = data.getList("Items", NbtElement.COMPOUND_TYPE);
+			for(int i=0; i<items.size(); ++i)
+			{
+				NbtCompound nbt = items.getCompound(i);
+				int j = nbt.getByte("Slot") & 0xFF;
+				if (j < this.items.size())
+					this.items.setStack(j, ItemStack.fromNbt(nbt));
+			}
+		}
 	}
 	
 	public void writeCustomDataToNbt(NbtCompound data)
@@ -146,7 +162,20 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		data.put("Wheels", wheels);
 		
 		data.put("Upgrades", getUpgradeList());
-		this.saddledComponent.writeNbt(data);
+		if(hasUpgrade(WHCUpgrades.STORAGE))
+		{
+			NbtList items = new NbtList();
+			for(int i=0; i<this.items.size(); ++i)
+			{
+				ItemStack stack = this.items.getStack(i);
+				if(stack.isEmpty()) continue;
+				NbtCompound nbt = new NbtCompound();
+				nbt.putByte("Slot", (byte)i);
+				stack.writeNbt(nbt);
+				items.add(nbt);
+			}
+			data.put("Items", items);
+		}
 	}
 	
 	protected void setUpgrades(NbtList data)
@@ -203,6 +232,37 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		NbtList upgrades = getUpgradeList();
 		upgrades.add(NbtString.of(upgrade.registryName().toString()));
 		setUpgrades(upgrades);
+		onChestedStatusChanged();
+	}
+	
+	public boolean hasInventory() { return hasUpgrade(WHCUpgrades.STORAGE); }
+	
+	public Inventory getInventory() { return this.items; }
+	
+	protected void onChestedStatusChanged()
+	{
+		SimpleInventory inv = this.items;
+		this.items = new SimpleInventory(15);
+		if(inv != null)
+			for(int j=0; j<Math.min(inv.size(), this.items.size()); ++j)
+			{
+				ItemStack stack = inv.getStack(j);
+				if(!stack.isEmpty())
+					this.items.setStack(j, stack.copy());
+			}
+	}
+	
+	public void dropInventory()
+	{
+		super.dropInventory();
+		if(this.items != null)
+			for(int i=0; i<this.items.size(); ++i)
+			{
+				ItemStack stack = this.items.getStack(i);
+				if(stack.isEmpty() || EnchantmentHelper.hasVanishingCurse(stack)) continue;
+				this.dropStack(stack);
+				this.items.setStack(i, ItemStack.EMPTY);
+			}
 	}
 	
 	public ActionResult interact(PlayerEntity player, Hand hand)
@@ -235,6 +295,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 				if(!getWorld().isClient())
 				{
 					getWorld().spawnEntity(item);
+					dropInventory();
 					discard();
 				}
 				return ActionResult.CONSUME;
@@ -346,6 +407,19 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		passenger.setHeadYaw(passenger.getYaw());
 	}
 	
+	public void setRotation(float yaw, float pitch)
+	{
+		float prevYaw = getYaw();
+		super.setRotation(yaw, pitch);
+		
+		float amount = (getYaw() - prevYaw);
+		if(amount == 0F || amount == 360F)
+			return;
+		
+		this.spinLeft = clampRotation(this.spinLeft + amount);
+		this.spinRight = clampRotation(this.spinRight - amount);
+	}
+	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
 	public boolean canUsePortals() { return !hasVehicle() && !isSleeping(); }
 	
@@ -445,6 +519,30 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > getSwimHeight())
 			addVelocity(0D, 0.08D, 0D);
 		super.travel(movementInput);
+		
+		double speed = movementInput.getZ() * getMovementSpeed();
+		this.spinLeft = addSpin(this.spinLeft, (float)speed);
+		this.spinRight = addSpin(this.spinRight, (float)speed);
+	}
+	
+	private static float addSpin(float initial, float forwardSpeed)
+	{
+		if(forwardSpeed == 0F)
+			return initial;
+		
+		float amount = 360F / (float)(forwardSpeed / Math.PI);
+		return clampRotation(initial + amount);
+	}
+	
+	private static float clampRotation(float value)
+	{
+		if(value > 0F)
+			value %= 360F;
+		else
+			while(value < 0F)
+				value += 360F;
+		
+		return value;
 	}
 	
 	protected void tickExhaustion(double deltaX, double deltaZ)

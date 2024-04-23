@@ -32,6 +32,7 @@ public class WHCUpgrades
 	public static final ChairUpgrade STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
 			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))));
 	public static final ChairUpgrade FLOATING = register(ChairUpgrade.Builder.of("floating"));
+	
 	public static final ChairUpgrade GLIDER = register(ChairUpgrade.Builder.of("glider"));
 	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles"));
 	

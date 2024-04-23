@@ -1,5 +1,6 @@
 package com.lying.wheelchairs.utility;
 
+import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -10,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.GameRules;
 
 public class ServerBus
 {
@@ -37,6 +39,8 @@ public class ServerBus
 			
 			Entity vehicle = entity.getVehicle();
 			Chairspace chairs = Chairspace.getChairspace(entity.getServer());
+			if(!entity.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
+				((EntityWheelchair)vehicle).dropInventory();
 			chairs.storeChair(vehicle, entity.getUuid());
 		});
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, oldIsAlive) -> 

@@ -1,5 +1,7 @@
 {
 	"itemGroup.wheelchairs.item_group": "Wheelchairs",
+	"category.wheelchairs.keybindings": "Wheelchairs",
+	"key.wheelchairs.open_chair": "Open Wheelchair Inventory",
 	"entity.wheelchairs.wheelchair": "Wheelchair",
 	"item.wheelchairs.oak_wheelchair": "Oak Wheelchair",
 	"item.wheelchairs.spruce_wheelchair": "Spruce Wheelchair",
