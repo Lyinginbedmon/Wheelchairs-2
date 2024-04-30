@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lying.wheelchairs.init.WHCBlocks;
+import com.lying.wheelchairs.init.WHCEnchantments;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
@@ -26,6 +27,7 @@ public class Wheelchairs implements ModInitializer
 		ServerBus.registerEventCallbacks();
 		WHCItems.init();
 		WHCUpgrades.init();
+		WHCEnchantments.init();
 		WHCBlocks.init();
 		WHCEntityTypes.init();
 		WHCSpecialRecipes.init();

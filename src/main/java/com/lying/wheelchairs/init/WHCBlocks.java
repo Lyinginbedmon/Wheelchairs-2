@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.lying.wheelchairs.block.BlockFrostedLava;
 import com.lying.wheelchairs.reference.Reference;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -20,6 +21,8 @@ import net.minecraft.world.BlockView;
 public class WHCBlocks
 {
 	private static final Map<Identifier, Block> BLOCKS = new HashMap<>();
+	
+	public static final Block FROSTED_LAVA = register("frosted_lava", new BlockFrostedLava(FabricBlockSettings.create().ticksRandomly().luminance(state -> 3 + state.get(BlockFrostedLava.AGE) * 2).strength(0.5f).allowsSpawning((state, world, pos, entityType) -> entityType.isFireImmune())));
 	
 	private static Block register(String nameIn, Block blockIn)
 	{

@@ -106,8 +106,6 @@ public class ItemWheelchair extends Item implements DyeableItem
 					tooltip.add(Text.literal(" * ").append(upgrade.translate()));
 			}
 		}
-		
-		ItemStack.appendEnchantments(tooltip, EntityWheelchair.getEnchantments(getWheel(stack, Arm.LEFT), getWheel(stack, Arm.RIGHT)).getEnchantments());
 	}
 	
 	public static Iterable<ItemStack> getWheels(ItemStack stack)
@@ -145,5 +143,18 @@ public class ItemWheelchair extends Item implements DyeableItem
 			}
 		}
 		return wheel;
+	}
+	
+	public static boolean hasUpgrade(ItemStack stack, ChairUpgrade upgrade)
+	{
+		NbtCompound data = stack.getOrCreateNbt();
+		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
+		{
+			NbtList list = data.getList("Upgrades", NbtElement.STRING_TYPE);
+			for(int i=0; i<list.size(); i++)
+				if(list.getString(i).equals(upgrade.registryName().toString()))
+					return true;
+		}
+		return false;
 	}
 }

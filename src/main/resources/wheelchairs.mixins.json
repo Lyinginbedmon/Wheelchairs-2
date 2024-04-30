@@ -3,7 +3,10 @@
 	"package": "com.lying.wheelchairs.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ServerPlayerInteractionManagerMixin"
+		"ServerPlayerInteractionManagerMixin",
+		"EnchantmentMixin",
+		"EnchantmentHelperMixin",
+		"ItemEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

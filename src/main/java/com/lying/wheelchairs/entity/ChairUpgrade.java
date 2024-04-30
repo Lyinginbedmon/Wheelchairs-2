@@ -19,12 +19,14 @@ public class ChairUpgrade
 	private final Predicate<ItemStack> isKeyItem;
 	private final boolean hasModel;
 	private final Consumer<EntityWheelchair> onApplied, onRemoved;
+	private final Predicate<EntityWheelchair> isValid;
 	
-	protected ChairUpgrade(Identifier nameIn, boolean modelled, Predicate<ItemStack> keyItem, Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed)
+	protected ChairUpgrade(Identifier nameIn, boolean modelled, Predicate<ItemStack> keyItem, Predicate<EntityWheelchair> valid, Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed)
 	{
 		this.name = nameIn;
 		this.hasModel = modelled;
 		this.isKeyItem = keyItem;
+		this.isValid = valid;
 		this.onApplied = applied;
 		this.onRemoved = removed;
 	}
@@ -34,6 +36,8 @@ public class ChairUpgrade
 	public Text translate() { return Text.translatable("upgrade."+name.getNamespace()+"."+name.getPath()); }
 	
 	public boolean matches(ItemStack stack) { return isKeyItem.apply(stack); }
+	
+	public boolean canApplyTo(EntityWheelchair chair) { return !chair.hasUpgrade(this) && isValid.apply(chair); }
 	
 	public void applyTo(EntityWheelchair chair) { onApplied.accept(chair); }
 	
@@ -46,6 +50,7 @@ public class ChairUpgrade
 	{
 		private final Identifier name;
 		private Predicate<ItemStack> isKeyItem = Predicates.alwaysFalse();
+		private Predicate<EntityWheelchair> isValid = Predicates.alwaysTrue();
 		
 		private boolean hasModel = false;
 		
@@ -62,6 +67,12 @@ public class ChairUpgrade
 		public final Builder keyItem(Predicate<ItemStack> itemIn)
 		{
 			this.isKeyItem = itemIn;
+			return this;
+		}
+		
+		public final Builder isValid(Predicate<EntityWheelchair> validIn)
+		{
+			this.isValid = validIn;
 			return this;
 		}
 		
@@ -88,7 +99,7 @@ public class ChairUpgrade
 		
 		public ChairUpgrade build()
 		{
-			return new ChairUpgrade(name, hasModel, isKeyItem, onApplied, onRemoved);
+			return new ChairUpgrade(name, hasModel, isKeyItem, isValid, onApplied, onRemoved);
 		}
 	}
 }

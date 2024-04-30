@@ -27,6 +27,10 @@
 	"item.wheelchairs.bamboo_wheel": "Bamboo Wheel",
 	"item.wheelchairs.controller": "Chair Controller",
 	"upgrade.wheelchairs.powered": "Powered",
+	"upgrade.wheelchairs.storage": "Storage",
+	"upgrade.wheelchairs.netherite": "Netherite",
+	"upgrade.wheelchairs.floating": "Floating",
+	"upgrade.wheelchairs.diving": "Diving",
 	"gui.wheelchairs.wheelchair.wheel_left": " Left: %s",
 	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s",
 	"gui.wheelchairs.upgrades": "Upgrades:"
