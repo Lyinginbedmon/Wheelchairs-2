@@ -52,6 +52,10 @@ public class ItemWheelchair extends Item implements DyeableItem
 		return defaultStack;
 	}
 	
+	public boolean isEnchantable(ItemStack stack) { return getMaxCount() == 1; }
+	
+	public int getEnchantability() { return 5; }
+	
 	public ActionResult useOnBlock(ItemUsageContext context) {
 		Direction direction = context.getSide();
 		if(direction == Direction.DOWN)

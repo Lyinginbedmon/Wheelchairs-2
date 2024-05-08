@@ -43,5 +43,6 @@ public class WHCEnchantments
 		register(Enchantments.DEPTH_STRIDER);
 		register(Enchantments.FROST_WALKER);
 		register(Enchantments.FIRE_PROTECTION);
+		register(Enchantments.RESPIRATION);
 	}
 }

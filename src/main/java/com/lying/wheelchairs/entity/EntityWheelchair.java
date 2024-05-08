@@ -27,8 +27,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ItemSteerable;
+import net.minecraft.entity.JumpingMount;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Mount;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.SaddledComponent;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -72,7 +72,7 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
-public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerable
+public class EntityWheelchair extends LivingEntity implements JumpingMount, ItemSteerable
 {
 	private static final TrackedData<ItemStack> CHAIR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
@@ -86,6 +86,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	private final SaddledComponent saddledComponent;
 	
 	protected SimpleInventory items;
+	protected float jumpStrength = 0F;
 	
 	public float spinLeft, spinRight;
 	
@@ -241,6 +242,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		onChestedStatusChanged();
 	}
 	
+	/** Returns true if this wheelchair has the Storage upgrade */
 	public boolean hasInventory() { return hasUpgrade(WHCUpgrades.STORAGE); }
 	
 	public Inventory getInventory() { return this.items; }
@@ -277,11 +279,10 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		if(player.shouldCancelInteraction())
 		{
 			List<ChairUpgrade> possibleUpgrades = Lists.newArrayList();
-			WHCUpgrades.fromItem(heldStack, this).stream().findFirst().ifPresent(upgr -> possibleUpgrades.add(upgr));
-			
+			possibleUpgrades.addAll(WHCUpgrades.fromItem(heldStack, this));
 			if(!possibleUpgrades.isEmpty())
 			{
-				addUpgrade(possibleUpgrades.toArray(new ChairUpgrade[0])[0]);
+				addUpgrade(possibleUpgrades.stream().findFirst().get());
 				if(!player.getAbilities().creativeMode)
 					heldStack.decrement(1);
 				return ActionResult.success(getWorld().isClient());
@@ -291,15 +292,7 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		if(!hasPassengers())
 			if(player.shouldCancelInteraction())
 			{
-				ItemStack stack = chairToItem(this);
-				
-				ItemEntity item = new ItemEntity(getWorld(), getX(), getY(), getZ(), stack);
-				if(!getWorld().isClient())
-				{
-					getWorld().spawnEntity(item);
-					dropInventory();
-					discard();
-				}
+				this.convertToItem(null);
 				return ActionResult.CONSUME;
 			}
 			else if(!this.getWorld().isClient())
@@ -330,6 +323,21 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		NbtCompound stackData;
 		if(stack.hasNbt() && (stackData = stack.getNbt()).contains("Upgrades", NbtElement.LIST_TYPE))
 			setUpgrades(stackData.getList("Upgrades", NbtElement.STRING_TYPE));
+	}
+	
+	/** Converts this wheelchair into an ItemEntity or (if a player is supplied) an ItemStack in a player's inventory */
+	public void convertToItem(@Nullable PlayerEntity player)
+	{
+		if(!getWorld().isClient())
+		{
+			ItemStack stack = chairToItem(this);
+			ItemEntity item = new ItemEntity(getWorld(), getX(), getY(), getZ(), stack);
+			dropInventory();
+			
+			if(player == null || !player.getInventory().insertStack(stack))
+				getWorld().spawnEntity(item);
+			discard();
+		}
 	}
 	
 	protected boolean putPlayerInChair(PlayerEntity player)
@@ -390,11 +398,15 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 		
 		this.saddledComponent.tickBoost();
 		
-		if(!controllingPlayer.isOnFire() && EnchantmentHelper.getLevel(Enchantments.FIRE_PROTECTION, getChair()) > 0)
-			controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 5 * Reference.Values.TICKS_PER_SECOND * EnchantmentHelper.getLevel(Enchantments.FIRE_PROTECTION, getChair()), 0, false, false, true));
+		ItemStack chair = getChair();
+		if(!controllingPlayer.isOnFire() && EnchantmentHelper.getLevel(Enchantments.FIRE_PROTECTION, chair) > 0)
+			controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 5 * Reference.Values.TICKS_PER_SECOND * EnchantmentHelper.getLevel(Enchantments.FIRE_PROTECTION, chair), 0, false, false, true));
+		if(!isSubmergedIn(FluidTags.WATER) && EnchantmentHelper.getLevel(Enchantments.RESPIRATION, chair) > 0)
+			controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 5 * Reference.Values.TICKS_PER_SECOND * EnchantmentHelper.getLevel(Enchantments.RESPIRATION, chair), 0, false, false, true));
 		
-		if(!isSubmergedIn(FluidTags.WATER) && hasUpgrade(WHCUpgrades.DIVING))
-			controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 200, 0, false, false, true));
+		if(this.jumpStrength > 0F)
+			this.jump();
+		this.jumpStrength = 0F;
 	}
 	
 	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
@@ -434,6 +446,8 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
 	public boolean canUsePortals() { return !hasVehicle() && !isSleeping(); }
+	
+	public boolean isClimbing() { return super.isClimbing() && !hasUpgrade(WHCUpgrades.POWERED); }
 	
 	public Entity moveToWorld(ServerWorld destination)
 	{
@@ -745,4 +759,18 @@ public class EntityWheelchair extends LivingEntity implements Mount, ItemSteerab
 	public ItemStack getRightWheel() { return getWheel(getDataTracker().get(RIGHT_WHEEL)); }
 	
 	public boolean consumeOnAStickItem() { return this.saddledComponent.boost(this.getRandom()); }
+	
+	public void setJumpStrength(int strength)
+	{
+		if(strength < 0)
+			strength = 0;
+		
+		this.jumpStrength = strength > 0 ? 1F : 0F;
+	}
+	
+	public boolean canJump() { return hasUpgrade(WHCUpgrades.DIVING) && isSubmergedIn(FluidTags.WATER); }
+	
+	public void startJumping(int var1) { }
+	
+	public void stopJumping() { }
 }

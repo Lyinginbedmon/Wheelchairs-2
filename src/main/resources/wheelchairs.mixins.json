@@ -6,6 +6,7 @@
 		"ServerPlayerInteractionManagerMixin",
 		"EnchantmentMixin",
 		"EnchantmentHelperMixin",
+		"EntityMixin",
 		"ItemEntityMixin"
 	],
 	"injectors": {
