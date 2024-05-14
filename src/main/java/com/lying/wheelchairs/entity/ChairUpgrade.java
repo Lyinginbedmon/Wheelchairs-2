@@ -76,26 +76,26 @@ public class ChairUpgrade
 	
 	public void onStartRiding(LivingEntity rider)
 	{
-		System.out.println("Applied chair modifiers");
-		this.attributeModifiers.entrySet().forEach(entry -> 
-		{
-			EntityAttributeInstance instance = rider.getAttributes().getCustomInstance(entry.getKey());
-			if(instance == null) return;
-			
-			instance.removeModifier(entry.getValue().getUuid());
-			instance.addTemporaryModifier(entry.getValue().createAttributeModifier(0));
-		});
+		if(!this.attributeModifiers.isEmpty())
+			this.attributeModifiers.entrySet().forEach(entry -> 
+			{
+				EntityAttributeInstance instance = rider.getAttributes().getCustomInstance(entry.getKey());
+				if(instance == null) return;
+				
+				instance.removeModifier(entry.getValue().getUuid());
+				instance.addTemporaryModifier(entry.getValue().createAttributeModifier(0));
+			});
 	}
 	
 	public void onStopRiding(LivingEntity rider)
 	{
-		System.out.println("Removed chair modifiers");
-		this.attributeModifiers.entrySet().forEach(entry -> 
-		{
-			EntityAttributeInstance instance = rider.getAttributes().getCustomInstance(entry.getKey());
-			if(instance != null)
-				instance.removeModifier(entry.getValue().getUuid());
-		});
+		if(!this.attributeModifiers.isEmpty())
+			this.attributeModifiers.entrySet().forEach(entry -> 
+			{
+				EntityAttributeInstance instance = rider.getAttributes().getCustomInstance(entry.getKey());
+				if(instance != null)
+					instance.removeModifier(entry.getValue().getUuid());
+			});
 	}
 	
 	public boolean hasModel() { return hasModel; }

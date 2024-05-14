@@ -7,7 +7,9 @@
 		"EnchantmentMixin",
 		"EnchantmentHelperMixin",
 		"EntityMixin",
-		"ItemEntityMixin"
+		"ItemEntityMixin",
+		"ServerPlayerEntityMixin",
+		"ServerPlayNetworkHandlerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

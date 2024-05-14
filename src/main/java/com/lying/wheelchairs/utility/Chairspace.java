@@ -61,6 +61,8 @@ public class Chairspace extends PersistentState
 		return chairs;
 	}
 	
+	public boolean hasChairFor(UUID ownerID) { return storage.containsKey(ownerID); }
+	
 	public void storeChair(Entity ent, UUID ownerID)
 	{
 		NbtCompound data = new NbtCompound();
