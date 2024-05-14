@@ -6,6 +6,7 @@
 		"ServerPlayerInteractionManagerMixin",
 		"EnchantmentMixin",
 		"EnchantmentHelperMixin",
+		"FireworkRocketItemMixin",
 		"EntityMixin",
 		"ItemEntityMixin",
 		"ServerPlayerEntityMixin",

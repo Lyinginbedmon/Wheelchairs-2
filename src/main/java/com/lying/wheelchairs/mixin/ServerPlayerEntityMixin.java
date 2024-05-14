@@ -23,7 +23,7 @@ public class ServerPlayerEntityMixin
 		{
 			// Store chair in Chairspace, it will be respawned by {@link ServerPlayNetworkHandlerMixin}
 			Chairspace chairs = Chairspace.getChairspace(player.getServer());
-			player.stopRiding();
+			player.dismountVehicle();
 			chairs.storeChair(vehicle, player.getUuid());
 			
 			player.requestTeleport(destX, destY, destZ);

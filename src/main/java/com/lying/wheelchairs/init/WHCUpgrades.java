@@ -39,8 +39,9 @@ public class WHCUpgrades
 			.keyItem(Items.LEATHER)
 			.incompatible(() -> List.of(WHCUpgrades.FLOATING, WHCUpgrades.POWERED)));
 	
-	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")
-			.keyItem(Items.ELYTRA));
+	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")	// FIXME Add model, ref hanglider
+			.keyItem(Items.ELYTRA)
+			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
 	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles"));
 	
 	private static ChairUpgrade register(ChairUpgrade.Builder builder)

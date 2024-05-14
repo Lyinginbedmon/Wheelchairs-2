@@ -3,7 +3,8 @@
 	"package": "com.lying.wheelchairs.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"client": [
-		"InGameHudMixin"
+		"InGameHudMixin",
+		"FireworkRocketItemMixinClient"
 	],
 	"injectors": {
 		"defaultRequire": 1

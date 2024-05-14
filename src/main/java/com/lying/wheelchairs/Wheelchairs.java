@@ -10,6 +10,7 @@ import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
 import com.lying.wheelchairs.init.WHCSpecialRecipes;
 import com.lying.wheelchairs.init.WHCUpgrades;
+import com.lying.wheelchairs.network.FlyingWheelchairRocketReceiver;
 import com.lying.wheelchairs.network.OpenInventoryScreenReceiver;
 import com.lying.wheelchairs.network.WHCPacketHandler;
 import com.lying.wheelchairs.reference.Reference;
@@ -34,5 +35,6 @@ public class Wheelchairs implements ModInitializer
 		WHCScreenHandlerTypes.init();
 		
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.OPEN_INVENTORY_ID, new OpenInventoryScreenReceiver());
+		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.FLYING_ROCKET_ID, new FlyingWheelchairRocketReceiver());
 	}
 }

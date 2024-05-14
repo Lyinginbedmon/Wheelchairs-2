@@ -82,6 +82,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	private static final TrackedData<NbtCompound> UPGRADES = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.NBT_COMPOUND);
 	
 	public static final TrackedData<Boolean> POWERED = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final TrackedData<Boolean> FLYING = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final TrackedData<Integer> BOOST_TIME = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.INTEGER);
 	private final SaddledComponent saddledComponent;
 	
@@ -109,6 +110,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		
 		this.getDataTracker().startTracking(UPGRADES, new NbtCompound());
 		this.getDataTracker().startTracking(POWERED, false);
+		this.getDataTracker().startTracking(FLYING, false);
 		this.getDataTracker().startTracking(BOOST_TIME, 0);
 	}
 	
@@ -155,6 +157,8 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 					this.items.setStack(j, ItemStack.fromNbt(nbt));
 			}
 		}
+		
+		this.getDataTracker().set(FLYING, data.getBoolean("IsFlying"));
 	}
 	
 	public void writeCustomDataToNbt(NbtCompound data)
@@ -183,6 +187,9 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			}
 			data.put("Items", items);
 		}
+		
+		if(hasUpgrade(WHCUpgrades.GLIDING))
+			data.putBoolean("IsFlying", isFlying());
 	}
 	
 	protected void setUpgrades(NbtList data)
@@ -376,13 +383,13 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			getWorld().addParticle(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0.0, 0.0, 0.0);
 		
 		if(hasUpgrade(WHCUpgrades.DIVING) && isSubmergedIn(FluidTags.WATER))
-			getWorld().addParticle(ParticleTypes.BUBBLE, getX(), getY() + 0.5, getZ(), 0.0, 0.0, 0.0);
+			getWorld().addParticle(ParticleTypes.BUBBLE, getX(), getY() + 1.5D, getZ(), 0.0, 0.0, 0.0);
 	}
 	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
 		super.tickControlled(controllingPlayer, movementMultiplier);
-		if(!isManual(controllingPlayer) && isSprinting())
+		if(!isManual(controllingPlayer) && (isSprinting() || isFlying()))
 		{
 			setSprinting(false);
 			controllingPlayer.setSprinting(false);
@@ -405,8 +412,26 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 5 * Reference.Values.TICKS_PER_SECOND * EnchantmentHelper.getLevel(Enchantments.RESPIRATION, chair), 0, false, false, true));
 		
 		if(this.jumpStrength > 0F)
-			this.jump();
+		{
+			if(!this.isOnGround() && hasUpgrade(WHCUpgrades.GLIDING))
+				this.startFallFlying();
+			else if(!isFlying())
+				jump();
+		}
 		this.jumpStrength = 0F;
+	}
+	
+	public void startFallFlying()
+	{
+		getDataTracker().set(FLYING, true);
+		this.setFlag(Entity.FALL_FLYING_FLAG_INDEX, true);
+	}
+	
+	public void stopFallFlying()
+	{
+		this.setFlag(Entity.FALL_FLYING_FLAG_INDEX, true);
+		this.setFlag(Entity.FALL_FLYING_FLAG_INDEX, false);
+		getDataTracker().set(FLYING, false);
 	}
 	
 	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
@@ -518,11 +543,14 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
 		double modifier = 1D;
-		if(!isOnGround())
+		if(isFlying())
+			return new Vec3d(this.sidewaysSpeed, this.upwardSpeed, this.forwardSpeed);
+		else if(!isOnGround() && !hasUpgrade(WHCUpgrades.GLIDING))
 			if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > 0D)
 				modifier = 0.9D;
 			else
 				modifier = 0.7D;
+		
 		Vec3d speed = isAutomatic(controllingPlayer) ? new Vec3d(0, 0, 1D) : new Vec3d(0, 0, controllingPlayer.forwardSpeed);
 		return speed.multiply(modifier);
 	}
@@ -538,6 +566,16 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		double z = getZ();
 		super.move(type, movementInput);
 		this.tickExhaustion(getX() - x, getZ() - z);
+	}
+	
+	public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource)
+	{
+		if(damageSource == getWorld().getDamageSources().fall() && isFlying())
+		{
+			stopFallFlying();
+			return false;
+		}
+		return super.handleFallDamage(fallDistance, damageMultiplier, damageSource);
 	}
 	
 	public void travel(Vec3d movementInput)
@@ -629,8 +667,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	
 	public boolean canSprintAsVehicle()
 	{
-		LivingEntity player = getControllingPassenger();
-		return player.getType() == EntityType.PLAYER && !hasUpgrade(WHCUpgrades.POWERED);
+		return !hasUpgrade(WHCUpgrades.POWERED) && getControllingPassenger() != null && getControllingPassenger().getType() == EntityType.PLAYER;
 	}
 	
 	public int getEnchantmentLevel(Enchantment ench)
@@ -768,9 +805,11 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		this.jumpStrength = strength > 0 ? 1F : 0F;
 	}
 	
-	public boolean canJump() { return hasUpgrade(WHCUpgrades.DIVING) && isSubmergedIn(FluidTags.WATER); }
+	public boolean canJump() { return hasUpgrade(WHCUpgrades.DIVING) && isSubmergedIn(FluidTags.WATER) || hasUpgrade(WHCUpgrades.GLIDING) && !isFlying(); }
 	
 	public void startJumping(int var1) { }
 	
 	public void stopJumping() { }
+	
+	public boolean isFlying() { return getDataTracker().get(FLYING).booleanValue(); }
 }
