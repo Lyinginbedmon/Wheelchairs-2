@@ -54,6 +54,22 @@ public class ServerBus
 		void afterChangeMount(LivingEntity living, @Nullable Entity nextMount, @Nullable Entity lastMount);
 	}
 	
+	public static final Event<DoubleJumpEvent> ON_DOUBLE_JUMP = EventFactory.createArrayBacked(DoubleJumpEvent.class, callbacks -> (living) -> 
+	{
+		for(DoubleJumpEvent callback : callbacks)
+			callback.onDoubleJump(living);
+	});
+	
+	/**
+	 * Fired when a living entity jumps in midair
+	 *
+	 */
+	@FunctionalInterface
+	public interface DoubleJumpEvent
+	{
+		void onDoubleJump(LivingEntity living);
+	}
+	
 	public static void registerEventCallbacks()
 	{
 		ServerBus.AFTER_LIVING_CHANGE_MOUNT.register(EVENT_FIRST, (living, next, last) -> 

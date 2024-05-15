@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.lying.wheelchairs.init.WHCEntityTypes;
-import com.lying.wheelchairs.network.FlyingWheelchairRocketPacket;
+import com.lying.wheelchairs.entity.IFlyingMount;
+import com.lying.wheelchairs.network.FlyingMountRocketPacket;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FireworkRocketItem;
@@ -20,11 +20,14 @@ public class FireworkRocketItemMixinClient
 	@Inject(method = "use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;", at = @At("HEAD"), cancellable = true)
 	private void whc$use(World world, PlayerEntity user, Hand hand, final CallbackInfoReturnable<TypedActionResult<?>> ci)
 	{
-		if(user.hasVehicle() && user.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR)
+		if(user.hasVehicle() && user.getVehicle() instanceof IFlyingMount)
 		{
-			// FIXME Ensure override is only applied IF wheelchair is in fall-flying state
-			FlyingWheelchairRocketPacket.send(hand);
-			ci.setReturnValue(TypedActionResult.success(user.getStackInHand(hand), true));
+			IFlyingMount mount = (IFlyingMount)user.getVehicle();
+			if(mount.canUseRocketNow())
+			{
+				FlyingMountRocketPacket.send(hand);
+				ci.setReturnValue(TypedActionResult.success(user.getStackInHand(hand), true));
+			}
 		}
 	}
 }

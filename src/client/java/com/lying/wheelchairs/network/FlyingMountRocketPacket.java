@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Hand;
 
-public class FlyingWheelchairRocketPacket
+public class FlyingMountRocketPacket
 {
 	public static void send(Hand hand)
 	{

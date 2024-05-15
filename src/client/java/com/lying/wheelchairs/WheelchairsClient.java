@@ -9,6 +9,7 @@ import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
 import com.lying.wheelchairs.network.OpenInventoryScreenPacket;
 import com.lying.wheelchairs.renderer.entity.EntityWheelchairRenderer;
 import com.lying.wheelchairs.screen.ChairInventoryScreen;
+import com.lying.wheelchairs.utility.ClientBus;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -23,6 +24,7 @@ public class WheelchairsClient implements ClientModInitializer
 	
 	public void onInitializeClient()
 	{
+		ClientBus.registerEventCallbacks();
 		WHCItemsClient.registerItemColors();
 		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
 		WHCKeybinds.keyOpenChair = WHCKeybinds.make("open_chair", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_C);

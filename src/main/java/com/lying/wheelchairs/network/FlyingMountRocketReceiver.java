@@ -1,10 +1,11 @@
 package com.lying.wheelchairs.network;
 
-import com.lying.wheelchairs.entity.EntityWheelchair;
-import com.lying.wheelchairs.init.WHCEntityTypes;
+import com.lying.wheelchairs.entity.IFlyingMount;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.PlayChannelHandler;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,8 +16,9 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Hand;
+import net.minecraft.world.World;
 
-public class FlyingWheelchairRocketReceiver implements PlayChannelHandler
+public class FlyingMountRocketReceiver implements PlayChannelHandler
 {
 	public void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender)
 	{
@@ -25,19 +27,20 @@ public class FlyingWheelchairRocketReceiver implements PlayChannelHandler
 		if(stack.getItem() != Items.FIREWORK_ROCKET)
 			return;
 		
-		if(!player.hasVehicle())
+		Entity vehicle;
+		if((vehicle = player.getVehicle()) == null)
 			return;
-		else if(player.getVehicle().getType() != WHCEntityTypes.WHEELCHAIR)
+		else if(!(vehicle instanceof LivingEntity && vehicle instanceof IFlyingMount))
 			return;
 		
 		server.execute(() -> 
 		{
 			Item item = stack.getItem();
-			EntityWheelchair chair = (EntityWheelchair)player.getVehicle();
-//			if(chair.isFlying())	// FIXME Ensure this only fires IF the wheelchair is in fall-flying state
+			if(((IFlyingMount)vehicle).canUseRocketNow())
 			{
-				FireworkRocketEntity rocket = new FireworkRocketEntity(chair.getWorld(), stack, chair);
-				chair.getWorld().spawnEntity(rocket);
+				World world = player.getWorld();
+				FireworkRocketEntity rocket = new FireworkRocketEntity(world, stack, (LivingEntity)vehicle);
+				world.spawnEntity(rocket);
 				if(!player.getAbilities().creativeMode)
 					stack.decrement(1);
 				player.incrementStat(Stats.USED.getOrCreateStat(item));
