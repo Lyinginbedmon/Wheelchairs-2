@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.lying.wheelchairs.utility.ServerBus;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;
 
@@ -32,6 +33,9 @@ public abstract class EntityMixin
 	
 	@Shadow
 	public World getWorld() { return null; }
+	
+	@Shadow
+	public EntityType<?> getType() { return null; }
 	
 	private boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
 	

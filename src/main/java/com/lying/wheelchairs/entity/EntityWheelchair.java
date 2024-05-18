@@ -358,7 +358,15 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	
 	public LivingEntity getControllingPassenger()
 	{
-		return getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
+		return !isFallFlying() && getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
+	}
+	
+	public void tickMovement()
+	{
+		LivingEntity rider = null;
+		if(isFallFlying() && (rider = (LivingEntity)getFirstPassenger()) != null)
+			orientToRider(rider, Vec3d.ZERO);
+		super.tickMovement();
 	}
 	
 	public int getDefaultPortalCooldown() { return 10; }
@@ -391,13 +399,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			controllingPlayer.setSprinting(false);
 		}
 		
-		Vec2f orientation = getControlledRotation(controllingPlayer);
-		if(movementInput.length() > 0 || !hasUpgrade(WHCUpgrades.POWERED))
-		{
-			this.setRotation(orientation.y, orientation.x);
-			this.prevYaw = this.headYaw;
-			this.bodyYaw = this.headYaw = this.getYaw();
-		}
+		orientToRider(controllingPlayer, movementInput);
 		
 		this.saddledComponent.tickBoost();
 		
@@ -418,6 +420,17 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 					jump();
 		}
 		this.jumpStrength = 0F;
+	}
+	
+	protected void orientToRider(LivingEntity controllingPlayer, Vec3d movementInput)
+	{
+		Vec2f orientation = getControlledRotation(controllingPlayer);
+		if(movementInput.length() > 0 || !hasUpgrade(WHCUpgrades.POWERED))
+		{
+			this.setRotation(orientation.y, orientation.x);
+			this.prevYaw = this.headYaw;
+			this.bodyYaw = this.headYaw = this.getYaw();
+		}
 	}
 	
 	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
@@ -451,6 +464,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		if(amount == 0F || amount == 360F)
 			return;
 		
+		if(isFallFlying()) return;
 		this.spinLeft = clampRotation(this.spinLeft + amount);
 		this.spinRight = clampRotation(this.spinRight - amount);
 	}
@@ -554,23 +568,13 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		this.tickExhaustion(getX() - x, getZ() - z);
 	}
 	
-	public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource)
-	{
-		if(isFlying())
-		{
-			if(!getWorld().isClient())
-				stopFlying();
-			return false;
-		}
-		return !isFlying() && super.handleFallDamage(fallDistance, damageMultiplier, damageSource);
-	}
-	
 	public void travel(Vec3d movementInput)
 	{
 		if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > getSwimHeight())
 			addVelocity(0D, 0.08D, 0D);
 		super.travel(movementInput);
 		
+		if(isFallFlying()) return;
 		double speed = movementInput.getZ() * getMovementSpeed();
 		this.spinLeft = addSpin(this.spinLeft, (float)speed);
 		this.spinRight = addSpin(this.spinRight, (float)speed);
@@ -581,6 +585,17 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		super.applyMovementEffects(pos);
 		if(EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()) > 0 && hasUpgrade(WHCUpgrades.NETHERITE))
 			freezeLava(this, getWorld(), getBlockPos(), EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()));
+	}
+	
+	public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource)
+	{
+		if(isFlying())
+		{
+			if(!getWorld().isClient())
+				stopFlying();
+			return false;
+		}
+		return !isFlying() && super.handleFallDamage(fallDistance, damageMultiplier, damageSource);
 	}
 	
 	// Performs the effect of Frost Walker on lava when the chair item also has Flame
