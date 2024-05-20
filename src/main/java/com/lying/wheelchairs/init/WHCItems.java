@@ -51,6 +51,18 @@ public class WHCItems
     public static final Item WHEEL_CHERRY = wheel("cherry");
     public static final Item WHEEL_BAMBOO = wheel("bamboo");
     
+    /**
+     * TODO Items for later versions
+     * Cane crafting and variants
+     * Crutch crafting and variants
+     * 	NOTE Should be mainly plain items with specialised hand posing
+     * 
+     * AAC speech device? Would require a Lot of sound, UI, and texture work
+     * 
+     * Service animal vests! (req. Cardinal Components)
+     * 	NOTE Should store animal in Chairspace if it would die
+     */
+    
     public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings(), WHCEntityTypes.WHEELCHAIR, 0));
     
     public static final ItemGroup WHEELCHAIR_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(WHEELCHAIR_OAK)).displayName(Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group")).entries((ctx,entries) -> 

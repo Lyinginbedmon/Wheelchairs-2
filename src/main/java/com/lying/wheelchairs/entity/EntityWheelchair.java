@@ -393,7 +393,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
 		super.tickControlled(controllingPlayer, movementMultiplier);
-		if((isFlying() || !isManual(controllingPlayer)) && isSprinting())
+		if(!isManual(controllingPlayer) && isSprinting())
 		{
 			setSprinting(false);
 			controllingPlayer.setSprinting(false);
@@ -543,9 +543,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
 		double modifier = 1D;
-		if(isFlying())	// FIXME Ensure velocity is accurate to gliding behaviour
-			return new Vec3d(this.sidewaysSpeed, this.upwardSpeed, this.forwardSpeed);
-		else if(!isOnGround() && !hasUpgrade(WHCUpgrades.GLIDING))
+		if(!isOnGround() && !hasUpgrade(WHCUpgrades.GLIDING))
 			if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > 0D)
 				modifier = 0.9D;
 			else

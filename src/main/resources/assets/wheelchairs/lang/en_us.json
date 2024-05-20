@@ -2,6 +2,7 @@
 	"itemGroup.wheelchairs.item_group": "Wheelchairs",
 	"category.wheelchairs.keybindings": "Wheelchairs",
 	"key.wheelchairs.open_chair": "Open Wheelchair Inventory",
+	"key.wheelchairs.seatbelt": "Toggle dismount locking",
 	"entity.wheelchairs.wheelchair": "Wheelchair",
 	"item.wheelchairs.oak_wheelchair": "Oak Wheelchair",
 	"item.wheelchairs.spruce_wheelchair": "Spruce Wheelchair",
@@ -33,5 +34,7 @@
 	"upgrade.wheelchairs.diving": "Diving",
 	"gui.wheelchairs.wheelchair.wheel_left": " Left: %s",
 	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s",
-	"gui.wheelchairs.upgrades": "Upgrades:"
+	"gui.wheelchairs.upgrades": "Upgrades:",
+	"gui.wheelchairs.seatbelt_on": "Dismounting locked",
+	"gui.wheelchairs.seatbelt_off": "Dismounting unlocked"
 }

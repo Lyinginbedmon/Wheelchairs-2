@@ -17,6 +17,15 @@ public class WHCEntityTypes
 {
 	public static final EntityType<EntityWheelchair> WHEELCHAIR = register("wheelchair",
 			FabricEntityTypeBuilder.create(SpawnGroup.MISC, EntityWheelchair::new).dimensions(EntityDimensions.fixed(0.9F, 0.9F)).build());
+    
+    /**
+     * TODO Entities for later versions
+     * Rollator-style walker/zimmer frame
+     * 	Bind to user similar to leashing or firework rocket
+     * 	Limited upgrades (storage
+     * 
+     * Wheeled stool (see: my kitchen :P )
+     */
 	
 	private static <T extends Entity> EntityType<T> register(String name, EntityType<T> entry)
 	{

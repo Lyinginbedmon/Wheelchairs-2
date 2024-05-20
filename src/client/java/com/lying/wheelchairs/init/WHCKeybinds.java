@@ -9,6 +9,7 @@ import net.minecraft.client.util.InputUtil;
 public class WHCKeybinds
 {
 	public static KeyBinding keyOpenChair;
+	public static KeyBinding keySeatbelt;
 	
 	public static KeyBinding make(String name, InputUtil.Type type, int standard)
 	{
