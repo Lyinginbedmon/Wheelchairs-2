@@ -1,9 +1,14 @@
 package com.lying.wheelchairs.block;
 
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
@@ -19,7 +24,7 @@ import net.minecraft.world.World;
 public class BlockFrostedLava extends Block
 {
 	public static final IntProperty AGE = Properties.AGE_3;
-	// FIXME Needs proper textures
+	
 	public BlockFrostedLava(AbstractBlock.Settings settings)
 	{
 		super(settings);
@@ -35,20 +40,20 @@ public class BlockFrostedLava extends Block
 	
 	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random)
 	{
-        if((random.nextInt(3) == 0 || this.canMelt(world, pos, 4)) && world.getLightLevel(pos) > 11 - state.get(AGE) - state.getOpacity(world, pos) && this.increaseAge(state, world, pos))
-        {
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
-            for(Direction direction : Direction.values())
-            {
-                mutable.set((Vec3i)pos, direction);
-                BlockState blockState = world.getBlockState(mutable);
-                if(!blockState.isOf(this) || this.increaseAge(blockState, world, mutable))
-                	continue;
-                world.scheduleBlockTick(mutable, this, MathHelper.nextInt(random, 20, 40));
-            }
-            return;
-        }
-        world.scheduleBlockTick(pos, this, MathHelper.nextInt(random, 20, 40));
+		if((random.nextInt(3) == 0 || this.canMelt(world, pos, 4)) && world.getLightLevel(pos) > 11 - state.get(AGE) - state.getOpacity(world, pos) && this.increaseAge(state, world, pos))
+		{
+			BlockPos.Mutable mutable = new BlockPos.Mutable();
+			for(Direction direction : Direction.values())
+			{
+				mutable.set((Vec3i)pos, direction);
+				BlockState blockState = world.getBlockState(mutable);
+				if(!blockState.isOf(this) || this.increaseAge(blockState, world, mutable))
+					continue;
+				world.scheduleBlockTick(mutable, this, MathHelper.nextInt(random, 20, 40));
+			}
+			return;
+		}
+		world.scheduleBlockTick(pos, this, MathHelper.nextInt(random, 20, 40));
 	}
 	
 	protected boolean canMelt(BlockView world, BlockPos pos, int maxNeighbours)
@@ -81,6 +86,12 @@ public class BlockFrostedLava extends Block
 	{
 		world.setBlockState(pos, getMeltedState());
 		world.updateNeighbor(pos, getMeltedState().getBlock(), pos);
+	}
+	
+	public void afterBreak(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool)
+	{
+		super.afterBreak(world, player, pos, state, blockEntity, tool);
+		world.setBlockState(pos, getMeltedState());
 	}
 	
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder)

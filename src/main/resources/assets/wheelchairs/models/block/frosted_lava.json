@@ -1,0 +1,35 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"lava": "minecraft:block/lava_still",
+		"particle": "#lava"
+	},
+	"elements": [
+		{
+			"name": "outer",
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#cooling"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#cooling"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#cooling"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#cooling"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#cooling"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#cooling"}
+			}
+		},
+		{
+			"name": "inner",
+			"from": [0.2, 0.2, 0.2],
+			"to": [15.8, 15.8, 15.8],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#lava"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#lava"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#lava"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#lava"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#lava"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#lava"}
+			}
+		}
+	]
+}

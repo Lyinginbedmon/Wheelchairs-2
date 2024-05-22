@@ -58,6 +58,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -243,6 +244,8 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		upgrades.add(NbtString.of(upgrade.registryName().toString()));
 		setUpgrades(upgrades);
 		onChestedStatusChanged();
+		
+		playSound(SoundEvents.ITEM_ARMOR_EQUIP_IRON, getSoundVolume(), getSoundPitch());
 	}
 	
 	/** Returns true if this wheelchair has the Storage upgrade */
@@ -379,7 +382,6 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	/** Returns true if the wheelchair is under automatic control ie. using a chair controller*/
 	public boolean isAutomatic(PlayerEntity controllingPlayer) { return hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER); }
 	
-	// FIXME Tie to adjustMovementForSneaking to allow for ledge-hugging while sneaking
 	public boolean isSneaking() { return super.isSneaking() || hasPassengers() && getFirstPassenger() instanceof LivingEntity && getFirstPassenger().isSneaking(); }
 	
 	public void tick()
@@ -877,10 +879,12 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	public void startFlying()
 	{
 		getDataTracker().set(FLYING, true);
+		playSound(SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, getSoundVolume(), getSoundPitch());
 	}
 	
 	public void stopFlying()
 	{
 		getDataTracker().set(FLYING, false);
+		playSound(SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, getSoundVolume(), getSoundPitch() * 0.5F);
 	}
 }

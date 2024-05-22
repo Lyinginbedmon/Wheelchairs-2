@@ -1,0 +1,6 @@
+{
+	"parent": "wheelchairs:block/frosted_lava",
+	"textures": {
+		"cooling": "wheelchairs:block/frosted_lava_2"
+	}
+}
