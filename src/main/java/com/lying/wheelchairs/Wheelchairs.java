@@ -8,6 +8,7 @@ import com.lying.wheelchairs.init.WHCEnchantments;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
+import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.init.WHCSpecialRecipes;
 import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.network.FlyingMountRocketReceiver;
@@ -34,6 +35,7 @@ public class Wheelchairs implements ModInitializer
 		WHCEntityTypes.init();
 		WHCSpecialRecipes.init();
 		WHCScreenHandlerTypes.init();
+		WHCSoundEvents.init();
 		
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.OPEN_INVENTORY_ID, new OpenInventoryScreenReceiver());
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.FLYING_START_ID, new StartFlyingReceiver());

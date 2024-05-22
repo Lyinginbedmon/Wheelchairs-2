@@ -379,6 +379,9 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	/** Returns true if the wheelchair is under automatic control ie. using a chair controller*/
 	public boolean isAutomatic(PlayerEntity controllingPlayer) { return hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER); }
 	
+	// FIXME Tie to adjustMovementForSneaking to allow for ledge-hugging while sneaking
+	public boolean isSneaking() { return super.isSneaking() || hasPassengers() && getFirstPassenger() instanceof LivingEntity && getFirstPassenger().isSneaking(); }
+	
 	public void tick()
 	{
 		super.tick();
@@ -431,6 +434,58 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			this.prevYaw = this.headYaw;
 			this.bodyYaw = this.headYaw = this.getYaw();
 		}
+	}
+	
+	public boolean isInSneakingPose() { return super.isInSneakingPose() || this.isSneaking(); }
+	
+	protected Vec3d adjustMovementForSneaking(Vec3d movement, MovementType type)
+	{
+		if(movement.y <= 0 && (type == MovementType.SELF || type == MovementType.PLAYER) && isSneaking() && this.shouldClipMovement())
+		{
+			double deltaX = movement.x;
+			double deltaZ = movement.z;
+            while (deltaX != 0.0 && this.getWorld().isSpaceEmpty(this, this.getBoundingBox().offset(deltaX, -this.getStepHeight(), 0.0))) {
+                if (deltaX < 0.05 && deltaX >= -0.05) {
+                	deltaX = 0.0;
+                    continue;
+                }
+                if (deltaX > 0.0) {
+                	deltaX -= 0.05;
+                    continue;
+                }
+                deltaX += 0.05;
+            }
+            while (deltaZ != 0.0 && this.getWorld().isSpaceEmpty(this, this.getBoundingBox().offset(0.0, -this.getStepHeight(), deltaZ))) {
+                if (deltaZ < 0.05 && deltaZ >= -0.05) {
+                    deltaZ = 0.0;
+                    continue;
+                }
+                if (deltaZ > 0.0) {
+                    deltaZ -= 0.05;
+                    continue;
+                }
+                deltaZ += 0.05;
+            }
+            while (deltaX != 0.0 && deltaZ != 0.0 && this.getWorld().isSpaceEmpty(this, this.getBoundingBox().offset(deltaX, -this.getStepHeight(), deltaZ))) {
+                deltaX = deltaX < 0.05 && deltaX >= -0.05 ? 0.0 : (deltaX > 0.0 ? (deltaX -= 0.05) : (deltaX += 0.05));
+                if (deltaZ < 0.05 && deltaZ >= -0.05) {
+                    deltaZ = 0.0;
+                    continue;
+                }
+                if (deltaZ > 0.0) {
+                    deltaZ -= 0.05;
+                    continue;
+                }
+                deltaZ += 0.05;
+            }
+            movement = new Vec3d(deltaX, movement.y, deltaZ);
+		}
+		return movement;
+	}
+	
+	public boolean shouldClipMovement()
+	{
+		return isOnGround() || this.fallDistance < this.getStepHeight() && !this.getWorld().isSpaceEmpty(this, this.getBoundingBox().offset(0, this.fallDistance - this.getStepHeight(), 0));
 	}
 	
 	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)

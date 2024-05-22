@@ -7,6 +7,7 @@ import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItemsClient;
 import com.lying.wheelchairs.init.WHCKeybinds;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
+import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.network.OpenInventoryScreenPacket;
 import com.lying.wheelchairs.renderer.entity.EntityWheelchairRenderer;
 import com.lying.wheelchairs.screen.ChairInventoryScreen;
@@ -28,12 +29,12 @@ public class WheelchairsClient implements ClientModInitializer
 	public static ClientConfig config;
 	
 	public static boolean SEATBELT_ON = false;
+	private static boolean wasSeatbeltPressed = false;
 	
 	public void onInitializeClient()
 	{
 		config = new ClientConfig(mc.runDirectory.getAbsolutePath() + "/config/WheelchairsClient.cfg");
 		config.read();
-		SEATBELT_ON = config.seatbeltAtBoot();
 		
 		ClientBus.registerEventCallbacks();
 		WHCItemsClient.registerItemColors();
@@ -41,10 +42,18 @@ public class WheelchairsClient implements ClientModInitializer
 		WHCKeybinds.keyOpenChair = WHCKeybinds.make("open_chair", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_C);
 		WHCKeybinds.keySeatbelt = WHCKeybinds.make("seatbelt", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_X);
 		
-		HandledScreens.register(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER, ChairInventoryScreen::new);
+		registerEventCallbacks();
 		
+		HandledScreens.register(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER, ChairInventoryScreen::new);
+	}
+	
+	public void registerEventCallbacks()
+	{
+		// Informs the player of their configured seatbelt setting when they log in
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> 
 		{
+			//FIXME Deactivate seatbelt if player logged in outside of a vehicle
+			SEATBELT_ON = config.seatbeltAtBoot();
 			client.player.sendMessage(Text.translatable("gui.wheelchairs.seatbelt_"+(SEATBELT_ON ? "on" : "off")));
 		});
 		
@@ -53,14 +62,21 @@ public class WheelchairsClient implements ClientModInitializer
 			ClientPlayerEntity player = mc.player;
 			if(player != null && player.hasVehicle())
 			{
+				// Allows for opening wheelchair inventory
 				while(WHCKeybinds.keyOpenChair.wasPressed())
 					OpenInventoryScreenPacket.send();
 				
-				while(WHCKeybinds.keySeatbelt.wasPressed())
+				// Allows for toggling the current seatbelt setting ingame
+				if(WHCKeybinds.keySeatbelt.wasPressed() && !wasSeatbeltPressed)
 				{
 					SEATBELT_ON = !SEATBELT_ON;
 					player.sendMessage(Text.translatable("gui.wheelchairs.seatbelt_"+(SEATBELT_ON ? "on" : "off")));
+					player.playSound(SEATBELT_ON ? WHCSoundEvents.SEATBELT_ON : WHCSoundEvents.SEATBELT_OFF, 1F, 0.5F + player.getRandom().nextFloat() * 0.5F);
+					
+					wasSeatbeltPressed = true;
 				}
+				else
+					wasSeatbeltPressed = false;
 			}
 		});
 	}

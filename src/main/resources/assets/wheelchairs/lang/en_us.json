@@ -32,6 +32,7 @@
 	"upgrade.wheelchairs.netherite": "Netherite",
 	"upgrade.wheelchairs.floating": "Floating",
 	"upgrade.wheelchairs.diving": "Diving",
+	"upgrade.wheelchairs.gliding": "Gliding",
 	"gui.wheelchairs.wheelchair.wheel_left": " Left: %s",
 	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s",
 	"gui.wheelchairs.upgrades": "Upgrades:",

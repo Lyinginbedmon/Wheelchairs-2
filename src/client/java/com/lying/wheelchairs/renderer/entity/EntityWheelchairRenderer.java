@@ -1,8 +1,13 @@
 package com.lying.wheelchairs.renderer.entity;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
+import com.lying.wheelchairs.renderer.entity.feature.ChairFeatureRenderer;
+import com.lying.wheelchairs.renderer.entity.feature.GlidingElytraFeatureRenderer;
 
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.TexturedRenderLayers;
@@ -27,15 +32,20 @@ import net.minecraft.world.World;
 
 public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 {
+	private final List<ChairFeatureRenderer<EntityWheelchair>> featureRenderers = Lists.newArrayList();
+	
 	private final ItemRenderer renderItem;
 	private final BlockRenderManager blockRenderManager;
 	
 	public EntityWheelchairRenderer(Context ctx)
 	{
 		super(ctx);
+		this.addFeature(new GlidingElytraFeatureRenderer<EntityWheelchair>(ctx));
 		this.renderItem = ctx.getItemRenderer();
 		this.blockRenderManager = ctx.getBlockRenderManager();
 	}
+	
+	protected final void addFeature(ChairFeatureRenderer<EntityWheelchair> featureIn) { this.featureRenderers.add(featureIn); }
 	
     protected boolean hasLabel(EntityWheelchair entity)
     {
@@ -84,6 +94,11 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 			
 			// Wheels
 			renderWheels(matrices, vertexConsumers, light, entity.getLeftWheel(), entity.spinLeft, entity.getRightWheel(), entity.spinRight, entity.getEntityWorld(), entity.getId());
+			
+			float age = (float)entity.age + tickDelta;
+			float renderYaw = MathHelper.lerpAngleDegrees((float)tickDelta, (float)entity.prevHeadYaw, (float)entity.headYaw);
+			float renderPitch = MathHelper.lerp((float)tickDelta, (float)entity.prevPitch, (float)entity.getPitch());
+			this.featureRenderers.forEach(feature -> { if(feature.shouldRender(entity)) feature.render(matrices, vertexConsumers, light, entity, age, renderYaw, renderPitch, tickDelta); });
 		matrices.pop();
 	}
 	

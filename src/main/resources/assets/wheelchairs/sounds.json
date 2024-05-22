@@ -1,0 +1,14 @@
+{
+	"seatbelt_on": {
+		"subtitle": "sound.wheelchairs.seatbelt_on",
+		"sounds": [
+			"wheelchairs:seatbelt_on"
+		]
+	},
+	"seatbelt_off": {
+		"subtitle": "sound.wheelchairs.seatbelt_off",
+		"sounds": [
+			"wheelchairs:seatbelt_off"
+		]
+	}
+}

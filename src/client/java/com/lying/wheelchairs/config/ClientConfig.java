@@ -27,6 +27,6 @@ public class ClientConfig extends Config
 	
 	static
 	{
-		DEFAULT_SETTINGS.setProperty("Seatbelt", "1");
+		DEFAULT_SETTINGS.setProperty("Seatbelt", "0");
 	}
 }

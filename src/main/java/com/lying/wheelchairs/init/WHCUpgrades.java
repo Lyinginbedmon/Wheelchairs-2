@@ -31,18 +31,18 @@ public class WHCUpgrades
 			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
 	public static final ChairUpgrade STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
 			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))));
-	public static final ChairUpgrade FLOATING = register(ChairUpgrade.Builder.of("floating")	// FIXME Add model, ref early floatation devices
+	public static final ChairUpgrade FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
 			.keyItem(Items.PUMPKIN));
-	public static final ChairUpgrade NETHERITE = register(ChairUpgrade.Builder.of("netherite")	// FIXME Add model, ref rugby wheelchairs
+	public static final ChairUpgrade NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
 			.keyItem(Items.NETHERITE_INGOT));
-	public static final ChairUpgrade DIVING	= register(ChairUpgrade.Builder.of("diving")	// FIXME Add model, ref early diving suits
+	public static final ChairUpgrade DIVING	= register(ChairUpgrade.Builder.of("diving").modelled()
 			.keyItem(Items.LEATHER)
 			.incompatible(() -> List.of(WHCUpgrades.FLOATING, WHCUpgrades.POWERED)));
 	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")	// FIXME Add model, ref hanglider
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
 	
-	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles"));	// FIXME Reference zimmer frames, incl. means for rider to unbind
+	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles"));	// TODO Reference zimmer frames, incl. means for rider to unbind
 	// TODO Auto-placer upgrade for bridge building
 	
 	private static ChairUpgrade register(ChairUpgrade.Builder builder)
