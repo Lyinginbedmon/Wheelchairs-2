@@ -1,0 +1,6 @@
+{
+	"parent": "wheelchairs:item/crutch",
+	"textures": {
+		"wood": "block/acacia_planks"
+	}
+}

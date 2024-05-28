@@ -38,12 +38,14 @@ public class WHCUpgrades
 	public static final ChairUpgrade DIVING	= register(ChairUpgrade.Builder.of("diving").modelled()
 			.keyItem(Items.LEATHER)
 			.incompatible(() -> List.of(WHCUpgrades.FLOATING, WHCUpgrades.POWERED)));
-	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")	// FIXME Add model, ref hanglider
+	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
 	
-	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles"));	// TODO Reference zimmer frames, incl. means for rider to unbind
-	// TODO Auto-placer upgrade for bridge building
+	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference zimmer frames, incl. means for rider to unbind
+			.keyItem(Items.IRON_BARS));
+	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
+			.keyItem(Items.DISPENSER));
 	
 	private static ChairUpgrade register(ChairUpgrade.Builder builder)
 	{

@@ -7,6 +7,7 @@ import com.lying.wheelchairs.init.WHCBlocks;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItemsClient;
 import com.lying.wheelchairs.init.WHCKeybinds;
+import com.lying.wheelchairs.init.WHCModelParts;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
 import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.network.OpenInventoryScreenPacket;
@@ -43,6 +44,7 @@ public class WheelchairsClient implements ClientModInitializer
 		ClientBus.registerEventCallbacks();
 		WHCItemsClient.registerItemColors();
 		BlockRenderLayerMap.INSTANCE.putBlock(WHCBlocks.FROSTED_LAVA, RenderLayer.getCutout());
+		WHCModelParts.init();
 		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
 		WHCKeybinds.keyOpenChair = WHCKeybinds.make("open_chair", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_C);
 		WHCKeybinds.keySeatbelt = WHCKeybinds.make("seatbelt", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_X);

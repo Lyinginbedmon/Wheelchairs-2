@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
 import com.lying.wheelchairs.entity.EntityWheelchair;
+import com.lying.wheelchairs.item.ItemCrutch;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -63,6 +64,18 @@ public class WHCItems
      * 	NOTE Should store animal in Chairspace if it would die
      */
     
+    public static final Item CRUTCH_OAK = crutch("oak");
+    public static final Item CRUTCH_SPRUCE = crutch("spruce");
+    public static final Item CRUTCH_BIRCH = crutch("birch");
+    public static final Item CRUTCH_DARK_OAK = crutch("dark_oak");
+    public static final Item CRUTCH_ACACIA = crutch("acacia");
+    public static final Item CRUTCH_JUNGLE = crutch("jungle");
+    public static final Item CRUTCH_CRIMSON = crutch("crimson");
+    public static final Item CRUTCH_WARPED = crutch("warped");
+    public static final Item CRUTCH_MANGROVE = crutch("mangrove");
+    public static final Item CRUTCH_CHERRY = crutch("cherry");
+    public static final Item CRUTCH_BAMBOO = crutch("bamboo");
+    
     public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings(), WHCEntityTypes.WHEELCHAIR, 0));
     
     public static final ItemGroup WHEELCHAIR_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(WHEELCHAIR_OAK)).displayName(Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group")).entries((ctx,entries) -> 
@@ -90,6 +103,18 @@ public class WHCItems
 			entries.add(WHEEL_MANGROVE);
 			entries.add(WHEEL_CHERRY);
 			entries.add(WHEEL_BAMBOO);
+			
+			entries.add(CRUTCH_OAK);
+			entries.add(CRUTCH_SPRUCE);
+			entries.add(CRUTCH_BIRCH);
+			entries.add(CRUTCH_DARK_OAK);
+			entries.add(CRUTCH_JUNGLE);
+			entries.add(CRUTCH_ACACIA);
+			entries.add(CRUTCH_CRIMSON);
+			entries.add(CRUTCH_WARPED);
+			entries.add(CRUTCH_MANGROVE);
+			entries.add(CRUTCH_CHERRY);
+			entries.add(CRUTCH_BAMBOO);
 			
 			entries.add(CONTROLLER);
 	    }).build();
@@ -122,5 +147,10 @@ public class WHCItems
     private static Item wheel(String name)
     {
     	return register(name+"_wheel", new Item(new FabricItemSettings().maxCount(2)));
+    }
+    
+    private static Item crutch(String name)
+    {
+    	return register(name+"_crutch", new ItemCrutch(new FabricItemSettings().maxCount(1)));
     }
 }

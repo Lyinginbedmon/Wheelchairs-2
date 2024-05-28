@@ -5,7 +5,11 @@
 	"client": [
 		"InGameHudMixin",
 		"FireworkRocketItemMixinClient",
-		"PlayerEntityMixinClient"
+		"PlayerEntityMixinClient",
+		"EntityModelMixin",
+		"BipedEntityModelMixin",
+		"ItemRendererMixin",
+		"ModelLoaderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

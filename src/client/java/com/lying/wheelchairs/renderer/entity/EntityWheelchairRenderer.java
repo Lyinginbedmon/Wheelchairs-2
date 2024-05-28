@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
-import com.lying.wheelchairs.renderer.entity.feature.ChairFeatureRenderer;
-import com.lying.wheelchairs.renderer.entity.feature.GlidingElytraFeatureRenderer;
+import com.lying.wheelchairs.renderer.entity.feature.EntityFeatureRenderer;
+import com.lying.wheelchairs.renderer.entity.feature.WheelchairElytraFeatureRenderer;
 
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.TexturedRenderLayers;
@@ -32,7 +32,7 @@ import net.minecraft.world.World;
 
 public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 {
-	private final List<ChairFeatureRenderer<EntityWheelchair>> featureRenderers = Lists.newArrayList();
+	private final List<EntityFeatureRenderer<EntityWheelchair>> featureRenderers = Lists.newArrayList();
 	
 	private final ItemRenderer renderItem;
 	private final BlockRenderManager blockRenderManager;
@@ -40,12 +40,12 @@ public class EntityWheelchairRenderer extends EntityRenderer<EntityWheelchair>
 	public EntityWheelchairRenderer(Context ctx)
 	{
 		super(ctx);
-		this.addFeature(new GlidingElytraFeatureRenderer<EntityWheelchair>(ctx));
+		this.addFeature(new WheelchairElytraFeatureRenderer<EntityWheelchair>(ctx));
 		this.renderItem = ctx.getItemRenderer();
 		this.blockRenderManager = ctx.getBlockRenderManager();
 	}
 	
-	protected final void addFeature(ChairFeatureRenderer<EntityWheelchair> featureIn) { this.featureRenderers.add(featureIn); }
+	protected final void addFeature(EntityFeatureRenderer<EntityWheelchair> featureIn) { this.featureRenderers.add(featureIn); }
 	
     protected boolean hasLabel(EntityWheelchair entity)
     {
