@@ -1,0 +1,17 @@
+{
+	"required": true,
+	"package": "com.lying.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"ServerPlayerInteractionManagerMixin",
+		"EnchantmentMixin",
+		"EnchantmentHelperMixin",
+		"EntityMixin",
+		"ItemEntityMixin",
+		"ServerPlayerEntityMixin",
+		"ServerPlayNetworkHandlerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
