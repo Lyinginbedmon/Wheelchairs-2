@@ -1,6 +1,7 @@
 {
-	"parent": "wheelchairs:item/crutch",
-	"textures": {
-		"wood": "block/warped_planks"
-	}
+	"parent": "wheelchairs:item/crutch_inventory",
+    "textures":
+    {
+    	"layer0": "wheelchairs:item/crutch_warped_inventory"
+    }
 }

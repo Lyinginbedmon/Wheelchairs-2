@@ -1,8 +1,20 @@
 {
-    "parent": "item/generated",
+    "parent": "item/handheld_rod",
     "textures":
     {
     	"layer0": "wheelchairs:item/crutch_oak_inventory",
     	"layer1": "wheelchairs:item/crutch_inventory_overlay"
-    }
+    },
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [0, 90, 25],
+			"translation": [0, -2.9, 0.8],
+			"scale": [0.68, 0.68, 0.68]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, -90, -25],
+			"translation": [0, -2.9, 0.8],
+			"scale": [0.68, 0.68, 0.68]
+		}
+	}
 }

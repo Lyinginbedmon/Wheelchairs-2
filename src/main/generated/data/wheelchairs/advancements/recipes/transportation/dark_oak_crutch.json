@@ -1,0 +1,60 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_dark_oak_planks": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:dark_oak_planks"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_stick": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:stick"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "wheelchairs:dark_oak_crutch"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_white_wool": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:white_wool"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_stick",
+      "has_white_wool",
+      "has_dark_oak_planks"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "wheelchairs:dark_oak_crutch"
+    ]
+  }
+}

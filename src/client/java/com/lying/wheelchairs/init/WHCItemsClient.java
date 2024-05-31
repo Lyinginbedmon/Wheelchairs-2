@@ -51,10 +51,10 @@ public class WHCItemsClient
 	private static void addExtraCrutchModel(Item item)
 	{
 		Identifier itemID = Registries.ITEM.getId(item);
-		EXTRA_MODELS.add(new ExtraModelHandler(item, new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+"_inventory", "inventory"), WHCItemsClient::notOnPerson));
+		EXTRA_MODELS.add(new ExtraModelHandler(item, new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+"_in_hand", "inventory"), WHCItemsClient::onPerson));
 	}
 	
-	private static boolean notOnPerson(ModelTransformationMode mode) { return !(mode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND || mode == ModelTransformationMode.THIRD_PERSON_RIGHT_HAND); }
+	private static boolean onPerson(ModelTransformationMode mode) { return mode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND || mode == ModelTransformationMode.THIRD_PERSON_RIGHT_HAND; }
 	
 	public static List<ModelIdentifier> getExtraModels()
 	{

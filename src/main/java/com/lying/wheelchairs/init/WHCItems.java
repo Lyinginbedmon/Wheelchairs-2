@@ -55,13 +55,12 @@ public class WHCItems
     /**
      * TODO Items for later versions
      * Cane crafting and variants
-     * Crutch crafting and variants
      * 	NOTE Should be mainly plain items with specialised hand posing
      * 
      * AAC speech device? Would require a Lot of sound, UI, and texture work
      * 
      * Service animal vests! (req. Cardinal Components)
-     * 	NOTE Should store animal in Chairspace if it would die
+     * 	NOTE Should store animal in Chairspace if it would drop below 1HP
      */
     
     public static final Item CRUTCH_OAK = crutch("oak");

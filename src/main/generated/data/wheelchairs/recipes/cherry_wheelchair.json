@@ -1,0 +1,18 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": {
+    "item": "minecraft:cherry_log"
+  },
+  "cushion": {
+    "tag": "minecraft:wool"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "result": {
+    "item": "wheelchairs:cherry_wheelchair"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheel"
+  }
+}

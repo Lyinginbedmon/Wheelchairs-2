@@ -22,6 +22,8 @@ import net.minecraft.util.Identifier;
 public class WHCRecipeProvider extends FabricRecipeProvider
 {
 	public static final String GROUP_WHEELS = Reference.ModInfo.MOD_ID+":wheels";
+	public static final String GROUP_CHAIRS = Reference.ModInfo.MOD_ID+":wheels";
+	public static final String GROUP_CRUTCHES = Reference.ModInfo.MOD_ID+":crutches";
 	
 	private static final Map<Item, ItemConvertible> WHEEL_GUIDE = Map.of(
 			WHCItems.WHEEL_ACACIA, Blocks.ACACIA_SLAB,
@@ -50,7 +52,22 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_ACACIA, Ingredient.ofItems(Blocks.ACACIA_LOG), "acacia_wheelchair");
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_CRIMSON, Ingredient.ofItems(Blocks.CRIMSON_STEM), "crimson_wheelchair");
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_WARPED, Ingredient.ofItems(Blocks.WARPED_STEM), "warped_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_MANGROVE, Ingredient.ofItems(Blocks.MANGROVE_LOG), "mangrove_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_CHERRY, Ingredient.ofItems(Blocks.CHERRY_LOG), "cherry_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_BAMBOO, Ingredient.ofItems(Blocks.BAMBOO_BLOCK), "bamboo_wheelchair");
 		WHEEL_GUIDE.entrySet().forEach(entry -> offerWheelRecipe(exporter, entry.getKey(), entry.getValue()));
+		
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_OAK, Blocks.OAK_PLANKS, "oak_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_SPRUCE, Blocks.SPRUCE_PLANKS, "spruce_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_BIRCH, Blocks.BIRCH_PLANKS, "birch_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_DARK_OAK, Blocks.DARK_OAK_PLANKS, "dark_oak_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_JUNGLE, Blocks.JUNGLE_PLANKS, "jungle_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_ACACIA, Blocks.ACACIA_PLANKS, "acacia_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_CRIMSON, Blocks.CRIMSON_PLANKS, "crimson_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_WARPED, Blocks.WARPED_PLANKS, "warped_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_MANGROVE, Blocks.MANGROVE_PLANKS, "mangrove_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_CHERRY, Blocks.CHERRY_PLANKS, "cherry_crutch");
+		offerCrutchRecipe(exporter, WHCItems.CRUTCH_BAMBOO, Blocks.BAMBOO_PLANKS, "bamboo_crutch");
 		
 		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER)
 			.pattern("j").pattern("b")
@@ -76,5 +93,16 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		if(backing.getMatchingStacks().length > 0)
 			builder.criterion("has_backing", RecipeProvider.conditionsFromItem(backing.getMatchingStacks()[0].getItem()));
 		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));
+	}
+	
+	private static void offerCrutchRecipe(RecipeExporter exporter, Item crutch, ItemConvertible plank, String name)
+	{
+		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, crutch)
+			.pattern("sWs").pattern("s s").pattern(" P ")
+			.input('s', Items.STICK).input('W', Ingredient.ofItems(Items.WHITE_WOOL)).input('P', Ingredient.ofItems(plank))
+			.group(GROUP_CRUTCHES)
+			.criterion(FabricRecipeProvider.hasItem(Items.STICK), FabricRecipeProvider.conditionsFromItem(Items.STICK))
+			.criterion(FabricRecipeProvider.hasItem(Items.WHITE_WOOL), FabricRecipeProvider.conditionsFromItem(Items.WHITE_WOOL))
+			.criterion(FabricRecipeProvider.hasItem(plank), FabricRecipeProvider.conditionsFromItem(plank)).offerTo(exporter);
 	}
 }

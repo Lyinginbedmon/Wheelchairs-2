@@ -1,0 +1,18 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": {
+    "item": "minecraft:mangrove_log"
+  },
+  "cushion": {
+    "tag": "minecraft:wool"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "result": {
+    "item": "wheelchairs:mangrove_wheelchair"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheel"
+  }
+}
