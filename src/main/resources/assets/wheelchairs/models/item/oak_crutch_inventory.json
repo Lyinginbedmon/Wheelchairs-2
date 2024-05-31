@@ -1,5 +1,5 @@
 {
-    "parent": "item/generated",
+	"parent": "wheelchairs:item/crutch_inventory",
     "textures":
     {
     	"layer0": "wheelchairs:item/crutch_oak_inventory"

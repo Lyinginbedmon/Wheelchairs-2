@@ -21,7 +21,7 @@ public class WHCItemsClient
 	
 	public static void registerItemColors()
 	{
-		ColorProviderRegistry.ITEM.register((stack, index) -> { return index == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
+		ColorProviderRegistry.ITEM.register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
 				WHCItems.WHEELCHAIR_ACACIA,
 				WHCItems.WHEELCHAIR_BIRCH,
 				WHCItems.WHEELCHAIR_DARK_OAK,
@@ -30,8 +30,11 @@ public class WHCItemsClient
 				WHCItems.WHEELCHAIR_SPRUCE,
 				WHCItems.WHEELCHAIR_CHERRY,
 				WHCItems.WHEELCHAIR_MANGROVE,
-				WHCItems.WHEELCHAIR_BAMBOO,
-				
+				WHCItems.WHEELCHAIR_WARPED,
+				WHCItems.WHEELCHAIR_CRIMSON,
+				WHCItems.WHEELCHAIR_BAMBOO);
+		
+		ColorProviderRegistry.ITEM.register((stack, tintIndex) -> { return tintIndex > 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
 				WHCItems.CRUTCH_ACACIA,
 				WHCItems.CRUTCH_BIRCH,
 				WHCItems.CRUTCH_DARK_OAK,
@@ -40,6 +43,8 @@ public class WHCItemsClient
 				WHCItems.CRUTCH_SPRUCE,
 				WHCItems.CRUTCH_CHERRY,
 				WHCItems.CRUTCH_MANGROVE,
+				WHCItems.CRUTCH_WARPED,
+				WHCItems.CRUTCH_CRIMSON,
 				WHCItems.CRUTCH_BAMBOO);
 	}
 	
