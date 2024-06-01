@@ -3,6 +3,7 @@ package com.lying.wheelchairs.utility;
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.wheelchairs.Wheelchairs;
+import com.lying.wheelchairs.data.WHCItemTags;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.reference.Reference;
@@ -15,6 +16,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
@@ -79,6 +82,21 @@ public class ServerBus
 		
 		registerChairspaceEvents();
 		registerMountEvents();
+		
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, oldIsAlive) ->
+		{
+			if(!newPlayer.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
+			{
+				PlayerInventory oldInv = oldPlayer.getInventory();
+				PlayerInventory newInv = newPlayer.getInventory();
+				for(int i=0; i<oldInv.size(); i++)
+				{
+					ItemStack stack = oldInv.getStack(i);
+					if(!stack.isEmpty() && stack.isIn(WHCItemTags.PRESERVED))
+						newInv.setStack(i, stack.copy());
+				}
+			}
+		});
 	}
 	
 	/**

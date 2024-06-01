@@ -1,11 +1,9 @@
 package com.lying.wheelchairs.init;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.google.common.collect.Lists;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.item.ItemCrutch;
 import com.lying.wheelchairs.item.ItemWheelchair;
@@ -25,8 +23,6 @@ import net.minecraft.util.Identifier;
 public class WHCItems
 {
     private static final Map<Identifier, Item> ITEMS = new HashMap<>();
-    
-    public static final List<Item> WHEELCHAIRS = Lists.newArrayList();
     
     public static final Item WHEELCHAIR_OAK = wheelchair("oak");
     public static final Item WHEELCHAIR_SPRUCE = wheelchair("spruce");
@@ -121,10 +117,7 @@ public class WHCItems
     private static Item register(String nameIn, Item itemIn)
     {
     	if(itemIn instanceof ItemWheelchair)
-    	{
-    		WHEELCHAIRS.add(itemIn);
     		WHCBlocks.registerFakeBlock(nameIn);
-    	}
     	ITEMS.put(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
     	return itemIn;
     }

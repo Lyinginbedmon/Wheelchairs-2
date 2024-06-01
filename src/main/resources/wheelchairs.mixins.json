@@ -9,7 +9,8 @@
 		"EntityMixin",
 		"ItemEntityMixin",
 		"ServerPlayerEntityMixin",
-		"ServerPlayNetworkHandlerMixin"
+		"ServerPlayNetworkHandlerMixin",
+		"PlayerInventoryMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
