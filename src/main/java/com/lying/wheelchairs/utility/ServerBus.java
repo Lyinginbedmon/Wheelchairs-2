@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import com.lying.wheelchairs.Wheelchairs;
 import com.lying.wheelchairs.data.WHCItemTags;
 import com.lying.wheelchairs.entity.EntityWheelchair;
+import com.lying.wheelchairs.init.WHCChairspaceConditions;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -115,7 +116,7 @@ public class ServerBus
 			Entity vehicle = entity.getVehicle();
 			if(!entity.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
 				((EntityWheelchair)vehicle).dropInventory();
-			Chairspace.getChairspace(entity.getServer()).storeChair(vehicle, entity.getUuid());
+			Chairspace.getChairspace(entity.getServer()).storeEntityInChairspace(vehicle, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN);
 		});
 		
 		// Retrieving wheelchair when rider respawns
@@ -124,7 +125,7 @@ public class ServerBus
 			if(newPlayer.getWorld().isClient())
 				return;
 			else
-				Chairspace.getChairspace(newPlayer.getServer()).tryRespawnChair(newPlayer.getUuid(), newPlayer);
+				Chairspace.getChairspace(newPlayer.getServer()).respawnForCondition(newPlayer.getUuid(), newPlayer, WHCChairspaceConditions.ON_RESPAWN);
 		});
 		
 		// Storage/retrieval due to rider being in/out of Spectator
@@ -141,12 +142,12 @@ public class ServerBus
 				{
 					Entity vehicle = player.getVehicle();
 					player.stopRiding();
-					chairs.storeChair(vehicle, player.getUuid());
+					chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_GAMEMODE_CHANGE);
 				}
 			}
 			// Respawn the wheelchair
 			else
-				chairs.tryRespawnChair(player.getUuid(), player);
+				chairs.respawnForCondition(player.getUuid(), player, WHCChairspaceConditions.ON_GAMEMODE_CHANGE);
 		});
 	}
 	

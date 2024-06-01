@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lying.wheelchairs.init.WHCBlocks;
+import com.lying.wheelchairs.init.WHCChairspaceConditions;
 import com.lying.wheelchairs.init.WHCEnchantments;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
@@ -27,6 +28,7 @@ public class Wheelchairs implements ModInitializer
     
 	public void onInitialize()
 	{
+		WHCChairspaceConditions.init();
 		ServerBus.registerEventCallbacks();
 		WHCItems.init();
 		WHCUpgrades.init();

@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.lying.wheelchairs.init.WHCChairspaceConditions;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.utility.Chairspace;
 
@@ -24,7 +25,7 @@ public class ServerPlayerEntityMixin
 			// Store chair in Chairspace, it will be respawned by {@link ServerPlayNetworkHandlerMixin}
 			Chairspace chairs = Chairspace.getChairspace(player.getServer());
 			player.dismountVehicle();
-			chairs.storeChair(vehicle, player.getUuid());
+			chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_FINISH_TELEPORT);
 			
 			player.requestTeleport(destX, destY, destZ);
 			
