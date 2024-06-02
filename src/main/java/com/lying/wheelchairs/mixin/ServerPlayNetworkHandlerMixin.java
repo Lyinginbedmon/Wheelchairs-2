@@ -6,8 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.lying.wheelchairs.init.WHCChairspaceConditions;
-import com.lying.wheelchairs.utility.Chairspace;
+import com.lying.wheelchairs.utility.ServerBus;
 
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -22,8 +21,6 @@ public class ServerPlayNetworkHandlerMixin
 	@Inject(method = "onTeleportConfirm(Lnet/minecraft/network/packet/c2s/play/TeleportConfirmC2SPacket;)V", at = @At("TAIL"))
 	private void whc$onTeleportConfirm(TeleportConfirmC2SPacket packet, final CallbackInfo ci)
 	{
-		Chairspace chairs = Chairspace.getChairspace(this.player.getServer());
-		if(chairs.hasEntityFor(this.player.getUuid()))
-			chairs.respawnForCondition(this.player.getUuid(), player, WHCChairspaceConditions.ON_FINISH_TELEPORT);
+		ServerBus.AFTER_PLAYER_TELEPORT.invoker().afterTeleport(player);
 	}
 }

@@ -1,13 +1,17 @@
 package com.lying.wheelchairs.init;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
 import com.lying.wheelchairs.reference.Reference;
-import com.lying.wheelchairs.utility.Chairspace.ChairspaceCondition;
+import com.lying.wheelchairs.utility.ChairspaceCondition;
+import com.lying.wheelchairs.utility.ServerBus;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -26,14 +30,15 @@ public class WHCChairspaceConditions
 	
 	private static final List<ChairspaceCondition> CONDITIONS = Lists.newArrayList();
 	
-	/** Checked whenever the player respawns */
-	public static final ChairspaceCondition ON_RESPAWN = register(ChairspaceCondition.Builder.of("on_respawn"));
+	/** Respawn whenever the owner respawns */
+	public static final ChairspaceCondition ON_RESPAWN = register(ChairspaceCondition.Builder.of("on_respawn", ServerPlayerEvents.AFTER_RESPAWN));
 	
-	/** Checked whenever the server receives a teleport confirmation packet */
-	public static final ChairspaceCondition ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport"));
+	/** Respawn when the server receives a teleport confirmation packet from the owner */
+	public static final ChairspaceCondition ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport", ServerBus.AFTER_PLAYER_TELEPORT));
 	
-	/** Checked whenever the player changes game mode */
-	public static final ChairspaceCondition ON_GAMEMODE_CHANGE = register(ChairspaceCondition.Builder.of("on_corporeal").condition(player -> !player.isSpectator()));
+	/** Respawn when the owner exits Spectator mode */
+	public static final ChairspaceCondition ON_LEAVE_SPECTATOR = register(ChairspaceCondition.Builder.of("on_leave_spectator", ServerBus.AFTER_PLAYER_CHANGE_GAME_MODE)
+			.condition(player -> !player.isSpectator()));
 	
 	private static ChairspaceCondition register(ChairspaceCondition.Builder builder)
 	{
@@ -49,4 +54,12 @@ public class WHCChairspaceConditions
 	
 	@Nullable
 	public static ChairspaceCondition get(Identifier nameIn) { return REGISTRY.get(nameIn); }
+	
+	/** Returns a collection of all registered conditions listening to the given event */
+	public static Collection<ChairspaceCondition> getApplicable(Event<?> eventIn)
+	{
+		Collection<ChairspaceCondition> conditions = Lists.newArrayList();
+		REGISTRY.stream().forEach(condition -> { if(condition.isListeningTo(eventIn)) conditions.add(condition); });
+		return conditions;
+	}
 }

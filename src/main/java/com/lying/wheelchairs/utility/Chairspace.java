@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Predicate;
+
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
 import com.lying.wheelchairs.init.WHCChairspaceConditions;
-import com.lying.wheelchairs.reference.Reference;
 
+import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
@@ -117,7 +118,8 @@ public class Chairspace extends PersistentState
 		return chairs;
 	}
 	
-	public boolean hasEntityFor(UUID ownerID) { return storage.containsKey(ownerID) && !storage.get(ownerID).isEmpty(); }
+	/** Returns true if there is at least one entity in storage under the given UUID */
+	public boolean hasEntityFor(UUID ownerID){ return storage.containsKey(ownerID) && !storage.get(ownerID).isEmpty(); }
 	
 	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition, boolean mountOnRespawn)
 	{
@@ -134,9 +136,17 @@ public class Chairspace extends PersistentState
 		this.markDirty();
 	}
 	
+	/** Respawns all associated entities across all applicable conditions (if any) */
+	public void reactToEvent(Event<?> eventIn, Entity owner)
+	{
+		UUID uuid = owner.getUuid();
+		WHCChairspaceConditions.getApplicable(eventIn).forEach(condition -> respawnForCondition(uuid, owner, condition));
+	}
+	
+	/** Respawns all associated entities stored under the given condition */
 	public void respawnForCondition(UUID ownerID, Entity owner, ChairspaceCondition condition)
 	{
-		if(owner == null || !storage.containsKey(ownerID) || owner.isSpectator() || owner.getWorld() == null || owner.getWorld().isClient() || !condition.isApplicable(owner)) return;
+		if(owner == null || owner.getWorld() == null || owner.getWorld().isClient() || owner.isSpectator() || !hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner)) return;
 		
 		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
 		if(!ownerMap.containsKey(condition)) return;
@@ -145,53 +155,11 @@ public class Chairspace extends PersistentState
 		if(entities.isEmpty()) return;
 		
 		ServerWorld world = (ServerWorld)owner.getWorld();
-		entities.forEach(respawn -> respawn.respawn(owner, world));
+		entities.forEach(entry -> condition.applyPostEffects(entry.respawn(owner, world)));
 		
 		ownerMap.remove(condition);
 		storage.put(ownerID, ownerMap);
 		this.markDirty();
-	}
-	
-	/**
-	 * Defines the context of an entity being respawned.
-	 * @author Lying
-	 */
-	public static class ChairspaceCondition
-	{
-		private final Identifier registryName;
-		
-		private final Predicate<Entity> canApplyTo;
-		
-		private ChairspaceCondition(Identifier nameIn, Predicate<Entity> qualifierIn)
-		{
-			registryName = nameIn;
-			canApplyTo = qualifierIn;
-		}
-		
-		public Identifier registryName() { return this.registryName; }
-		
-		public boolean isApplicable(Entity player) { return this.canApplyTo.test(player); }
-		
-		public static class Builder
-		{
-			private final Identifier regName;
-			private Predicate<Entity> canApplyTo = player -> player.isAlive();
-			
-			private Builder(Identifier regNameIn)
-			{
-				regName = regNameIn;
-			}
-			
-			public static Builder of(String nameIn) { return new Builder(new Identifier(Reference.ModInfo.MOD_ID, nameIn)); }
-			
-			public Builder condition(Predicate<Entity> conditionIn)
-			{
-				this.canApplyTo = conditionIn.and(canApplyTo);
-				return this;
-			}
-			
-			public ChairspaceCondition build() { return new ChairspaceCondition(regName, canApplyTo); }
-		}
 	}
 	
 	/**
@@ -229,7 +197,8 @@ public class Chairspace extends PersistentState
 			return new RespawnData(nbt.getCompound("Entity"), nbt.getBoolean("Mount"));
 		}
 		
-		public void respawn(Entity owner, ServerWorld world)
+		@Nullable
+		public Entity respawn(Entity owner, ServerWorld world)
 		{
 
 			Entity storedEntity = EntityType.loadEntityWithPassengers(entityData, world, entity -> {
@@ -244,6 +213,7 @@ public class Chairspace extends PersistentState
 				if(shouldMount && !owner.hasVehicle())
 					owner.startRiding(storedEntity);
 			}
+			return storedEntity;
 		}
 	}
 }

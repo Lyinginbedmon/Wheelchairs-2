@@ -44,6 +44,21 @@ public class ServerBus
 	}
 	
 	/**
+	 * Fired AFTER the player confirms a teleport
+	 */
+	public static final Event<PlayerConfirmTeleport> AFTER_PLAYER_TELEPORT = EventFactory.createWithPhases(PlayerConfirmTeleport.class, callbacks -> (player) -> 
+	{
+		for(PlayerConfirmTeleport callback : callbacks)
+			callback.afterTeleport(player);
+	}, EVENT_FIRST, Event.DEFAULT_PHASE, EVENT_LAST);
+	
+	@FunctionalInterface
+	public interface PlayerConfirmTeleport
+	{
+		void afterTeleport(PlayerEntity player);
+	}
+	
+	/**
 	 * Fired AFTER a living entity changes its mount/vehicle
 	 */
 	public static final Event<LivingChangeMount> AFTER_LIVING_CHANGE_MOUNT = EventFactory.createWithPhases(LivingChangeMount.class, callbacks -> (living, nextMount, lastMount) -> 
@@ -66,7 +81,6 @@ public class ServerBus
 	
 	/**
 	 * Fired when a living entity jumps in midair
-	 *
 	 */
 	@FunctionalInterface
 	public interface DoubleJumpEvent
@@ -105,7 +119,7 @@ public class ServerBus
 	 */
 	private static void registerChairspaceEvents()
 	{
-		Wheelchairs.LOGGER.info("Registered Chairspace handling");
+		Wheelchairs.LOGGER.info("Registered Chairspace event handlers");
 		
 		// Storing wheelchair due to rider death
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity,damage) -> 
@@ -122,10 +136,8 @@ public class ServerBus
 		// Retrieving wheelchair when rider respawns
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, oldIsAlive) -> 
 		{
-			if(newPlayer.getWorld().isClient())
-				return;
-			else
-				Chairspace.getChairspace(newPlayer.getServer()).respawnForCondition(newPlayer.getUuid(), newPlayer, WHCChairspaceConditions.ON_RESPAWN);
+			if(!newPlayer.getWorld().isClient())
+				Chairspace.getChairspace(newPlayer.getServer()).reactToEvent(ServerPlayerEvents.AFTER_RESPAWN, newPlayer);
 		});
 		
 		// Storage/retrieval due to rider being in/out of Spectator
@@ -142,12 +154,18 @@ public class ServerBus
 				{
 					Entity vehicle = player.getVehicle();
 					player.stopRiding();
-					chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_GAMEMODE_CHANGE, true);
+					chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_LEAVE_SPECTATOR, true);
 				}
 			}
-			// Respawn the wheelchair
-			else
-				chairs.respawnForCondition(player.getUuid(), player, WHCChairspaceConditions.ON_GAMEMODE_CHANGE);
+			
+			chairs.reactToEvent(ServerBus.AFTER_PLAYER_CHANGE_GAME_MODE, player);
+		});
+		
+		// Retrieving wheelchair when rider respawns
+		ServerBus.AFTER_PLAYER_TELEPORT.register(player -> 
+		{
+			if(!player.getWorld().isClient())
+				Chairspace.getChairspace(player.getServer()).reactToEvent(ServerBus.AFTER_PLAYER_TELEPORT, player);
 		});
 	}
 	
