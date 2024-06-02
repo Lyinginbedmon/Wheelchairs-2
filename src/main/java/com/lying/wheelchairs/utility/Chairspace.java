@@ -22,6 +22,12 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
 
+/**
+ * Chairspace is an extradimensional persistent storage for entities.<br>
+ * Entities are stored associated with a UUID and condition and respawned when appropriate.<br>
+ * @author Lying
+ *
+ */
 public class Chairspace extends PersistentState
 {
 	public static final String ID = "chairspace";
@@ -31,7 +37,7 @@ public class Chairspace extends PersistentState
             null
     );
 	
-	private Map<UUID, Map<ChairspaceCondition, List<NbtCompound>>> storage = new HashMap<>();
+	private Map<UUID, Map<ChairspaceCondition, List<RespawnData>>> storage = new HashMap<>();
 	
 	public static Chairspace getChairspace(MinecraftServer server)
 	{
@@ -63,7 +69,7 @@ public class Chairspace extends PersistentState
 				entry.putString("Condition", condition.registryName().toString());
 				
 				NbtList entries = new NbtList();
-				list.forEach(mob -> entries.add(mob));
+				list.forEach(respawn -> entries.add(respawn.writeToNbt()));
 				entry.put("Entries", entries);
 				
 				mapData.add(entry);
@@ -81,13 +87,13 @@ public class Chairspace extends PersistentState
 		NbtList set = nbt.getList("Data", NbtElement.COMPOUND_TYPE);
 		
 		chairs.storage.clear();
-		Map<UUID, Map<ChairspaceCondition, List<NbtCompound>>> dataSet = new HashMap<>();
+		Map<UUID, Map<ChairspaceCondition, List<RespawnData>>> dataSet = new HashMap<>();
 		for(int i=0; i<set.size(); i++)
 		{
 			NbtCompound compound = set.getCompound(i);
 			UUID id = compound.getUuid("ID");
 			
-			Map<ChairspaceCondition, List<NbtCompound>> dataEntry = new HashMap<>();
+			Map<ChairspaceCondition, List<RespawnData>> dataEntry = new HashMap<>();
 			NbtList mapData = compound.getList("Data", NbtElement.COMPOUND_TYPE);
 			for(int j=0; j<mapData.size(); j++)
 			{
@@ -98,9 +104,9 @@ public class Chairspace extends PersistentState
 				NbtList entries = entry.getList("Entries", NbtElement.COMPOUND_TYPE);
 				if(entries.isEmpty()) continue;
 				
-				List<NbtCompound> dataEntries = Lists.newArrayList();
+				List<RespawnData> dataEntries = Lists.newArrayList();
 				for(int k=0; k<entries.size(); k++)
-					dataEntries.add(entries.getCompound(k));
+					dataEntries.add(RespawnData.readFromNbt(entries.getCompound(k)));
 				
 				dataEntry.put(dataCondition, dataEntries);
 			}
@@ -113,14 +119,14 @@ public class Chairspace extends PersistentState
 	
 	public boolean hasEntityFor(UUID ownerID) { return storage.containsKey(ownerID) && !storage.get(ownerID).isEmpty(); }
 	
-	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition)
+	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition, boolean mountOnRespawn)
 	{
 		NbtCompound data = new NbtCompound();
 		ent.saveNbt(data);
 		
-		Map<ChairspaceCondition, List<NbtCompound>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
-		List<NbtCompound> listForCondition = ownerMap.getOrDefault(condition, Lists.newArrayList());
-		listForCondition.add(data);
+		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
+		List<RespawnData> listForCondition = ownerMap.getOrDefault(condition, Lists.newArrayList());
+		listForCondition.add(RespawnData.of(ent, mountOnRespawn));
 		ownerMap.put(condition, listForCondition);
 		storage.put(ownerID, ownerMap);
 		
@@ -132,59 +138,44 @@ public class Chairspace extends PersistentState
 	{
 		if(owner == null || !storage.containsKey(ownerID) || owner.isSpectator() || owner.getWorld() == null || owner.getWorld().isClient() || !condition.isApplicable(owner)) return;
 		
-		Map<ChairspaceCondition, List<NbtCompound>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
+		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
 		if(!ownerMap.containsKey(condition)) return;
 		
-		List<NbtCompound> entities = ownerMap.getOrDefault(condition, Lists.newArrayList());
+		List<RespawnData> entities = ownerMap.getOrDefault(condition, Lists.newArrayList());
 		if(entities.isEmpty()) return;
 		
 		ServerWorld world = (ServerWorld)owner.getWorld();
-		entities.forEach(nbt -> 
-		{
-			Entity storedEntity = EntityType.loadEntityWithPassengers(nbt, world, entity -> {
-				entity.refreshPositionAndAngles(owner.getX(), owner.getY(), owner.getZ(), owner.getYaw(), owner.getPitch());
-	            return entity;
-	        });
-			
-			if(storedEntity != null)
-			{
-				world.spawnEntity(storedEntity);
-				
-				if(condition.attemptToMount() && !owner.hasVehicle())
-					owner.startRiding(storedEntity);
-			}
-		});
+		entities.forEach(respawn -> respawn.respawn(owner, world));
 		
 		ownerMap.remove(condition);
 		storage.put(ownerID, ownerMap);
 		this.markDirty();
 	}
 	
+	/**
+	 * Defines the context of an entity being respawned.
+	 * @author Lying
+	 */
 	public static class ChairspaceCondition
 	{
 		private final Identifier registryName;
 		
 		private final Predicate<Entity> canApplyTo;
-		private final boolean shouldMountIfPossible;
 		
-		private ChairspaceCondition(Identifier nameIn, Predicate<Entity> qualifierIn, boolean shouldMountIn)
+		private ChairspaceCondition(Identifier nameIn, Predicate<Entity> qualifierIn)
 		{
 			registryName = nameIn;
 			canApplyTo = qualifierIn;
-			shouldMountIfPossible = shouldMountIn;
 		}
 		
 		public Identifier registryName() { return this.registryName; }
 		
 		public boolean isApplicable(Entity player) { return this.canApplyTo.test(player); }
 		
-		public boolean attemptToMount() { return this.shouldMountIfPossible; }
-		
 		public static class Builder
 		{
 			private final Identifier regName;
 			private Predicate<Entity> canApplyTo = player -> player.isAlive();
-			private boolean mountIfPossible = false;
 			
 			private Builder(Identifier regNameIn)
 			{
@@ -199,13 +190,60 @@ public class Chairspace extends PersistentState
 				return this;
 			}
 			
-			public Builder shouldMount()
-			{
-				this.mountIfPossible = true;
-				return this;
-			}
+			public ChairspaceCondition build() { return new ChairspaceCondition(regName, canApplyTo); }
+		}
+	}
+	
+	/**
+	 * Handles the respawning of a single stored entity, including mounting it to the owner if desired.<br>
+	 * @author Lying
+	 */
+	private static class RespawnData
+	{
+		private final NbtCompound entityData;
+		private final boolean shouldMount;
+		
+		public RespawnData(NbtCompound data, boolean mount)
+		{
+			this.entityData = data;
+			this.shouldMount = mount;
+		}
+		
+		public static RespawnData of(Entity entity, boolean mount)
+		{
+			NbtCompound data = new NbtCompound();
+			entity.saveNbt(data);
+			return new RespawnData(data, mount);
+		}
+		
+		public NbtCompound writeToNbt()
+		{
+			NbtCompound data = new NbtCompound();
+			data.put("Entity", entityData);
+			data.putBoolean("Mount", shouldMount);
+			return data;
+		}
+		
+		public static RespawnData readFromNbt(NbtCompound nbt)
+		{
+			return new RespawnData(nbt.getCompound("Entity"), nbt.getBoolean("Mount"));
+		}
+		
+		public void respawn(Entity owner, ServerWorld world)
+		{
+
+			Entity storedEntity = EntityType.loadEntityWithPassengers(entityData, world, entity -> {
+				entity.refreshPositionAndAngles(owner.getX(), owner.getY(), owner.getZ(), owner.getYaw(), owner.getPitch());
+	            return entity;
+	        });
 			
-			public ChairspaceCondition build() { return new ChairspaceCondition(regName, canApplyTo, mountIfPossible); }
+			if(storedEntity != null)
+			{
+				world.spawnEntity(storedEntity);
+				
+				if(shouldMount && !owner.hasVehicle())
+					owner.startRiding(storedEntity);
+			}
 		}
 	}
 }

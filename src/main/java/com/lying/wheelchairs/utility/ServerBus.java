@@ -116,7 +116,7 @@ public class ServerBus
 			Entity vehicle = entity.getVehicle();
 			if(!entity.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
 				((EntityWheelchair)vehicle).dropInventory();
-			Chairspace.getChairspace(entity.getServer()).storeEntityInChairspace(vehicle, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN);
+			Chairspace.getChairspace(entity.getServer()).storeEntityInChairspace(vehicle, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN, true);
 		});
 		
 		// Retrieving wheelchair when rider respawns
@@ -142,7 +142,7 @@ public class ServerBus
 				{
 					Entity vehicle = player.getVehicle();
 					player.stopRiding();
-					chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_GAMEMODE_CHANGE);
+					chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_GAMEMODE_CHANGE, true);
 				}
 			}
 			// Respawn the wheelchair

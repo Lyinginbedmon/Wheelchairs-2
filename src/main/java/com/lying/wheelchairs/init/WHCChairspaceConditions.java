@@ -27,13 +27,13 @@ public class WHCChairspaceConditions
 	private static final List<ChairspaceCondition> CONDITIONS = Lists.newArrayList();
 	
 	/** Checked whenever the player respawns */
-	public static final ChairspaceCondition ON_RESPAWN = register(ChairspaceCondition.Builder.of("on_respawn").shouldMount());
+	public static final ChairspaceCondition ON_RESPAWN = register(ChairspaceCondition.Builder.of("on_respawn"));
 	
 	/** Checked whenever the server receives a teleport confirmation packet */
-	public static final ChairspaceCondition ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport").shouldMount());
+	public static final ChairspaceCondition ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport"));
 	
 	/** Checked whenever the player changes game mode */
-	public static final ChairspaceCondition ON_GAMEMODE_CHANGE = register(ChairspaceCondition.Builder.of("on_corporeal").condition(player -> !player.isSpectator()).shouldMount());
+	public static final ChairspaceCondition ON_GAMEMODE_CHANGE = register(ChairspaceCondition.Builder.of("on_corporeal").condition(player -> !player.isSpectator()));
 	
 	private static ChairspaceCondition register(ChairspaceCondition.Builder builder)
 	{
