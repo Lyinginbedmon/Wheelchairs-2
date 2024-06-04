@@ -2,6 +2,7 @@ package com.lying.wheelchairs.data;
 
 import java.util.Map;
 
+import com.lying.wheelchairs.data.recipe.RecipeCaneJsonBuilder;
 import com.lying.wheelchairs.data.recipe.RecipeWheelchairJsonBuilder;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.reference.Reference;
@@ -69,6 +70,18 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		offerCrutchRecipe(exporter, WHCItems.CRUTCH_CHERRY, Blocks.CHERRY_PLANKS, "cherry_crutch");
 		offerCrutchRecipe(exporter, WHCItems.CRUTCH_BAMBOO, Blocks.BAMBOO_PLANKS, "bamboo_crutch");
 		
+		offerCaneRecipe(exporter, WHCItems.CANE_OAK, Ingredient.ofItems(Blocks.STRIPPED_OAK_LOG), "oak_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_SPRUCE, Ingredient.ofItems(Blocks.STRIPPED_SPRUCE_LOG), "spruce_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_BIRCH, Ingredient.ofItems(Blocks.STRIPPED_BIRCH_LOG), "birch_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_DARK_OAK, Ingredient.ofItems(Blocks.STRIPPED_DARK_OAK_LOG), "dark_oak_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_ACACIA, Ingredient.ofItems(Blocks.STRIPPED_ACACIA_LOG), "acacia_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_JUNGLE, Ingredient.ofItems(Blocks.STRIPPED_JUNGLE_LOG), "jungle_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_CRIMSON, Ingredient.ofItems(Blocks.STRIPPED_CRIMSON_STEM), "crimson_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_WARPED, Ingredient.ofItems(Blocks.STRIPPED_WARPED_STEM), "warped_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_MANGROVE, Ingredient.ofItems(Blocks.STRIPPED_MANGROVE_LOG), "mangrove_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_CHERRY, Ingredient.ofItems(Blocks.STRIPPED_CHERRY_LOG), "cherry_cane");
+		offerCaneRecipe(exporter, WHCItems.CANE_BAMBOO, Ingredient.ofItems(Blocks.STRIPPED_BAMBOO_BLOCK), "bamboo_cane");
+		
 		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER)
 			.pattern("j").pattern("b")
 			.input('j', Items.REDSTONE_TORCH)
@@ -90,6 +103,14 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	private static void offerWheelchairRecipe(RecipeExporter exporter, Item chair, Ingredient backing, String name)
 	{
 		RecipeWheelchairJsonBuilder builder = new RecipeWheelchairJsonBuilder(chair.getDefaultStack(), backing, RecipeCategory.TRANSPORTATION);
+		if(backing.getMatchingStacks().length > 0)
+			builder.criterion("has_backing", RecipeProvider.conditionsFromItem(backing.getMatchingStacks()[0].getItem()));
+		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));
+	}
+	
+	private static void offerCaneRecipe(RecipeExporter exporter, Item chair, Ingredient backing, String name)
+	{
+		RecipeCaneJsonBuilder builder = new RecipeCaneJsonBuilder(chair.getDefaultStack(), backing, RecipeCategory.TRANSPORTATION);
 		if(backing.getMatchingStacks().length > 0)
 			builder.criterion("has_backing", RecipeProvider.conditionsFromItem(backing.getMatchingStacks()[0].getItem()));
 		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));

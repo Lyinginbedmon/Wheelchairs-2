@@ -22,7 +22,7 @@ public class WHCEntityTypes
      * TODO Entities for later versions
      * Rollator-style walker/zimmer frame
      * 	Bind to user similar to leashing or firework rocket
-     * 	Limited upgrades (storage
+     * 	Limited upgrades (storage)
      * 
      * Wheeled stool (see: my kitchen :P )
      */

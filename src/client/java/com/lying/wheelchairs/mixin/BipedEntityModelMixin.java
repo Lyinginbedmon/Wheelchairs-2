@@ -6,11 +6,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.item.ItemCrutch;
 
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.BipedEntityModel.ArmPose;
+import net.minecraft.client.render.entity.model.CrossbowPosing;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -43,10 +45,16 @@ public class BipedEntityModelMixin extends EntityModelMixin
 		
 		ModelPart mainLeg = getLeg(entity.getMainArm());
 		ModelPart offLeg = getLeg(entity.getMainArm().getOpposite());
-		boolean isPair = isHoldingPair(entity);
 		boolean rightHanded = entity.getMainArm() == Arm.RIGHT;
 		boolean isCrouching = entity.isInPose(EntityPose.CROUCHING);
 		
+		animHandlingCrutches(entity, isCrouching, rightHanded, mainLeg, offLeg);
+		animHandlingCanes(entity, ageInTicks, rightHanded, isCrouching);
+	}
+	
+	private void animHandlingCrutches(LivingEntity entity, boolean isCrouching, boolean rightHanded, ModelPart mainLeg, ModelPart offLeg)
+	{
+		boolean isPair = isHoldingPair(entity);
 		double amount = isCrouching ? 25D : entity.hasVehicle() ? 15D : 10D;
 		float roll = (float)Math.toRadians(amount);
 		if(entity.hasVehicle())
@@ -82,9 +90,32 @@ public class BipedEntityModelMixin extends EntityModelMixin
 		}
 	}
 	
+	private void animHandlingCanes(LivingEntity entity, float ageInTicks, boolean isRightHanded, boolean isCrouching)
+	{
+		if(entity.hasVehicle()) return;
+		
+		if(isCane(entity.getMainHandStack()))
+		{
+			ModelPart mainArm = getArm(entity.getMainArm());
+			CrossbowPosing.swingArm(mainArm, ageInTicks, isRightHanded ? -1F : 1F);
+			if(isCrouching)
+				mainArm.pitch -= Math.toRadians(30D);
+		}
+		
+		if(isCane(entity.getOffHandStack()))
+		{
+			ModelPart offArm = getArm(entity.getMainArm().getOpposite());
+			CrossbowPosing.swingArm(offArm, ageInTicks, isRightHanded ? 1F : -1F);
+			if(isCrouching)
+				offArm.pitch -= Math.toRadians(30D);
+		}
+	}
+	
 	private ModelPart getLeg(Arm arm) { return arm == Arm.RIGHT ? rightLeg : leftLeg; }
 	
 	private static boolean isCrutch(ItemStack stack) { return !stack.isEmpty() && stack.getItem() instanceof ItemCrutch; }
+	
+	private static boolean isCane(ItemStack stack) { return !stack.isEmpty() && stack.getItem() instanceof ItemCane; }
 	
 	private static boolean isHoldingPair(LivingEntity entity) { return isCrutch(entity.getMainHandStack()) && isCrutch(entity.getOffHandStack()); }
 	

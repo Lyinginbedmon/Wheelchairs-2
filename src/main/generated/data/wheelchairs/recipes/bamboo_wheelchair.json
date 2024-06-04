@@ -7,12 +7,12 @@
     "tag": "minecraft:wool"
   },
   "left_wheel": {
-    "tag": "wheelchairs:wheel"
+    "tag": "wheelchairs:wheels"
   },
   "result": {
     "item": "wheelchairs:bamboo_wheelchair"
   },
   "right_wheel": {
-    "tag": "wheelchairs:wheel"
+    "tag": "wheelchairs:wheels"
   }
 }

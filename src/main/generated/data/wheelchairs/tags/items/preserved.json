@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "#wheelchairs:crutch"
+    "#wheelchairs:wheelchair",
+    "#wheelchairs:crutch",
+    "#wheelchairs:cane"
   ]
 }

@@ -9,6 +9,7 @@
 		"EntityModelMixin",
 		"BipedEntityModelMixin",
 		"ItemRendererMixin",
+		"HeldItemRendererMixin",
 		"ModelLoaderMixin"
 	],
 	"injectors": {

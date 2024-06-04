@@ -18,7 +18,7 @@ public class WHCItemTags extends ItemTagProvider
 	public static final TagKey<Item> WHEEL = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "wheels"));
 	public static final TagKey<Item> WHEELCHAIR = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "wheelchair"));
 	public static final TagKey<Item> CRUTCH = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "crutch"));
-	//public static final TagKey<Item> CANE = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "cane"));
+	public static final TagKey<Item> CANE = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "cane"));
 	public static final TagKey<Item> PRESERVED = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "preserved"));
 	
 	public WHCItemTags(FabricDataOutput output, CompletableFuture<WrapperLookup> completableFuture)
@@ -64,6 +64,18 @@ public class WHCItemTags extends ItemTagProvider
 				WHCItems.CRUTCH_WARPED,
 				WHCItems.CRUTCH_CHERRY,
 				WHCItems.CRUTCH_BAMBOO);
-		getOrCreateTagBuilder(PRESERVED).addTag(CRUTCH);
+		getOrCreateTagBuilder(CANE).add(
+				WHCItems.CANE_ACACIA, 
+				WHCItems.CANE_BIRCH, 
+				WHCItems.CANE_CRIMSON, 
+				WHCItems.CANE_DARK_OAK, 
+				WHCItems.CANE_JUNGLE, 
+				WHCItems.CANE_MANGROVE, 
+				WHCItems.CANE_OAK, 
+				WHCItems.CANE_SPRUCE, 
+				WHCItems.CANE_WARPED,
+				WHCItems.CANE_CHERRY,
+				WHCItems.CANE_BAMBOO);
+		getOrCreateTagBuilder(PRESERVED).addTag(WHEELCHAIR).addTag(CRUTCH).addTag(CANE);
 	}
 }

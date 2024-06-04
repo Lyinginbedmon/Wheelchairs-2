@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "item": "wheelchairs:oak_cane"
+  },
+  "staff": {
+    "item": "minecraft:stripped_oak_log"
+  }
+}

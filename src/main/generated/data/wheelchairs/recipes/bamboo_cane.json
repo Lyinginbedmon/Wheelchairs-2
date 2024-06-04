@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "item": "wheelchairs:bamboo_cane"
+  },
+  "staff": {
+    "item": "minecraft:stripped_bamboo_block"
+  }
+}

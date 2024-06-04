@@ -54,7 +54,27 @@ public class WHCItemsClient
 		EXTRA_MODELS.add(new ExtraModelHandler(item, new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+"_in_hand", "inventory"), WHCItemsClient::onPerson));
 	}
 	
-	private static boolean onPerson(ModelTransformationMode mode) { return mode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND || mode == ModelTransformationMode.THIRD_PERSON_RIGHT_HAND; }
+	private static void addExtraCaneModel(Item item)
+	{
+		Identifier itemID = Registries.ITEM.getId(item);
+		EXTRA_MODELS.add(new ExtraModelHandler(item, new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+"_in_gui", "inventory"), WHCItemsClient::inGUI));
+	}
+	
+	private static boolean onPerson(ModelTransformationMode mode)
+	{
+		return
+				mode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND ||
+				mode == ModelTransformationMode.THIRD_PERSON_RIGHT_HAND;
+	}
+	
+	private static boolean inGUI(ModelTransformationMode mode)
+	{
+		return
+				mode == ModelTransformationMode.FIXED ||
+				mode == ModelTransformationMode.GUI ||
+				mode == ModelTransformationMode.GROUND ||
+				mode == ModelTransformationMode.NONE;
+	}
 	
 	public static List<ModelIdentifier> getExtraModels()
 	{
@@ -107,5 +127,17 @@ public class WHCItemsClient
 		addExtraCrutchModel(WHCItems.CRUTCH_OAK);
 		addExtraCrutchModel(WHCItems.CRUTCH_SPRUCE);
 		addExtraCrutchModel(WHCItems.CRUTCH_WARPED);
+		
+		addExtraCaneModel(WHCItems.CANE_ACACIA);
+		addExtraCaneModel(WHCItems.CANE_BAMBOO);
+		addExtraCaneModel(WHCItems.CANE_BIRCH);
+		addExtraCaneModel(WHCItems.CANE_CHERRY);
+		addExtraCaneModel(WHCItems.CANE_CRIMSON);
+		addExtraCaneModel(WHCItems.CANE_DARK_OAK);
+		addExtraCaneModel(WHCItems.CANE_JUNGLE);
+		addExtraCaneModel(WHCItems.CANE_MANGROVE);
+		addExtraCaneModel(WHCItems.CANE_OAK);
+		addExtraCaneModel(WHCItems.CANE_SPRUCE);
+		addExtraCaneModel(WHCItems.CANE_WARPED);
 	}
 }

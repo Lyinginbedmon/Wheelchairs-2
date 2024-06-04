@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "item": "wheelchairs:crimson_cane"
+  },
+  "staff": {
+    "item": "minecraft:stripped_crimson_stem"
+  }
+}

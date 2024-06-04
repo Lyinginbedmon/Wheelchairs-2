@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "item": "wheelchairs:mangrove_cane"
+  },
+  "staff": {
+    "item": "minecraft:stripped_mangrove_log"
+  }
+}

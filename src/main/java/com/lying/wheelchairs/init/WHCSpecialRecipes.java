@@ -3,6 +3,7 @@ package com.lying.wheelchairs.init;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.lying.wheelchairs.data.recipe.RecipeCane;
 import com.lying.wheelchairs.data.recipe.RecipeWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -19,6 +20,7 @@ public class WHCSpecialRecipes
 	private static final Map<RecipeType<?>, Identifier> RECIPE_TYPES = new HashMap<>();
 	
 	public static final RecipeSerializer<RecipeWheelchair> WHEELCHAIR_SERIALIZER = makeSerializer(RecipeWheelchair.ID, new RecipeWheelchair.Serializer());
+	public static final RecipeSerializer<RecipeCane> CANE_SERIALIZER = makeSerializer(RecipeCane.ID, new RecipeCane.Serializer());
 	
 	static <T extends Recipe<?>> RecipeSerializer<T> makeSerializer(Identifier name, RecipeSerializer<T> serializer)
 	{
