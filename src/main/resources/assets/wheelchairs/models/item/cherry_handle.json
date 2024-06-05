@@ -1,6 +1,6 @@
 {
 	"parent": "wheelchairs:item/cane_handle_simple",
 	"textures": {
-		"handle": "block/gold_block"
+		"handle": "block/cherry_planks"
 	}
 }

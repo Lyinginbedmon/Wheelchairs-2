@@ -76,10 +76,10 @@ public class WHCItemsClient
 				mode == ModelTransformationMode.NONE;
 	}
 	
-	public static List<ModelIdentifier> getExtraModels()
+	public static List<ModelIdentifier> getExtraModelsToRegister()
 	{
 		List<ModelIdentifier> models = Lists.newArrayList();
-			EXTRA_MODELS.forEach(handler -> models.add(handler.model()));
+			EXTRA_MODELS.forEach(handler -> { if(handler.needsRegistration()) models.add(handler.model()); });
 		return models;
 	}
 	
@@ -101,13 +101,22 @@ public class WHCItemsClient
 		private final Item item;
 		private final Predicate<ModelTransformationMode> qualifier;
 		private final ModelIdentifier model;
+		private final boolean shouldRegister;
 		
 		public ExtraModelHandler(Item itemIn, ModelIdentifier modelIn, Predicate<ModelTransformationMode> qualifierIn)
+		{
+			this(itemIn, modelIn, qualifierIn, true);
+		}
+		
+		public ExtraModelHandler(Item itemIn, ModelIdentifier modelIn, Predicate<ModelTransformationMode> qualifierIn, boolean shouldRegisterIn)
 		{
 			item = itemIn;
 			qualifier = qualifierIn;
 			model = modelIn;
+			shouldRegister = shouldRegisterIn;
 		}
+		
+		public boolean needsRegistration() { return this.shouldRegister; }
 		
 		public boolean shouldApply(Item itemIn, ModelTransformationMode mode) { return itemIn == item && qualifier.apply(mode); }
 		
