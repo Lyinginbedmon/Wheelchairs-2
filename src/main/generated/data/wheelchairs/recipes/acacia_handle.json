@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:handle",
+  "material": {
+    "item": "minecraft:acacia_button"
+  },
+  "result": {
+    "item": "wheelchairs:acacia_handle"
+  }
+}

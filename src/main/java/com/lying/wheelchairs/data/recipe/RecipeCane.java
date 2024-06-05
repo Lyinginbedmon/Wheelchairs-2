@@ -1,6 +1,7 @@
 package com.lying.wheelchairs.data.recipe;
 
-import com.lying.wheelchairs.init.WHCItems;
+import java.util.Optional;
+
 import com.lying.wheelchairs.init.WHCSpecialRecipes;
 import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.reference.Reference;
@@ -8,12 +9,17 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.RecipeInputInventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.RecipeManager;
+import net.minecraft.recipe.RecipeManager.MatchGetter;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -34,28 +40,34 @@ public class RecipeCane implements CraftingRecipe
 	private final Ingredient staff;
 	private static final Ingredient STICK = Ingredient.ofItems(Items.STICK);
 	
+	private final MatchGetter<Inventory, RecipeHandle> handleMatcher;
+	private World currentWorld;
+	
 	public RecipeCane(ItemStack result, Ingredient staff)
 	{
 		this.result = result;
 		this.staff = staff;
+		this.handleMatcher = RecipeManager.createCachedMatchGetter(WHCSpecialRecipes.HANDLE_TYPE);
 	}
 	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	
 	public boolean fits(int width, int height) { return width >= 1 && height >= 3; }
 	
-	public boolean matches(RecipeInputInventory inv, World var2)
+	public boolean matches(RecipeInputInventory inv, World world)
 	{
-		ItemStack handle = ItemStack.EMPTY, staff = ItemStack.EMPTY, stick = ItemStack.EMPTY;
+		this.currentWorld = world;
+		RecipeHandle handle = null;
+		ItemStack staff = ItemStack.EMPTY, stick = ItemStack.EMPTY;
 		for(int y=0; y<(inv.getHeight() - 2); y++)
 			for(int x=0; x<inv.getWidth(); x++)
 			{
 				ItemStack handleMat = inv.getStack(coordsToIndex(x, y, inv.getWidth()));
-				ItemStack handleItem = WHCItems.getHandleFromItem(handleMat);
-				if(handleItem == null)
+				Optional<RecipeEntry<RecipeHandle>> handleRecipe = handleFromItem(handleMat, world);
+				if(handleRecipe.isEmpty())
 					continue;
 				else
-					handle = handleItem.copy();
+					handle = handleRecipe.get().value();
 				
 				ItemStack staffMat = inv.getStack(coordsToIndex(x, y + 1, inv.getWidth()));
 				if(!this.staff.test(staffMat))
@@ -69,7 +81,7 @@ public class RecipeCane implements CraftingRecipe
 				else
 					stick = stickMat.copy();
 			}
-		return !handle.isEmpty() && !staff.isEmpty() && !stick.isEmpty();
+		return handle != null && !staff.isEmpty() && !stick.isEmpty();
 	}
 	
 	public ItemStack getResult(DynamicRegistryManager var2) { return this.result.copy(); }
@@ -80,10 +92,10 @@ public class RecipeCane implements CraftingRecipe
 		
 		for(int i=0; i<inv.size(); i++)
 		{
-			ItemStack handleItem = WHCItems.getHandleFromItem(inv.getStack(i));
-			if(handleItem != null && !handleItem.isEmpty())
+			Optional<RecipeEntry<RecipeHandle>> handleRecipe = handleFromItem(inv.getStack(i), currentWorld);
+			if(handleRecipe.isPresent())
 			{
-				handle = handleItem.copy();
+				handle = handleRecipe.get().value().getResult(var2);
 				break;
 			}
 		}
@@ -96,6 +108,13 @@ public class RecipeCane implements CraftingRecipe
 		}
 		else
 			return ItemStack.EMPTY;
+	}
+	
+	public Optional<RecipeEntry<RecipeHandle>> handleFromItem(ItemStack stack, World world)
+	{
+		SimpleInventory inv = new SimpleInventory(1);
+		inv.setStack(0, stack.copy());
+		return handleMatcher.getFirstMatch(inv, world);
 	}
 	
 	private static int coordsToIndex(int x, int y, int width) { return x + (y * width); }
@@ -119,10 +138,10 @@ public class RecipeCane implements CraftingRecipe
             return new RecipeCane(result, backing);
         }
         
-        public void write(PacketByteBuf packetByteBuf, RecipeCane wheelchairRecipe)
+        public void write(PacketByteBuf packetByteBuf, RecipeCane caneRecipe)
         {
-        	packetByteBuf.writeItemStack(wheelchairRecipe.result);
-        	wheelchairRecipe.staff.write(packetByteBuf);
+        	packetByteBuf.writeItemStack(caneRecipe.result);
+        	caneRecipe.staff.write(packetByteBuf);
         }
     }
 }

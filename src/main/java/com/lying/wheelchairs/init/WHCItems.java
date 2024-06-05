@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.item.ItemCaneHandle;
@@ -18,7 +16,6 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.OnAStickItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -28,9 +25,6 @@ import net.minecraft.util.Identifier;
 public class WHCItems
 {
     private static final Map<Identifier, Item> ITEMS = new HashMap<>();
-	
-    /** Map of crafting item to equivalent handle item */
-	private static final Map<Item, Item> HANDLES = new HashMap<>();
     
     public static final Item WHEELCHAIR_OAK = wheelchair("oak");
     public static final Item WHEELCHAIR_SPRUCE = wheelchair("spruce");
@@ -88,22 +82,22 @@ public class WHCItems
     public static final Item CANE_CHERRY = cane("cherry");
     public static final Item CANE_BAMBOO = cane("bamboo");
     
-    public static final Item HANDLE_IRON = handle("iron", Items.IRON_INGOT);
-    public static final Item HANDLE_GOLD = handle("gold", Items.GOLD_INGOT);
-    public static final Item HANDLE_SKULL = handle("skull", Items.SKELETON_SKULL);
-    public static final Item HANDLE_WITHER = handle("wither_skull", Items.WITHER_SKELETON_SKULL);
-    public static final Item HANDLE_BONE = handle("bone", Items.BONE);
-    public static final Item HANDLE_OAK = handle("oak", Items.OAK_BUTTON);
-    public static final Item HANDLE_SPRUCE = handle("spruce", Items.SPRUCE_BUTTON);
-    public static final Item HANDLE_BIRCH = handle("birch", Items.BIRCH_BUTTON);
-    public static final Item HANDLE_DARK_OAK = handle("dark_oak", Items.DARK_OAK_BUTTON);
-    public static final Item HANDLE_ACACIA = handle("acacia", Items.ACACIA_BUTTON);
-    public static final Item HANDLE_JUNGLE = handle("jungle", Items.JUNGLE_BUTTON);
-    public static final Item HANDLE_CRIMSON = handle("crimson", Items.CRIMSON_BUTTON);
-    public static final Item HANDLE_WARPED = handle("warped", Items.WARPED_BUTTON);
-    public static final Item HANDLE_MANGROVE = handle("mangrove", Items.MANGROVE_BUTTON);
-    public static final Item HANDLE_CHERRY = handle("cherry", Items.CHERRY_BUTTON);
-    public static final Item HANDLE_BAMBOO = handle("bamboo", Items.BAMBOO_BUTTON);
+    public static final Item HANDLE_IRON = handle("iron");
+    public static final Item HANDLE_GOLD = handle("gold");
+    public static final Item HANDLE_SKULL = handle("skull");
+    public static final Item HANDLE_WITHER = handle("wither_skull");
+    public static final Item HANDLE_BONE = handle("bone");
+    public static final Item HANDLE_OAK = handle("oak");
+    public static final Item HANDLE_SPRUCE = handle("spruce");
+    public static final Item HANDLE_BIRCH = handle("birch");
+    public static final Item HANDLE_DARK_OAK = handle("dark_oak");
+    public static final Item HANDLE_ACACIA = handle("acacia");
+    public static final Item HANDLE_JUNGLE = handle("jungle");
+    public static final Item HANDLE_CRIMSON = handle("crimson");
+    public static final Item HANDLE_WARPED = handle("warped");
+    public static final Item HANDLE_MANGROVE = handle("mangrove");
+    public static final Item HANDLE_CHERRY = handle("cherry");
+    public static final Item HANDLE_BAMBOO = handle("bamboo");
     
     public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings(), WHCEntityTypes.WHEELCHAIR, 0));
     
@@ -197,22 +191,9 @@ public class WHCItems
     	return register(name+"_cane", new ItemCane(new FabricItemSettings().maxCount(1)));
     }
     
-    private static Item handle(String name, Item material)
+    private static Item handle(String name)
     {
     	Item handle = register(name+"_handle", new ItemCaneHandle(new FabricItemSettings().maxCount(1)));
-		HANDLES.put(material, handle);
     	return handle;
     }
-	
-	@Nullable
-	public static ItemStack getHandleFromItem(ItemStack stack)
-	{
-		Item item = stack.getItem();
-		return HANDLES.containsKey(item) ? HANDLES.get(item).getDefaultStack() : null;
-	}
-    
-	public static void registerHandle(Item handle, Item material)
-	{
-		HANDLES.put(material, handle);
-	}
 }

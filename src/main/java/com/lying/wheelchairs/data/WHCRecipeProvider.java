@@ -3,6 +3,7 @@ package com.lying.wheelchairs.data;
 import java.util.Map;
 
 import com.lying.wheelchairs.data.recipe.RecipeCaneJsonBuilder;
+import com.lying.wheelchairs.data.recipe.RecipeHandleJsonBuilder;
 import com.lying.wheelchairs.data.recipe.RecipeWheelchairJsonBuilder;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.reference.Reference;
@@ -82,6 +83,23 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		offerCaneRecipe(exporter, WHCItems.CANE_CHERRY, Ingredient.ofItems(Blocks.STRIPPED_CHERRY_LOG), "cherry_cane");
 		offerCaneRecipe(exporter, WHCItems.CANE_BAMBOO, Ingredient.ofItems(Blocks.STRIPPED_BAMBOO_BLOCK), "bamboo_cane");
 		
+		offerHandleRecipe(exporter, WHCItems.HANDLE_OAK, Ingredient.ofItems(Items.OAK_BUTTON), "oak_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_SPRUCE, Ingredient.ofItems(Items.SPRUCE_BUTTON), "spruce_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_BIRCH, Ingredient.ofItems(Items.BIRCH_BUTTON), "birch_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_DARK_OAK, Ingredient.ofItems(Items.DARK_OAK_BUTTON), "dark_oak_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_ACACIA, Ingredient.ofItems(Items.ACACIA_BUTTON), "acacia_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_JUNGLE, Ingredient.ofItems(Items.JUNGLE_BUTTON), "jungle_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_CRIMSON, Ingredient.ofItems(Items.CRIMSON_BUTTON), "crimson_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_WARPED, Ingredient.ofItems(Items.WARPED_BUTTON), "warped_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_MANGROVE, Ingredient.ofItems(Items.MANGROVE_BUTTON), "mangrove_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_CHERRY, Ingredient.ofItems(Items.CHERRY_BUTTON), "cherry_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_BAMBOO, Ingredient.ofItems(Items.BAMBOO_BUTTON), "bamboo_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_BONE, Ingredient.ofItems(Items.BONE), "bone_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_IRON, Ingredient.ofItems(Items.IRON_INGOT), "iron_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_GOLD, Ingredient.ofItems(Items.GOLD_INGOT), "gold_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_SKULL, Ingredient.ofItems(Items.SKELETON_SKULL), "skull_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_WITHER, Ingredient.ofItems(Items.WITHER_SKELETON_SKULL), "wither_handle");
+		
 		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER)
 			.pattern("j").pattern("b")
 			.input('j', Items.REDSTONE_TORCH)
@@ -125,5 +143,13 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 			.criterion(FabricRecipeProvider.hasItem(Items.STICK), FabricRecipeProvider.conditionsFromItem(Items.STICK))
 			.criterion(FabricRecipeProvider.hasItem(Items.WHITE_WOOL), FabricRecipeProvider.conditionsFromItem(Items.WHITE_WOOL))
 			.criterion(FabricRecipeProvider.hasItem(plank), FabricRecipeProvider.conditionsFromItem(plank)).offerTo(exporter);
+	}
+	
+	private static void offerHandleRecipe(RecipeExporter exporter, Item handle, Ingredient material, String name)
+	{
+		RecipeHandleJsonBuilder builder = new RecipeHandleJsonBuilder(handle.getDefaultStack(), material, RecipeCategory.TRANSPORTATION);
+		if(material.getMatchingStacks().length > 0)
+			builder.criterion("has_backing", RecipeProvider.conditionsFromItem(material.getMatchingStacks()[0].getItem()));
+		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));
 	}
 }

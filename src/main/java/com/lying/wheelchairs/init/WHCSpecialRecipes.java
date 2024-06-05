@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.lying.wheelchairs.data.recipe.RecipeCane;
+import com.lying.wheelchairs.data.recipe.RecipeHandle;
 import com.lying.wheelchairs.data.recipe.RecipeWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -19,8 +20,11 @@ public class WHCSpecialRecipes
 	private static final Map<RecipeSerializer<?>, Identifier> RECIPE_SERIALIZERS = new HashMap<>();
 	private static final Map<RecipeType<?>, Identifier> RECIPE_TYPES = new HashMap<>();
 	
+	public static final RecipeType<RecipeHandle> HANDLE_TYPE = makeType("handle");
+	
 	public static final RecipeSerializer<RecipeWheelchair> WHEELCHAIR_SERIALIZER = makeSerializer(RecipeWheelchair.ID, new RecipeWheelchair.Serializer());
 	public static final RecipeSerializer<RecipeCane> CANE_SERIALIZER = makeSerializer(RecipeCane.ID, new RecipeCane.Serializer());
+	public static final RecipeSerializer<RecipeHandle> HANDLE_SERIALIZER = makeSerializer(RecipeHandle.ID, new RecipeHandle.Serializer());
 	
 	static <T extends Recipe<?>> RecipeSerializer<T> makeSerializer(Identifier name, RecipeSerializer<T> serializer)
 	{
@@ -28,7 +32,6 @@ public class WHCSpecialRecipes
 		return serializer;
 	}
 	
-	@SuppressWarnings("unused")
 	private static <T extends Recipe<?>> RecipeType<T> makeType(String name)
 	{
 		RecipeType<T> type = new RecipeType<>() { public String toString() { return name; } };

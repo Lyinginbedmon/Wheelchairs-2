@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:handle",
+  "material": {
+    "item": "minecraft:skeleton_skull"
+  },
+  "result": {
+    "item": "wheelchairs:skull_handle"
+  }
+}

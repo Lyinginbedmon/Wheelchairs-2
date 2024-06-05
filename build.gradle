@@ -29,6 +29,12 @@ loom {
 	}
 	
 	accessWidenerPath = file("src/main/resources/wheelchairs.accesswidener")
+	
+	runs {
+		client {
+			vmArgs("-Dmixin.debug.export=true")
+		}
+	}
 
 }
 
@@ -45,6 +51,11 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	
+	//REI
+	// modCompileOnly "me.shedanial:RoughlyEnoughItems-fabric:${project.rei_version}"
+	
+	//JEI
+	// modImplementation ("maven.modrinth:jei:xGApC30U")
 }
 
 processResources {
