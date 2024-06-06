@@ -63,10 +63,14 @@ public class RecipeHandle implements Recipe<Inventory>
 		return !mat.isEmpty();
 	}
 	
+	/** Gets an oak cane with this handle */
 	public ItemStack getResult(DynamicRegistryManager var2)
 	{
 		return ItemCane.withHandle(WHCItems.CANE_OAK, this.result.getItem());
 	}
+	
+	/** Returns the actual item for this recipe that should be added to the cane */
+	public ItemStack getResult() { return this.result.copy(); }
 	
 	public ItemStack craft(Inventory inv, DynamicRegistryManager var2)
 	{

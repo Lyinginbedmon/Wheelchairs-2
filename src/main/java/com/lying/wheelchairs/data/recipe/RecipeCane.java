@@ -95,7 +95,7 @@ public class RecipeCane implements CraftingRecipe
 			Optional<RecipeEntry<RecipeHandle>> handleRecipe = handleFromItem(inv.getStack(i), currentWorld);
 			if(handleRecipe.isPresent())
 			{
-				handle = handleRecipe.get().value().getResult(var2);
+				handle = handleRecipe.get().value().getResult();
 				break;
 			}
 		}
