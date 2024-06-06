@@ -27,6 +27,8 @@ public class WHCItemTagsProvider extends ItemTagProvider
 				WHCItems.WHEEL_MANGROVE, 
 				WHCItems.WHEEL_OAK, 
 				WHCItems.WHEEL_SPRUCE, 
-				WHCItems.WHEEL_WARPED);
+				WHCItems.WHEEL_WARPED,
+				WHCItems.WHEEL_BAMBOO,
+				WHCItems.WHEEL_CHERRY);
 	}
 }

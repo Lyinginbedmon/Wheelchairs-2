@@ -1,11 +1,11 @@
 modLoader = "javafml"
-loaderVersion = "[49,)"
+loaderVersion = "[2,)"
 #issueTrackerURL = ""
 license = "Insert License Here"
 
 [[mods]]
 modId = "wheelchairs"
-version = "${version}"
+version = "1.0"
 displayName = "Wheelchairs"
 authors = "Lying"
 description = '''
@@ -14,22 +14,25 @@ This is an example description! Tell everyone what your mod is about!
 #logoFile = ""
 
 [[dependencies.wheelchairs]]
-modId = "forge"
-mandatory = true
-versionRange = "[49,)"
+modId = "neoforge"
+type = "required"
+versionRange = "[20.4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.wheelchairs]]
 modId = "minecraft"
-mandatory = true
+type = "required"
 versionRange = "[1.20.4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.wheelchairs]]
 modId = "architectury"
-mandatory = true
+type = "required"
 versionRange = "[11.1.17,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[mixins]]
+config = "wheelchairs.mixins.json"
