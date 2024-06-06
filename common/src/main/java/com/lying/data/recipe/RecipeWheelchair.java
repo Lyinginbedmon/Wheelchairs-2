@@ -139,7 +139,7 @@ public class RecipeWheelchair implements CraftingRecipe
 	
 	private int coordsToIndex(int x, int y, int width) { return x + (y * width); }
 	
-	public RecipeSerializer<?> getSerializer() { return WHCSpecialRecipes.WHEELCHAIR_SERIALIZER; }
+	public RecipeSerializer<?> getSerializer() { return WHCSpecialRecipes.WHEELCHAIR_SERIALIZER.get(); }
 	
 	public static int componentsToColor(float[] comp)
 	{

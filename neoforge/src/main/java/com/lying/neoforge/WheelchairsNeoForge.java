@@ -13,7 +13,6 @@ import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.hooks.forge.EventBusesHooksImpl;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 
 @Mod(Reference.ModInfo.MOD_ID)
@@ -21,9 +20,8 @@ public final class WheelchairsNeoForge
 {
     public WheelchairsNeoForge()
     {
-    	IEventBus eventBus = EventBusesHooksImpl.getModEventBus(Reference.ModInfo.MOD_ID).get();
     	Wheelchairs.commonInit();
-        eventBus.addListener(this::setupCommon);
+    	IEventBus eventBus = EventBusesHooksImpl.getModEventBus(Reference.ModInfo.MOD_ID).get();
         eventBus.addListener(this::registerEntityAttributes);
         
     	NetworkManager.registerReceiver(NetworkManager.c2s(), WHCPacketHandler.OPEN_INVENTORY_ID, new OpenInventoryScreenReceiver());
@@ -34,10 +32,5 @@ public final class WheelchairsNeoForge
     public void registerEntityAttributes(final EntityAttributeCreationEvent event)
     {
     	event.put(WHCEntityTypes.WHEELCHAIR.get(), EntityWheelchair.createChairAttributes().build());
-    }
-    
-    public void setupCommon(final FMLCommonSetupEvent event)
-    {
-    	event.enqueueWork(() -> Wheelchairs.commonInit());
     }
 }

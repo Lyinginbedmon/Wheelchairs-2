@@ -17,7 +17,7 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 	
 	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv)
 	{
-		super(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER, syncId);
+		super(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER.get(), syncId);
 		this.inv = inv;
 		
 		// Chair inventory slots

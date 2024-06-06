@@ -117,6 +117,8 @@ public class ChairUpgrade
 		
 		public static Builder of(String nameIn) { return new Builder(new Identifier(Reference.ModInfo.MOD_ID, nameIn)); }
 		
+		public final Identifier registryName() { return name; }
+		
 		/** Defines the item needed to apply this upgrade to a wheelchair */
 		public final Builder keyItem(Item itemIn) { keyItem((stack) -> stack.getItem() == itemIn); return this; }
 		

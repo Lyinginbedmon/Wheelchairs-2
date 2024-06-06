@@ -15,6 +15,7 @@ import com.lying.item.ItemWheelchair;
 import com.lying.reference.Reference;
 import com.lying.utility.ServerBus;
 
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.enchantment.Enchantment;
@@ -105,7 +106,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	{
 		super.initDataTracker();
 		
-		this.getDataTracker().startTracking(CHAIR, WHCItems.WHEELCHAIR_OAK.getDefaultStack());
+		this.getDataTracker().startTracking(CHAIR, WHCItems.WHEELCHAIR_OAK.get().getDefaultStack());
 		this.getDataTracker().startTracking(COLOR, OptionalInt.of(DyeableItem.DEFAULT_COLOR));
 		this.getDataTracker().startTracking(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
@@ -230,10 +231,9 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	
 	public List<ChairUpgrade> getUpgrades() { return WHCUpgrades.nbtToList(getUpgradeList()); }
 	
-	public boolean hasUpgrade(ChairUpgrade upgrade)
-	{
-		return getUpgrades().contains(upgrade);
-	}
+	public final boolean hasUpgrade(RegistrySupplier<ChairUpgrade> upgrade) { return hasUpgrade(upgrade.get()); }
+	
+	public boolean hasUpgrade(ChairUpgrade upgrade) { return getUpgrades().contains(upgrade); }
 	
 	public void addUpgrade(ChairUpgrade upgrade)
 	{
@@ -380,7 +380,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	public boolean isManual(PlayerEntity controllingPlayer) { return !isAutomatic(controllingPlayer); }
 	
 	/** Returns true if the wheelchair is under automatic control ie. using a chair controller*/
-	public boolean isAutomatic(PlayerEntity controllingPlayer) { return hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER); }
+	public boolean isAutomatic(PlayerEntity controllingPlayer) { return hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER.get()); }
 	
 	public boolean isSneaking() { return super.isSneaking() || hasPassengers() && getFirstPassenger() instanceof LivingEntity && getFirstPassenger().isSneaking(); }
 	
@@ -659,7 +659,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		if(!entity.isOnGround())
 			return;
 		
-		BlockState frosted = WHCBlocks.FROSTED_LAVA.getDefaultState();
+		BlockState frosted = WHCBlocks.FROSTED_LAVA.get().getDefaultState();
 		int range = Math.min(16, 2 + level);
 		BlockPos.Mutable mutable = new BlockPos.Mutable();
 		for(BlockPos pos : BlockPos.iterate(blockPos.add(-range, -1, -range), blockPos.add(range, -1, range)))
@@ -675,7 +675,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 				continue;
 			
 			world.setBlockState(pos, frosted);
-			world.scheduleBlockTick(pos, WHCBlocks.FROSTED_LAVA, MathHelper.nextInt(entity.getRandom(), 60, 120));
+			world.scheduleBlockTick(pos, WHCBlocks.FROSTED_LAVA.get(), MathHelper.nextInt(entity.getRandom(), 60, 120));
 		}
 	}
 	

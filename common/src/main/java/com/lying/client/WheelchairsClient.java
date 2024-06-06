@@ -31,18 +31,19 @@ public final class WheelchairsClient
 	
 	public static void clientInit()
 	{
+		
 		config = new ClientConfig(mc.runDirectory.getAbsolutePath() + "/config/WheelchairsClient.cfg");
 		config.read();
 		
 		ClientBus.registerEventCallbacks();
 		WHCItemsClient.registerItemColors();
-		RenderTypeRegistry.register(RenderLayer.getCutout(), WHCBlocks.FROSTED_LAVA);
+		RenderTypeRegistry.register(RenderLayer.getCutout(), WHCBlocks.FROSTED_LAVA.get());
 		WHCModelParts.init();
 		
 		WHCKeybinds.init();
 		registerEventCallbacks();
 		
-		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER, ChairInventoryScreen::new);
+		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER.get(), ChairInventoryScreen::new);
 	}
 	
 	public static void registerEventCallbacks()
@@ -76,7 +77,7 @@ public final class WheelchairsClient
 				{
 					WheelchairsClient.SEATBELT_ON = !WheelchairsClient.SEATBELT_ON;
 					player.sendMessage(Text.translatable("gui.wheelchairs.seatbelt_"+(WheelchairsClient.SEATBELT_ON ? "on" : "off")));
-					player.playSound(WheelchairsClient.SEATBELT_ON ? WHCSoundEvents.SEATBELT_ON : WHCSoundEvents.SEATBELT_OFF, 1F, 0.5F + player.getRandom().nextFloat() * 0.5F);
+					player.playSound(WheelchairsClient.SEATBELT_ON ? WHCSoundEvents.SEATBELT_ON.get() : WHCSoundEvents.SEATBELT_OFF.get(), 1F, 0.5F + player.getRandom().nextFloat() * 0.5F);
 					
 					WheelchairsClient.wasSeatbeltPressed = true;
 				}

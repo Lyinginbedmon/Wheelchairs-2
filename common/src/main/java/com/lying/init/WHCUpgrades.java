@@ -13,6 +13,7 @@ import com.lying.reference.Reference;
 
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrarManager;
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtList;
@@ -28,33 +29,31 @@ public class WHCUpgrades
 	
 	private static final List<ChairUpgrade> UPGRADES = Lists.newArrayList();
 	
-	public static final ChairUpgrade POWERED = register(ChairUpgrade.Builder.of("powered").modelled()
+	public static final RegistrySupplier<ChairUpgrade> POWERED = register(ChairUpgrade.Builder.of("powered").modelled()
 			.keyItem(Items.FURNACE_MINECART)
 			.applied(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, true))
 			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
-	public static final ChairUpgrade STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
+	public static final RegistrySupplier<ChairUpgrade> STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
 			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))));
-	public static final ChairUpgrade FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
+	public static final RegistrySupplier<ChairUpgrade> FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
 			.keyItem(Items.PUMPKIN));
-	public static final ChairUpgrade NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
+	public static final RegistrySupplier<ChairUpgrade> NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
 			.keyItem(Items.NETHERITE_INGOT));
-	public static final ChairUpgrade DIVING	= register(ChairUpgrade.Builder.of("diving").modelled()
+	public static final RegistrySupplier<ChairUpgrade> DIVING	= register(ChairUpgrade.Builder.of("diving").modelled()
 			.keyItem(Items.LEATHER)
-			.incompatible(() -> List.of(WHCUpgrades.FLOATING, WHCUpgrades.POWERED)));
-	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")
+			.incompatible(() -> List.of(WHCUpgrades.FLOATING.get(), WHCUpgrades.POWERED.get())));
+	public static final RegistrySupplier<ChairUpgrade> GLIDING = register(ChairUpgrade.Builder.of("gliding")
 			.keyItem(Items.ELYTRA)
-			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
+			.incompatible(() -> List.of(WHCUpgrades.POWERED.get())));
 	
-	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference zimmer frames, incl. means for rider to unbind
+	public static final RegistrySupplier<ChairUpgrade> HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference zimmer frames, incl. means for rider to unbind
 			.keyItem(Items.IRON_BARS));
-	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
+	public static final RegistrySupplier<ChairUpgrade> PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
 			.keyItem(Items.DISPENSER));
 	
-	private static ChairUpgrade register(ChairUpgrade.Builder builder)
+	private static RegistrySupplier<ChairUpgrade> register(ChairUpgrade.Builder builder)
 	{
-		ChairUpgrade made = builder.build();
-		UPGRADES.add(made);
-		return made;
+		return REGISTRY.register(builder.registryName(), () -> builder.build());
 	}
 	
 	public static void init()

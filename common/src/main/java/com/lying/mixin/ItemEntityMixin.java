@@ -21,7 +21,7 @@ public class ItemEntityMixin
 	@Inject(method = "isFireImmune()Z", at = @At("HEAD"), cancellable = true)
 	public void whc$isChairFireImmune(final CallbackInfoReturnable<Boolean> ci)
 	{
-		if(getStack().getItem() instanceof ItemWheelchair && ItemWheelchair.hasUpgrade(getStack(), WHCUpgrades.NETHERITE))
+		if(getStack().getItem() instanceof ItemWheelchair && ItemWheelchair.hasUpgrade(getStack(), WHCUpgrades.NETHERITE.get()))
 			ci.setReturnValue(true);
 	}
 }
