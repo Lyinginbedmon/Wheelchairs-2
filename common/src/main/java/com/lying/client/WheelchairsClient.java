@@ -3,7 +3,6 @@ package com.lying.client;
 import com.lying.client.config.ClientConfig;
 import com.lying.client.init.WHCItemsClient;
 import com.lying.client.init.WHCKeybinds;
-import com.lying.client.init.WHCModelParts;
 import com.lying.client.network.OpenInventoryScreenPacket;
 import com.lying.client.screen.ChairInventoryScreen;
 import com.lying.client.utility.ClientBus;
@@ -31,14 +30,12 @@ public final class WheelchairsClient
 	
 	public static void clientInit()
 	{
-		
 		config = new ClientConfig(mc.runDirectory.getAbsolutePath() + "/config/WheelchairsClient.cfg");
 		config.read();
 		
 		ClientBus.registerEventCallbacks();
 		WHCItemsClient.registerItemColors();
 		RenderTypeRegistry.register(RenderLayer.getCutout(), WHCBlocks.FROSTED_LAVA.get());
-		WHCModelParts.init();
 		
 		WHCKeybinds.init();
 		registerEventCallbacks();

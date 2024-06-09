@@ -1,7 +1,9 @@
 package com.lying.neoforge.client;
 
 import com.lying.client.WheelchairsClient;
+import com.lying.client.init.WHCModelParts;
 import com.lying.client.renderer.entity.EntityWheelchairRenderer;
+import com.lying.client.renderer.entity.model.WheelchairElytraModel;
 import com.lying.init.WHCEntityTypes;
 import com.lying.reference.Reference;
 
@@ -23,5 +25,11 @@ public class WheelchairsForgeClient
 	public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event)
 	{
 		event.registerEntityRenderer(WHCEntityTypes.WHEELCHAIR.get(), EntityWheelchairRenderer::new);
+	}
+	
+	@SubscribeEvent
+	public static void registerModelParts(EntityRenderersEvent.RegisterLayerDefinitions event)
+	{
+		event.registerLayerDefinition(WHCModelParts.UPGRADE_ELYTRA, WheelchairElytraModel::createBodyLayer);
 	}
 }

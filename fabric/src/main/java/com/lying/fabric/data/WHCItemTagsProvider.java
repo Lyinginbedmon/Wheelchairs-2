@@ -19,16 +19,16 @@ public class WHCItemTagsProvider extends ItemTagProvider
 	protected void configure(WrapperLookup arg)
 	{
 		getOrCreateTagBuilder(WHCItemTags.WHEEL).add(
-				WHCItems.WHEEL_ACACIA, 
-				WHCItems.WHEEL_BIRCH, 
-				WHCItems.WHEEL_CRIMSON, 
-				WHCItems.WHEEL_DARK_OAK, 
-				WHCItems.WHEEL_JUNGLE, 
-				WHCItems.WHEEL_MANGROVE, 
-				WHCItems.WHEEL_OAK, 
-				WHCItems.WHEEL_SPRUCE, 
-				WHCItems.WHEEL_WARPED,
-				WHCItems.WHEEL_BAMBOO,
-				WHCItems.WHEEL_CHERRY);
+				WHCItems.WHEEL_ACACIA.get(), 
+				WHCItems.WHEEL_BIRCH.get(), 
+				WHCItems.WHEEL_CRIMSON.get(), 
+				WHCItems.WHEEL_DARK_OAK.get(), 
+				WHCItems.WHEEL_JUNGLE.get(), 
+				WHCItems.WHEEL_MANGROVE.get(), 
+				WHCItems.WHEEL_OAK.get(), 
+				WHCItems.WHEEL_SPRUCE.get(), 
+				WHCItems.WHEEL_WARPED.get(),
+				WHCItems.WHEEL_BAMBOO.get(),
+				WHCItems.WHEEL_CHERRY.get());
 	}
 }

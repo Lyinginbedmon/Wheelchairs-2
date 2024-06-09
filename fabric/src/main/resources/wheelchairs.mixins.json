@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "com.lying.fabric.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+	],
+	"client": [
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -1,7 +1,10 @@
 package com.lying.init;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -9,69 +12,64 @@ import com.google.common.collect.Lists;
 import com.lying.Wheelchairs;
 import com.lying.entity.ChairUpgrade;
 import com.lying.entity.EntityWheelchair;
-import com.lying.reference.Reference;
 
-import dev.architectury.registry.registries.Registrar;
-import dev.architectury.registry.registries.RegistrarManager;
-import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 
 public class WHCUpgrades
 {
-	private static final Identifier registryId = new Identifier(Reference.ModInfo.MOD_ID, "chair_upgrade");
-	public static final Registrar<ChairUpgrade> REGISTRY = RegistrarManager.get(Reference.ModInfo.MOD_ID).<ChairUpgrade>builder(registryId).build();
-	public static final RegistryKey<? extends Registry<ChairUpgrade>> KEY = REGISTRY.key();
+//	private static final Identifier REGISTRY_ID = new Identifier(Reference.ModInfo.MOD_ID, "chair_upgrade");
+//	public static final Registrar<ChairUpgrade> REGISTRY = RegistrarManager.get(Reference.ModInfo.MOD_ID).<ChairUpgrade>builder(REGISTRY_ID).build();
+//	public static final RegistryKey<? extends Registry<ChairUpgrade>> KEY = REGISTRY.key();
 	
-	private static final List<ChairUpgrade> UPGRADES = Lists.newArrayList();
+	// TODO Replace with custom object registry
+	private static final Map<Identifier, Supplier<ChairUpgrade>> UPGRADES = new HashMap<>();
 	
-	public static final RegistrySupplier<ChairUpgrade> POWERED = register(ChairUpgrade.Builder.of("powered").modelled()
+	public static final Supplier<ChairUpgrade> POWERED = register(ChairUpgrade.Builder.of("powered").modelled()
 			.keyItem(Items.FURNACE_MINECART)
 			.applied(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, true))
 			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
-	public static final RegistrySupplier<ChairUpgrade> STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
+	public static final Supplier<ChairUpgrade> STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
 			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))));
-	public static final RegistrySupplier<ChairUpgrade> FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
+	public static final Supplier<ChairUpgrade> FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
 			.keyItem(Items.PUMPKIN));
-	public static final RegistrySupplier<ChairUpgrade> NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
+	public static final Supplier<ChairUpgrade> NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
 			.keyItem(Items.NETHERITE_INGOT));
-	public static final RegistrySupplier<ChairUpgrade> DIVING	= register(ChairUpgrade.Builder.of("diving").modelled()
+	public static final Supplier<ChairUpgrade> DIVING	= register(ChairUpgrade.Builder.of("diving").modelled()
 			.keyItem(Items.LEATHER)
 			.incompatible(() -> List.of(WHCUpgrades.FLOATING.get(), WHCUpgrades.POWERED.get())));
-	public static final RegistrySupplier<ChairUpgrade> GLIDING = register(ChairUpgrade.Builder.of("gliding")
+	public static final Supplier<ChairUpgrade> GLIDING = register(ChairUpgrade.Builder.of("gliding")
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED.get())));
 	
-	public static final RegistrySupplier<ChairUpgrade> HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference zimmer frames, incl. means for rider to unbind
+	public static final Supplier<ChairUpgrade> HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference zimmer frames, incl. means for rider to unbind
 			.keyItem(Items.IRON_BARS));
-	public static final RegistrySupplier<ChairUpgrade> PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
+	public static final Supplier<ChairUpgrade> PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
 			.keyItem(Items.DISPENSER));
 	
-	private static RegistrySupplier<ChairUpgrade> register(ChairUpgrade.Builder builder)
+	private static Supplier<ChairUpgrade> register(ChairUpgrade.Builder builder)
 	{
-		return REGISTRY.register(builder.registryName(), () -> builder.build());
+		UPGRADES.put(builder.registryName(), () -> builder.build());
+		return UPGRADES.get(builder.registryName());
 	}
 	
 	public static void init()
 	{
-		UPGRADES.forEach(acc -> 
+		UPGRADES.values().forEach(entry -> 
 		{
-			REGISTRY.register(acc.registryName(), () -> acc);
-			
+			ChairUpgrade acc = entry.get();
 			if(acc.hasModel())
 				WHCBlocks.registerFakeBlock("upgrade_"+acc.registryName().getPath());
 		});
-		Wheelchairs.LOGGER.info("Registered "+REGISTRY.entrySet().size()+" upgrades");
+		Wheelchairs.LOGGER.info("Registered "+UPGRADES.size()+" upgrades");
 	}
 	
 	@Nullable
 	public static ChairUpgrade get(Identifier nameIn)
 	{
-		return REGISTRY.get(nameIn);
+		return UPGRADES.get(nameIn).get();
 	}
 	
 	@Nullable
@@ -79,8 +77,9 @@ public class WHCUpgrades
 	{
 		List<ChairUpgrade> existing = chair.getUpgrades();
 		List<ChairUpgrade> upgrades = Lists.newArrayList();
-		REGISTRY.forEach(upgrade ->
+		UPGRADES.values().forEach(entry ->
 		{
+			ChairUpgrade upgrade = entry.get();
 			if(upgrade.matches(stack) && existing.stream().allMatch(upg -> ChairUpgrade.canCombineWith(upg, upgrade)) && upgrade.canApplyTo(chair))
 				upgrades.add(upgrade);
 		});

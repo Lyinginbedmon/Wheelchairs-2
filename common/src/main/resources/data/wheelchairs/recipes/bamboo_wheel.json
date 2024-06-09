@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheels",
+  "key": {
+    "S": {
+      "item": "minecraft:bamboo_slab"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " S ",
+    "SsS",
+    " S "
+  ],
+  "result": {
+    "item": "wheelchairs:bamboo_wheel"
+  }
+}

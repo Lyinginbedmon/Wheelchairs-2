@@ -67,8 +67,6 @@ public class WHCItems
     
     private static RegistrySupplier<Item> register(String nameIn, Supplier<Item> itemIn)
     {
-    	if(itemIn instanceof ItemWheelchair)
-    		WHCBlocks.registerFakeBlock(nameIn);
     	return ITEMS.register(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
     }
     
@@ -81,6 +79,7 @@ public class WHCItems
     private static RegistrySupplier<Item> wheelchair(String name)
     {
     	String fullName = name+"_wheelchair";
+		WHCBlocks.registerFakeBlock(fullName);
     	return register(fullName, () -> new ItemWheelchair(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
     }
     

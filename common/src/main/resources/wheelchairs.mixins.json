@@ -11,6 +11,11 @@
 		"ServerPlayerEntityMixin",
 		"ServerPlayNetworkHandlerMixin"
 	],
+	"client": [
+		"InGameHudMixin",
+		"FireworkRocketItemMixinClient",
+		"PlayerEntityMixinClient"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}

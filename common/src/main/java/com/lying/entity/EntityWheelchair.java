@@ -149,7 +149,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			setUpgrades(data.getList("Upgrades", NbtElement.STRING_TYPE));
 		
 		this.onChestedStatusChanged();
-		if(this.hasUpgrade(WHCUpgrades.STORAGE))
+		if(this.hasUpgrade(WHCUpgrades.STORAGE.get()))
 		{
 			NbtList items = data.getList("Items", NbtElement.COMPOUND_TYPE);
 			for(int i=0; i<items.size(); ++i)
@@ -174,7 +174,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		data.put("Wheels", wheels);
 		
 		data.put("Upgrades", getUpgradeList());
-		if(hasUpgrade(WHCUpgrades.STORAGE))
+		if(hasInventory())
 		{
 			NbtList items = new NbtList();
 			for(int i=0; i<this.items.size(); ++i)
@@ -233,7 +233,19 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	
 	public final boolean hasUpgrade(RegistrySupplier<ChairUpgrade> upgrade) { return hasUpgrade(upgrade.get()); }
 	
-	public boolean hasUpgrade(ChairUpgrade upgrade) { return getUpgrades().contains(upgrade); }
+	public boolean hasUpgrade(ChairUpgrade upgrade)
+	{
+		return hasUpgrade(upgrade.registryName());
+	}
+	
+	public boolean hasUpgrade(Identifier upgrade)
+	{
+		NbtList upgradeList = getUpgradeList();
+		for(int i=0; i<upgradeList.size(); i++)
+			if(upgradeList.getString(i).equals(upgrade.toString()))
+				return true;
+		return false;
+	}
 	
 	public void addUpgrade(ChairUpgrade upgrade)
 	{
@@ -249,7 +261,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	}
 	
 	/** Returns true if this wheelchair has the Storage upgrade */
-	public boolean hasInventory() { return hasUpgrade(WHCUpgrades.STORAGE); }
+	public boolean hasInventory() { return hasUpgrade(WHCUpgrades.STORAGE.get()); }
 	
 	public Inventory getInventory() { return this.items; }
 	
@@ -380,7 +392,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	public boolean isManual(PlayerEntity controllingPlayer) { return !isAutomatic(controllingPlayer); }
 	
 	/** Returns true if the wheelchair is under automatic control ie. using a chair controller*/
-	public boolean isAutomatic(PlayerEntity controllingPlayer) { return hasUpgrade(WHCUpgrades.POWERED) && controllingPlayer.isHolding(WHCItems.CONTROLLER.get()); }
+	public boolean isAutomatic(PlayerEntity controllingPlayer) { return hasUpgrade(WHCUpgrades.POWERED.get()) && controllingPlayer.isHolding(WHCItems.CONTROLLER.get()); }
 	
 	public boolean isSneaking() { return super.isSneaking() || hasPassengers() && getFirstPassenger() instanceof LivingEntity && getFirstPassenger().isSneaking(); }
 	
@@ -391,7 +403,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		if(this.saddledComponent.getMovementSpeedMultiplier() > 1F)
 			getWorld().addParticle(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0.0, 0.0, 0.0);
 		
-		if(hasUpgrade(WHCUpgrades.DIVING) && isSubmergedIn(FluidTags.WATER))
+		if(hasUpgrade(WHCUpgrades.DIVING.get()) && isSubmergedIn(FluidTags.WATER))
 			getWorld().addParticle(ParticleTypes.BUBBLE, getX(), getY() + 1.5D, getZ(), 0.0, 0.0, 0.0);
 	}
 	
@@ -430,7 +442,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	protected void orientToRider(LivingEntity controllingPlayer, Vec3d movementInput)
 	{
 		Vec2f orientation = getControlledRotation(controllingPlayer);
-		if(movementInput.length() > 0 || !hasUpgrade(WHCUpgrades.POWERED))
+		if(movementInput.length() > 0 || !hasUpgrade(WHCUpgrades.POWERED.get()))
 		{
 			this.setRotation(orientation.y, orientation.x);
 			this.prevYaw = this.headYaw;
@@ -529,7 +541,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	/** Identical to standard behaviour, except can use portals whilst ridden */
 	public boolean canUsePortals() { return !hasVehicle() && !isSleeping(); }
 	
-	public boolean isClimbing() { return super.isClimbing() && !hasUpgrade(WHCUpgrades.POWERED); }
+	public boolean isClimbing() { return super.isClimbing() && !hasUpgrade(WHCUpgrades.POWERED.get()); }
 	
 	public Entity moveToWorld(ServerWorld destination)
 	{
@@ -600,8 +612,8 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
 		double modifier = 1D;
-		if(!isOnGround() && !hasUpgrade(WHCUpgrades.GLIDING))
-			if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > 0D)
+		if(!isOnGround() && !hasUpgrade(WHCUpgrades.GLIDING.get()))
+			if(hasUpgrade(WHCUpgrades.FLOATING.get()) && getFluidHeight(FluidTags.WATER) > 0D)
 				modifier = 0.9D;
 			else
 				modifier = 0.7D;
@@ -625,7 +637,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	
 	public void travel(Vec3d movementInput)
 	{
-		if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > getSwimHeight())
+		if(hasUpgrade(WHCUpgrades.FLOATING.get()) && getFluidHeight(FluidTags.WATER) > getSwimHeight())
 			addVelocity(0D, 0.08D, 0D);
 		super.travel(movementInput);
 		
@@ -638,7 +650,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	public void applyMovementEffects(BlockPos pos)
 	{
 		super.applyMovementEffects(pos);
-		if(EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()) > 0 && hasUpgrade(WHCUpgrades.NETHERITE))
+		if(EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()) > 0 && hasUpgrade(WHCUpgrades.NETHERITE.get()))
 			freezeLava(this, getWorld(), getBlockPos(), EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()));
 	}
 	
@@ -724,7 +736,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	
 	public boolean canSprintAsVehicle()
 	{
-		return !hasUpgrade(WHCUpgrades.POWERED) && getControllingPassenger() != null && getControllingPassenger().getType() == EntityType.PLAYER;
+		return !hasUpgrade(WHCUpgrades.POWERED.get()) && getControllingPassenger() != null && getControllingPassenger().getType() == EntityType.PLAYER;
 	}
 	
 	public int getEnchantmentLevel(Enchantment ench)
@@ -862,13 +874,13 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		this.jumpStrength = strength > 0 ? 1F : 0F;
 	}
 	
-	public boolean canJump() { return hasUpgrade(WHCUpgrades.DIVING) && isSubmergedIn(FluidTags.WATER) || canStartFlying(); }
+	public boolean canJump() { return hasUpgrade(WHCUpgrades.DIVING.get()) && isSubmergedIn(FluidTags.WATER) || canStartFlying(); }
 	
 	public void startJumping(int var1) { }
 	
 	public void stopJumping() { }
 	
-	public boolean canFly() { return hasUpgrade(WHCUpgrades.GLIDING); }
+	public boolean canFly() { return hasUpgrade(WHCUpgrades.GLIDING.get()); }
 	
 	public boolean isFlying() { return getDataTracker().get(FLYING); }
 	

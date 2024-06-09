@@ -1,0 +1,18 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": {
+    "item": "minecraft:dark_oak_log"
+  },
+  "cushion": {
+    "tag": "minecraft:wool"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheels"
+  },
+  "result": {
+    "item": "wheelchairs:dark_oak_wheelchair"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheels"
+  }
+}

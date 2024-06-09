@@ -24,15 +24,15 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	public static final String GROUP_WHEELS = Reference.ModInfo.MOD_ID+":wheels";
 	
 	private static final Map<Item, ItemConvertible> WHEEL_GUIDE = Map.of(
-			WHCItems.WHEEL_ACACIA, Blocks.ACACIA_SLAB,
-			WHCItems.WHEEL_BIRCH, Blocks.BIRCH_SLAB,
-			WHCItems.WHEEL_CRIMSON, Blocks.CRIMSON_SLAB,
-			WHCItems.WHEEL_DARK_OAK, Blocks.DARK_OAK_SLAB,
-			WHCItems.WHEEL_JUNGLE, Blocks.JUNGLE_SLAB,
-			WHCItems.WHEEL_MANGROVE, Blocks.MANGROVE_SLAB,
-			WHCItems.WHEEL_OAK, Blocks.OAK_SLAB,
-			WHCItems.WHEEL_SPRUCE, Blocks.SPRUCE_SLAB,
-			WHCItems.WHEEL_WARPED, Blocks.WARPED_SLAB
+			WHCItems.WHEEL_ACACIA.get(), Blocks.ACACIA_SLAB,
+			WHCItems.WHEEL_BIRCH.get(), Blocks.BIRCH_SLAB,
+			WHCItems.WHEEL_CRIMSON.get(), Blocks.CRIMSON_SLAB,
+			WHCItems.WHEEL_DARK_OAK.get(), Blocks.DARK_OAK_SLAB,
+			WHCItems.WHEEL_JUNGLE.get(), Blocks.JUNGLE_SLAB,
+			WHCItems.WHEEL_MANGROVE.get(), Blocks.MANGROVE_SLAB,
+			WHCItems.WHEEL_OAK.get(), Blocks.OAK_SLAB,
+			WHCItems.WHEEL_SPRUCE.get(), Blocks.SPRUCE_SLAB,
+			WHCItems.WHEEL_WARPED.get(), Blocks.WARPED_SLAB
 			);
 	
 	public WHCRecipeProvider(FabricDataOutput output)
@@ -42,17 +42,17 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	
 	public void generate(RecipeExporter exporter)
 	{
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_OAK, Ingredient.ofItems(Blocks.OAK_LOG), "oak_wheelchair");
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_SPRUCE, Ingredient.ofItems(Blocks.SPRUCE_LOG), "spruce_wheelchair");
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_BIRCH, Ingredient.ofItems(Blocks.BIRCH_LOG), "birch_wheelchair");
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_DARK_OAK, Ingredient.ofItems(Blocks.DARK_OAK_LOG), "dark_oak_wheelchair");
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_JUNGLE, Ingredient.ofItems(Blocks.JUNGLE_LOG), "jungle_wheelchair");
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_ACACIA, Ingredient.ofItems(Blocks.ACACIA_LOG), "acacia_wheelchair");
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_CRIMSON, Ingredient.ofItems(Blocks.CRIMSON_STEM), "crimson_wheelchair");
-		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_WARPED, Ingredient.ofItems(Blocks.WARPED_STEM), "warped_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_OAK.get(), Ingredient.ofItems(Blocks.OAK_LOG), "oak_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_SPRUCE.get(), Ingredient.ofItems(Blocks.SPRUCE_LOG), "spruce_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_BIRCH.get(), Ingredient.ofItems(Blocks.BIRCH_LOG), "birch_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_DARK_OAK.get(), Ingredient.ofItems(Blocks.DARK_OAK_LOG), "dark_oak_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_JUNGLE.get(), Ingredient.ofItems(Blocks.JUNGLE_LOG), "jungle_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_ACACIA.get(), Ingredient.ofItems(Blocks.ACACIA_LOG), "acacia_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_CRIMSON.get(), Ingredient.ofItems(Blocks.CRIMSON_STEM), "crimson_wheelchair");
+		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_WARPED.get(), Ingredient.ofItems(Blocks.WARPED_STEM), "warped_wheelchair");
 		WHEEL_GUIDE.entrySet().forEach(entry -> offerWheelRecipe(exporter, entry.getKey(), entry.getValue()));
 		
-		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER)
+		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER.get())
 			.pattern("j").pattern("b")
 			.input('j', Items.REDSTONE_TORCH)
 			.input('b', Blocks.OBSERVER)

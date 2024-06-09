@@ -28,9 +28,9 @@ public class WHCBlocks
 		return BLOCKS.register(new Identifier(Reference.ModInfo.MOD_ID, nameIn), blockIn);
 	}
 	
-	public static void registerFakeBlock(String nameIn)
+	public static RegistrySupplier<Block> registerFakeBlock(String nameIn)
 	{
-		register(nameIn, () -> new FakeBlock(AbstractBlock.Settings.create()));
+		return register(nameIn, () -> new FakeBlock(AbstractBlock.Settings.create()));
 	}
 	
 	public static void init()

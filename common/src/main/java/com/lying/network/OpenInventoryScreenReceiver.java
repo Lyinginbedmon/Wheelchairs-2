@@ -6,6 +6,7 @@ import com.lying.screen.ChairInventoryScreenHandler;
 
 import dev.architectury.networking.NetworkManager.NetworkReceiver;
 import dev.architectury.networking.NetworkManager.PacketContext;
+import dev.architectury.registry.menu.MenuRegistry;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,6 +17,6 @@ public class OpenInventoryScreenReceiver implements NetworkReceiver
 	{
 		ServerPlayerEntity player = (ServerPlayerEntity)context.getPlayer();
 		if(player.hasVehicle() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get() && ((EntityWheelchair)player.getVehicle()).hasInventory())
-			player.openHandledScreen(new SimpleNamedScreenHandlerFactory((id, playerInventory, custom) -> new ChairInventoryScreenHandler(id, playerInventory, ((EntityWheelchair)custom.getVehicle()).getInventory()), player.getVehicle().getDisplayName()));
+			MenuRegistry.openMenu(player, new SimpleNamedScreenHandlerFactory((id, playerInventory, custom) -> new ChairInventoryScreenHandler(id, playerInventory, ((EntityWheelchair)custom.getVehicle()).getInventory()), player.getVehicle().getDisplayName()));
 	}
 }

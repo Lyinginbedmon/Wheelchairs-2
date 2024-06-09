@@ -30,7 +30,7 @@ public class WheelchairElytraFeatureRenderer<T extends EntityWheelchair> extends
 	
 	public boolean shouldRender(T entity)
 	{
-		return entity.hasUpgrade(WHCUpgrades.GLIDING);
+		return entity.hasUpgrade(WHCUpgrades.GLIDING.get());
 	}
 	
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float age, float yaw, float pitch, float tickDelta)
