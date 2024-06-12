@@ -1,8 +1,10 @@
 package com.lying.wheelchairs.data;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.lying.wheelchairs.data.recipe.RecipeCaneJsonBuilder;
+import com.lying.wheelchairs.data.recipe.RecipeCaneSword;
 import com.lying.wheelchairs.data.recipe.RecipeHandleJsonBuilder;
 import com.lying.wheelchairs.data.recipe.RecipeWheelchairJsonBuilder;
 import com.lying.wheelchairs.init.WHCItems;
@@ -11,6 +13,7 @@ import com.lying.wheelchairs.reference.Reference;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.block.Blocks;
+import net.minecraft.data.server.recipe.ComplexRecipeJsonBuilder;
 import net.minecraft.data.server.recipe.RecipeExporter;
 import net.minecraft.data.server.recipe.RecipeProvider;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
@@ -27,17 +30,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	public static final String GROUP_CHAIRS = Reference.ModInfo.MOD_ID+":wheels";
 	public static final String GROUP_CRUTCHES = Reference.ModInfo.MOD_ID+":crutches";
 	
-	private static final Map<Item, ItemConvertible> WHEEL_GUIDE = Map.of(
-			WHCItems.WHEEL_ACACIA, Blocks.ACACIA_SLAB,
-			WHCItems.WHEEL_BIRCH, Blocks.BIRCH_SLAB,
-			WHCItems.WHEEL_CRIMSON, Blocks.CRIMSON_SLAB,
-			WHCItems.WHEEL_DARK_OAK, Blocks.DARK_OAK_SLAB,
-			WHCItems.WHEEL_JUNGLE, Blocks.JUNGLE_SLAB,
-			WHCItems.WHEEL_MANGROVE, Blocks.MANGROVE_SLAB,
-			WHCItems.WHEEL_OAK, Blocks.OAK_SLAB,
-			WHCItems.WHEEL_SPRUCE, Blocks.SPRUCE_SLAB,
-			WHCItems.WHEEL_WARPED, Blocks.WARPED_SLAB
-			);
+	private static final Map<Item, ItemConvertible> WHEEL_GUIDE = new HashMap<>();
 	
 	public WHCRecipeProvider(FabricDataOutput output)
 	{
@@ -46,6 +39,8 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	
 	public void generate(RecipeExporter exporter)
 	{
+		ComplexRecipeJsonBuilder.create((category) -> new RecipeCaneSword()).offerTo(exporter, "cane_sword");
+		
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_OAK, Ingredient.ofItems(Blocks.OAK_LOG), "oak_wheelchair");
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_SPRUCE, Ingredient.ofItems(Blocks.SPRUCE_LOG), "spruce_wheelchair");
 		offerWheelchairRecipe(exporter, WHCItems.WHEELCHAIR_BIRCH, Ingredient.ofItems(Blocks.BIRCH_LOG), "birch_wheelchair");
@@ -151,5 +146,20 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		if(material.getMatchingStacks().length > 0)
 			builder.criterion("has_backing", RecipeProvider.conditionsFromItem(material.getMatchingStacks()[0].getItem()));
 		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));
+	}
+	
+	static
+	{
+		WHEEL_GUIDE.put(WHCItems.WHEEL_ACACIA, Blocks.ACACIA_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_BIRCH, Blocks.BIRCH_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_BAMBOO, Blocks.BAMBOO_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_CHERRY, Blocks.CHERRY_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_CRIMSON, Blocks.CRIMSON_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_DARK_OAK, Blocks.DARK_OAK_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_JUNGLE, Blocks.JUNGLE_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_MANGROVE, Blocks.MANGROVE_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_OAK, Blocks.OAK_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_SPRUCE, Blocks.SPRUCE_SLAB);
+		WHEEL_GUIDE.put(WHCItems.WHEEL_WARPED, Blocks.WARPED_SLAB);
 	}
 }

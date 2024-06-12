@@ -65,6 +65,8 @@
 	"item.wheelchairs.mangrove_handle": "Mangrove",
 	"item.wheelchairs.cherry_handle": "Cherry",
 	"item.wheelchairs.bamboo_handle": "Bamboo",
+	"enchantment.wheelchairs.hollowed": "Hollowed",
+	"enchantment.wheelchairs.slim": "Slim",
 	"upgrade.wheelchairs.powered": "Powered",
 	"upgrade.wheelchairs.storage": "Storage",
 	"upgrade.wheelchairs.netherite": "Netherite",
@@ -75,6 +77,7 @@
 	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s",
 	"gui.wheelchairs.upgrades": "Upgrades:",
 	"gui.wheelchairs.cane.handle": " Handle: %s",
+	"gui.wheelchairs.cane.sword": " Contains: %s",
 	"gui.wheelchairs.seatbelt_on": "Dismounting locked",
 	"gui.wheelchairs.seatbelt_off": "Dismounting unlocked"
 }

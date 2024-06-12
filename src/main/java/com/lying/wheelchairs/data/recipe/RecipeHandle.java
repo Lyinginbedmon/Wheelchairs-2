@@ -43,6 +43,8 @@ public class RecipeHandle implements Recipe<Inventory>
 	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	
+	public boolean isIgnoredInRecipeBook() { return true; }
+	
 	public boolean fits(int width, int height) { return width >= 1 && height >= 1; }
 	
 	public boolean matches(Inventory inv, World var2)

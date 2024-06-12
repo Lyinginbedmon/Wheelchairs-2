@@ -8,6 +8,7 @@ import com.lying.wheelchairs.reference.Reference;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider.ItemTagProvider;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper.WrapperLookup;
 import net.minecraft.registry.tag.TagKey;
@@ -20,6 +21,8 @@ public class WHCItemTags extends ItemTagProvider
 	public static final TagKey<Item> CRUTCH = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "crutch"));
 	public static final TagKey<Item> CANE = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "cane"));
 	public static final TagKey<Item> PRESERVED = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "preserved"));
+	
+	public static final TagKey<Item> FILTER_SWORD_CANE = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "cane_filter"));
 	
 	public WHCItemTags(FabricDataOutput output, CompletableFuture<WrapperLookup> completableFuture)
 	{
@@ -77,5 +80,13 @@ public class WHCItemTags extends ItemTagProvider
 				WHCItems.CANE_CHERRY,
 				WHCItems.CANE_BAMBOO);
 		getOrCreateTagBuilder(PRESERVED).addTag(WHEELCHAIR).addTag(CRUTCH).addTag(CANE);
+		
+		getOrCreateTagBuilder(FILTER_SWORD_CANE).add(
+				Items.DIAMOND_SWORD,
+				Items.GOLDEN_SWORD,
+				Items.IRON_SWORD,
+				Items.NETHERITE_SWORD,
+				Items.STONE_SWORD,
+				Items.WOODEN_SWORD);
 	}
 }

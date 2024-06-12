@@ -3,6 +3,7 @@ package com.lying.wheelchairs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lying.wheelchairs.config.ServerConfig;
 import com.lying.wheelchairs.init.WHCBlocks;
 import com.lying.wheelchairs.init.WHCChairspaceConditions;
 import com.lying.wheelchairs.init.WHCEnchantments;
@@ -26,8 +27,14 @@ public class Wheelchairs implements ModInitializer
 {
     public static final Logger LOGGER = LoggerFactory.getLogger(Reference.ModInfo.MOD_ID);
     
+    public static ServerConfig config;
+    
 	public void onInitialize()
 	{
+		config = new ServerConfig("config/Wheelchairs.cfg");
+		config.read();
+		LOGGER.info("Sword cane config setting: "+config.swordCaneFilter().name());
+		
 		WHCChairspaceConditions.init();
 		ServerBus.registerEventCallbacks();
 		WHCItems.init();

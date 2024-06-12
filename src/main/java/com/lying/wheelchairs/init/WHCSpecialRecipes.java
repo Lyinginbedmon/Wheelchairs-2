@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.lying.wheelchairs.data.recipe.RecipeCane;
+import com.lying.wheelchairs.data.recipe.RecipeCaneSword;
 import com.lying.wheelchairs.data.recipe.RecipeHandle;
 import com.lying.wheelchairs.data.recipe.RecipeWheelchair;
 import com.lying.wheelchairs.reference.Reference;
@@ -11,6 +12,7 @@ import com.lying.wheelchairs.reference.Reference;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -25,6 +27,7 @@ public class WHCSpecialRecipes
 	public static final RecipeSerializer<RecipeWheelchair> WHEELCHAIR_SERIALIZER = makeSerializer(RecipeWheelchair.ID, new RecipeWheelchair.Serializer());
 	public static final RecipeSerializer<RecipeCane> CANE_SERIALIZER = makeSerializer(RecipeCane.ID, new RecipeCane.Serializer());
 	public static final RecipeSerializer<RecipeHandle> HANDLE_SERIALIZER = makeSerializer(RecipeHandle.ID, new RecipeHandle.Serializer());
+	public static final RecipeSerializer<RecipeCaneSword> CANE_SWORD_SERIALIZER = makeSerializer(RecipeCaneSword.ID, new SpecialRecipeSerializer<RecipeCaneSword>((category) -> new RecipeCaneSword()));
 	
 	static <T extends Recipe<?>> RecipeSerializer<T> makeSerializer(Identifier name, RecipeSerializer<T> serializer)
 	{

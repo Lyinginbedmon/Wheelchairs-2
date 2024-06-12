@@ -1,5 +1,6 @@
-// 1.20.4	2024-06-05T22:20:55.7941107	Wheelchairs/Tags for minecraft:item
+// 1.20.4	2024-06-11T23:18:36.8471924	Wheelchairs/Tags for minecraft:item
 51f2adc92c7164b0d20050feaf570bbd54ad4e23 data\wheelchairs\tags\items\cane.json
+b92be972d857d5df47c08065721a831a67d27f65 data\wheelchairs\tags\items\cane_filter.json
 317246f4b3689676676d045a8d8bf9859c3b8c4e data\wheelchairs\tags\items\wheels.json
 8cd35839308148318c466444fc5a238074595e40 data\wheelchairs\tags\items\wheelchair.json
 547295b38de6af68122bcb80b2d1fbc13eadaf3e data\wheelchairs\tags\items\preserved.json

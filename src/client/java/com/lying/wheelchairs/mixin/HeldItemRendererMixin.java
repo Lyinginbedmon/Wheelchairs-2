@@ -21,7 +21,7 @@ public class HeldItemRendererMixin
 		at = @At("RETURN"))
 	public void whc$renderCaneHandle(LivingEntity entity, ItemStack stack, ModelTransformationMode renderMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, final CallbackInfo ci)
 	{
-		if(stack.getItem() instanceof ItemCane && shouldRenderHandle(renderMode))
+		if(stack.getItem() instanceof ItemCane && shouldRenderHandle(stack, renderMode))
 		{
 			ItemCane cane = (ItemCane)stack.getItem();
 			ItemStack handle = cane.getHandle(stack);
@@ -29,7 +29,7 @@ public class HeldItemRendererMixin
 		}
 	}
 	
-	private static boolean shouldRenderHandle(ModelTransformationMode renderMode)
+	private static boolean shouldRenderHandle(ItemStack stack, ModelTransformationMode renderMode)
 	{
 		switch(renderMode)
 		{

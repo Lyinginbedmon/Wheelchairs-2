@@ -7,11 +7,14 @@ import org.jetbrains.annotations.Nullable;
 import com.lying.wheelchairs.init.WHCItems;
 
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
 public class ItemCane extends Item
@@ -37,14 +40,32 @@ public class ItemCane extends Item
 	
 	public ItemStack getHandle(ItemStack stack)
 	{
-		ItemStack handle = WHCItems.HANDLE_OAK.getDefaultStack().copy();
 		if(stack.getItem() instanceof ItemCane && stack.hasNbt())
 		{
 			NbtCompound data = stack.getNbt();
 			if(data.contains("Handle", NbtElement.COMPOUND_TYPE))
-				handle = ItemStack.fromNbt(data.getCompound("Handle"));
+				return ItemStack.fromNbt(data.getCompound("Handle"));
 		}
-		return handle;
+		return WHCItems.HANDLE_OAK.getDefaultStack().copy();
+	}
+	
+	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
+	{
+		ItemStack heldStack = user.getStackInHand(hand);
+		ItemStack sword = getSword(heldStack);
+		if(user.isSneaking() && !sword.isEmpty())
+		{
+			ItemStack cane = setSword(heldStack.copy(), ItemStack.EMPTY);
+			Hand opposite = hand == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
+			if(user.getStackInHand(opposite).isEmpty())
+				user.setStackInHand(opposite, cane);
+			else
+				user.getInventory().insertStack(cane);
+			
+			// FIXME Play sword drawing sound event
+			return TypedActionResult.success(sword);
+		}
+		return TypedActionResult.pass(heldStack);
 	}
 	
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
@@ -53,5 +74,31 @@ public class ItemCane extends Item
 			return;
 		
 		tooltip.add(Text.translatable("gui.wheelchairs.cane.handle", getHandle(stack).getName()));
+		
+		ItemStack sword = getSword(stack);
+		if(!sword.isEmpty())
+			tooltip.add(Text.translatable("gui.wheelchairs.cane.sword", sword.getName()));
+	}
+	
+	public static ItemStack setSword(ItemStack cane, ItemStack sword)
+	{
+		NbtCompound data = cane.getOrCreateNbt();
+		if(sword.isEmpty())
+			data.remove("Contains");
+		else
+			data.put("Contains", sword.writeNbt(new NbtCompound()));
+		cane.setNbt(data);
+		return cane;
+	}
+	
+	public static ItemStack getSword(ItemStack cane)
+	{
+		if(cane.getItem() instanceof ItemCane && cane.hasNbt())
+		{
+			NbtCompound data = cane.getNbt();
+			if(data.contains("Contains", NbtElement.COMPOUND_TYPE))
+				return ItemStack.fromNbt(data.getCompound("Contains"));
+		}
+		return ItemStack.EMPTY;
 	}
 }
