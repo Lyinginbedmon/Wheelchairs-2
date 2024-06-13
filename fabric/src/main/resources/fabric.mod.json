@@ -26,11 +26,7 @@
 		]
 	},
 	"mixins": [
-		"wheelchairs.mixins.json",
-		{
-			"config": "wheelchairs.client.mixins.json",
-			"environment": "client"
-		}
+		"wheelchairs.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.15.11",

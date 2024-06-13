@@ -32,6 +32,6 @@ public class WHCKeybinds
 	
 	public static void init()
 	{
-		KEYS.forEach(key -> KeyMappingRegistry.register(key));
+		KEYS.forEach(KeyMappingRegistry::register);
 	}
 }
