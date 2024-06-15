@@ -1,9 +1,0 @@
-{
-  "type": "wheelchairs:cane",
-  "result": {
-    "item": "wheelchairs:warped_cane"
-  },
-  "staff": {
-    "item": "minecraft:stripped_warped_stem"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "type": "wheelchairs:handle",
-  "material": {
-    "item": "minecraft:crimson_button"
-  },
-  "result": {
-    "item": "wheelchairs:crimson_handle"
-  }
-}

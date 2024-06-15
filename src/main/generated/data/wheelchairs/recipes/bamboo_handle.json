@@ -1,9 +1,0 @@
-{
-  "type": "wheelchairs:handle",
-  "material": {
-    "item": "minecraft:bamboo_button"
-  },
-  "result": {
-    "item": "wheelchairs:bamboo_handle"
-  }
-}

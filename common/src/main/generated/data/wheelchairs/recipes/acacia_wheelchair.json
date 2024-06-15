@@ -1,0 +1,18 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": {
+    "item": "minecraft:acacia_log"
+  },
+  "cushion": {
+    "tag": "minecraft:wool"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "result": {
+    "item": "wheelchairs:acacia_wheelchair"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheel"
+  }
+}

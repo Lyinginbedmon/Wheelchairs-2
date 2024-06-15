@@ -1,9 +1,0 @@
-{
-  "type": "wheelchairs:cane",
-  "result": {
-    "item": "wheelchairs:jungle_cane"
-  },
-  "staff": {
-    "item": "minecraft:stripped_jungle_log"
-  }
-}

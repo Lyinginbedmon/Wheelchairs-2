@@ -1,9 +1,0 @@
-{
-  "type": "wheelchairs:cane",
-  "result": {
-    "item": "wheelchairs:acacia_cane"
-  },
-  "staff": {
-    "item": "minecraft:stripped_acacia_log"
-  }
-}

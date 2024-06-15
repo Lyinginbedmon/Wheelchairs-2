@@ -1,6 +1,0 @@
-{
-	"parent": "wheelchairs:item/cane_staff",
-	"textures": {
-		"staff": "block/stripped_acacia_log"
-	}
-}

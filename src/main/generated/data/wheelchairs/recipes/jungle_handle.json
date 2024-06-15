@@ -1,9 +1,0 @@
-{
-  "type": "wheelchairs:handle",
-  "material": {
-    "item": "minecraft:jungle_button"
-  },
-  "result": {
-    "item": "wheelchairs:jungle_handle"
-  }
-}

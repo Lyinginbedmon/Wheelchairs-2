@@ -1,9 +1,0 @@
-{
-  "type": "wheelchairs:handle",
-  "material": {
-    "item": "minecraft:spruce_button"
-  },
-  "result": {
-    "item": "wheelchairs:spruce_handle"
-  }
-}

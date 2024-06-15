@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "wheelchairs",
+	"version": "${version}",
+	"name": "Wheelchairs",
+	"description": "Customisable assistive devices for representation and roleplaying",
+	"authors": [
+		"Lying"
+	],
+	"contact": {
+		"homepage": "https://lyinginbedmon.carrd.co/",
+		"sources": "https://github.com/Lyinginbedmon/Wheelchairs-2"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/wheelchairs/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.lying.fabric.WheelchairsFabric"
+		],
+		"client": [
+			"com.lying.fabric.client.WheelchairsFabricClient"
+		],
+		"fabric-datagen": [
+			"com.lying.fabric.data.WHCDataGenerators"
+		]
+	},
+	"mixins": [
+		"wheelchairs.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"architectury": ">=9.2.14",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
