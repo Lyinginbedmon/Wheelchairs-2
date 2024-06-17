@@ -64,6 +64,7 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
@@ -71,6 +72,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 
@@ -619,14 +621,47 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	{
 		double x = getX();
 		double z = getZ();
+		
+		// Adjust movement input to prevent dangerous collision for any passenger
+		for(Entity rider : getPassengerList())
+			movementInput = rider.adjustMovementForCollisions(movementInput);
+		
 		super.move(type, movementInput);
 		this.tickExhaustion(getX() - x, getZ() - z);
+	}
+	
+	public float getStepHeight()
+	{
+		float stepHeight = super.getStepHeight();
+		// Disable step-up if it would cause any passenger to bang their head
+		return getPassengerList().stream().anyMatch(rider -> willSuffocateRider(rider.getBoundingBox(), new Vec3d(0, stepHeight, 0), getWorld())) ? 0F : stepHeight;
+	}
+	
+	/**
+	 * Returns true if a movement in the given direction would result in suffocation for an entity with the given bounding box
+	 * @param riderBounds
+	 * @param offset
+	 * @param world
+	 * @return
+	 */
+	public static boolean willSuffocateRider(Box riderBounds, Vec3d offset, World world)
+	{
+		Box bounds = riderBounds.offset(offset);
+		return BlockPos.stream(bounds).anyMatch(pos -> 
+		{
+			BlockState state = world.getBlockState(pos);
+			return
+					!state.isAir() &&
+					state.shouldSuffocate(world, pos) &&
+					VoxelShapes.matchesAnywhere(state.getCollisionShape(world, (BlockPos)pos).offset(pos.getX(), pos.getY(), pos.getZ()), VoxelShapes.cuboid(bounds), BooleanBiFunction.AND);
+		});
 	}
 	
 	public void travel(Vec3d movementInput)
 	{
 		if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > getSwimHeight())
 			addVelocity(0D, 0.08D, 0D);
+		
 		super.travel(movementInput);
 		
 		if(isFallFlying()) return;
