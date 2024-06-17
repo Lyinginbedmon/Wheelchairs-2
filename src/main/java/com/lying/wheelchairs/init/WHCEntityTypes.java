@@ -16,7 +16,7 @@ import net.minecraft.util.Identifier;
 public class WHCEntityTypes
 {
 	public static final EntityType<EntityWheelchair> WHEELCHAIR = register("wheelchair",
-			FabricEntityTypeBuilder.create(SpawnGroup.MISC, EntityWheelchair::new).dimensions(EntityDimensions.fixed(0.9F, 0.9F)).build());
+			FabricEntityTypeBuilder.create(SpawnGroup.MISC, EntityWheelchair::new).dimensions(EntityDimensions.fixed(0.7F, 0.9F)).build());
     
     /**
      * TODO Entities for later versions

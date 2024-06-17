@@ -8,6 +8,7 @@
 		"EnchantmentHelperMixin",
 		"EntityMixin",
 		"ItemEntityMixin",
+		"PlayerEntityMixin",
 		"ServerPlayerEntityMixin",
 		"ServerPlayNetworkHandlerMixin",
 		"PlayerInventoryMixin"
