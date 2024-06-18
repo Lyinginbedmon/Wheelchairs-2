@@ -1,0 +1,6 @@
+{
+	"parent": "wheelchairs:item/cane_staff",
+	"textures": {
+		"staff": "block/stripped_crimson_stem"
+	}
+}

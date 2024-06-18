@@ -1,7 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "[47,)"
 #issueTrackerURL = ""
-license = "Insert License Here"
+license = "CC0-1.0"
 
 [[mods]]
 modId = "wheelchairs"
@@ -9,9 +9,9 @@ version = "${version}"
 displayName = "Wheelchairs"
 authors = "Lying"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+Customisable assistive devices for representation and roleplaying
 '''
-#logoFile = ""
+#logoFile = "assets/wheelchairs/icon.png"
 
 [[dependencies.wheelchairs]]
 modId = "forge"

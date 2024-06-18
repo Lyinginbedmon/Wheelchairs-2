@@ -1,0 +1,7 @@
+{
+	"parent": "wheelchairs:item/crutch_inventory",
+    "textures":
+    {
+    	"layer0": "wheelchairs:item/crutch_acacia_inventory"
+    }
+}
