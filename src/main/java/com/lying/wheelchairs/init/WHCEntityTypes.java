@@ -1,5 +1,6 @@
 package com.lying.wheelchairs.init;
 
+import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -18,6 +19,9 @@ public class WHCEntityTypes
 	public static final EntityType<EntityWheelchair> WHEELCHAIR = register("wheelchair",
 			FabricEntityTypeBuilder.create(SpawnGroup.MISC, EntityWheelchair::new).dimensions(EntityDimensions.fixed(0.7F, 0.9F)).build());
     
+	public static final EntityType<EntityWalker> WALKER = register("walker", 
+			FabricEntityTypeBuilder.create(SpawnGroup.MISC, EntityWalker::new).dimensions(EntityDimensions.fixed(0.7F, 0.9F)).build());
+	
     /**
      * TODO Entities for later versions
      * Rollator-style walker/zimmer frame
@@ -38,5 +42,6 @@ public class WHCEntityTypes
 	public static void init()
 	{
 		FabricDefaultAttributeRegistry.register(WHEELCHAIR, EntityWheelchair.createChairAttributes());
+		FabricDefaultAttributeRegistry.register(WALKER, EntityWalker.createChairAttributes());
 	}
 }

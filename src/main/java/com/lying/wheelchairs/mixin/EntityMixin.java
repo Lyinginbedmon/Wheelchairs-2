@@ -7,11 +7,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.lying.wheelchairs.entity.IParentedEntity;
 import com.lying.wheelchairs.utility.ServerBus;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 /**
@@ -36,6 +38,9 @@ public abstract class EntityMixin
 	
 	@Shadow
 	public EntityType<?> getType() { return null; }
+	
+	@Shadow
+	public Box getBoundingBox() { return null; }
 	
 	private boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
 	
@@ -89,6 +94,21 @@ public abstract class EntityMixin
 				ServerBus.AFTER_LIVING_CHANGE_MOUNT.invoker().afterChangeMount((LivingEntity)ent, null, originalVehicle);
 			
 			originalVehicle = null;
+		}
+	}
+	
+	@Inject(method = "tick()V", at = @At("HEAD"))
+	private void whc$tick(final CallbackInfo ci)
+	{
+		Entity ent = (Entity)(Object)this;
+		if(ent instanceof IParentedEntity)
+		{
+			IParentedEntity child = (IParentedEntity)ent;
+			LivingEntity parent = child.tryGetParent();
+			if(parent == null)
+				return;
+			
+			child.tickParented(child.tryGetParent());
 		}
 	}
 }

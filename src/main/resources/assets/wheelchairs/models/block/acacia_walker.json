@@ -1,0 +1,8 @@
+{
+	"parent": "wheelchairs:block/walker",
+	"textures": {
+		"planks": "block/acacia_planks",
+		"log": "block/acacia_log",
+		"wood": "block/stripped_acacia_log"
+	}
+}

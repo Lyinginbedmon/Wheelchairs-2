@@ -5,30 +5,25 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.wheelchairs.entity.ChairUpgrade;
-import com.lying.wheelchairs.entity.EntityWheelchair;
+import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCItems;
-import com.lying.wheelchairs.init.WHCUpgrades;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -38,9 +33,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-public class ItemWheelchair extends Item implements DyeableItem, IBonusBlockItem
+public class ItemWalker extends Item implements IBonusBlockItem
 {
-	public ItemWheelchair(Settings settings)
+	public ItemWalker(Settings settings)
 	{
 		super(settings);
 	}
@@ -66,15 +61,15 @@ public class ItemWheelchair extends Item implements DyeableItem, IBonusBlockItem
 		BlockPos blockPos = itemPlacementContext.getBlockPos();
 		ItemStack itemStack = context.getStack();
 		Vec3d vec3d = Vec3d.ofBottomCenter(blockPos);
-		Box box = WHCEntityTypes.WHEELCHAIR.getDimensions().getBoxAt(vec3d.getX(), vec3d.getY(), vec3d.getZ());
+		Box box = WHCEntityTypes.WALKER.getDimensions().getBoxAt(vec3d.getX(), vec3d.getY(), vec3d.getZ());
 		if(!world.isSpaceEmpty(null, box) || !world.getOtherEntities(null, box).isEmpty())
 			return ActionResult.FAIL;
 		
 		if(world instanceof ServerWorld)
 		{
 			ServerWorld serverWorld = (ServerWorld)world;
-			Consumer<EntityWheelchair> consumer = EntityType.copier(serverWorld, itemStack, context.getPlayer());
-			EntityWheelchair wheelchair = WHCEntityTypes.WHEELCHAIR.create(serverWorld, itemStack.getNbt(), consumer, blockPos, SpawnReason.SPAWN_EGG, true, true);
+			Consumer<EntityWalker> consumer = EntityType.copier(serverWorld, itemStack, context.getPlayer());
+			EntityWalker wheelchair = WHCEntityTypes.WALKER.create(serverWorld, itemStack.getNbt(), consumer, blockPos, SpawnReason.SPAWN_EGG, true, true);
 			if (wheelchair == null)
 				return ActionResult.FAIL;
 			
@@ -98,18 +93,6 @@ public class ItemWheelchair extends Item implements DyeableItem, IBonusBlockItem
 		
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_left", getWheel(stack, Arm.LEFT).getName()));
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_right", getWheel(stack, Arm.RIGHT).getName()));
-		
-		NbtList upgrades = stack.getNbt().getList("Upgrades", NbtElement.STRING_TYPE);
-		if(upgrades.size() > 0)
-		{
-			tooltip.add(Text.translatable("gui.wheelchairs.upgrades"));
-			for(int i = 0; i<upgrades.size(); i++)
-			{
-				ChairUpgrade upgrade = WHCUpgrades.get(new Identifier(upgrades.getString(i)));
-				if(upgrade != null)
-					tooltip.add(Text.literal(" * ").append(upgrade.translate()));
-			}
-		}
 	}
 	
 	public static Iterable<ItemStack> getWheels(ItemStack stack)
@@ -136,7 +119,7 @@ public class ItemWheelchair extends Item implements DyeableItem, IBonusBlockItem
 	{
 		String entry = arm == Arm.LEFT ? "Left" : "Right";
 		ItemStack wheel = new ItemStack(WHCItems.WHEEL_OAK);
-		if(stack.getItem() instanceof ItemWheelchair && stack.hasNbt())
+		if(stack.getItem() instanceof ItemWalker && stack.hasNbt())
 		{
 			NbtCompound data = stack.getNbt();
 			if(data.contains("Wheels", NbtElement.COMPOUND_TYPE))
@@ -147,18 +130,5 @@ public class ItemWheelchair extends Item implements DyeableItem, IBonusBlockItem
 			}
 		}
 		return wheel;
-	}
-	
-	public static boolean hasUpgrade(ItemStack stack, ChairUpgrade upgrade)
-	{
-		NbtCompound data = stack.getOrCreateNbt();
-		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
-		{
-			NbtList list = data.getList("Upgrades", NbtElement.STRING_TYPE);
-			for(int i=0; i<list.size(); i++)
-				if(list.getString(i).equals(upgrade.registryName().toString()))
-					return true;
-		}
-		return false;
 	}
 }

@@ -5,9 +5,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.lying.wheelchairs.entity.EntityWheelchair;
+import com.lying.wheelchairs.item.IBonusBlockItem;
 import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.item.ItemCaneHandle;
 import com.lying.wheelchairs.item.ItemCrutch;
+import com.lying.wheelchairs.item.ItemWalker;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -37,6 +39,18 @@ public class WHCItems
     public static final Item WHEELCHAIR_MANGROVE = wheelchair("mangrove");
     public static final Item WHEELCHAIR_CHERRY = wheelchair("cherry");
     public static final Item WHEELCHAIR_BAMBOO = wheelchair("bamboo");
+    
+    public static final Item WALKER_OAK = walker("oak");
+    public static final Item WALKER_SPRUCE = walker("spruce");
+    public static final Item WALKER_BIRCH = walker("birch");
+    public static final Item WALKER_DARK_OAK = walker("dark_oak");
+    public static final Item WALKER_ACACIA = walker("acacia");
+    public static final Item WALKER_JUNGLE = walker("jungle");
+    public static final Item WALKER_CRIMSON = walker("crimson");
+    public static final Item WALKER_WARPED = walker("warped");
+    public static final Item WALKER_MANGROVE = walker("mangrove");
+    public static final Item WALKER_CHERRY = walker("cherry");
+    public static final Item WALKER_BAMBOO = walker("bamboo");
     
     public static final Item WHEEL_OAK = wheel("oak");
     public static final Item WHEEL_SPRUCE = wheel("spruce");
@@ -115,6 +129,18 @@ public class WHCItems
 			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_CHERRY, WHEEL_CHERRY));
 			entries.add(ItemWheelchair.withWheels(WHEELCHAIR_BAMBOO, WHEEL_BAMBOO));
 			
+			entries.add(ItemWalker.withWheels(WALKER_OAK, WHEEL_OAK));
+			entries.add(ItemWalker.withWheels(WALKER_SPRUCE, WHEEL_SPRUCE));
+			entries.add(ItemWalker.withWheels(WALKER_BIRCH, WHEEL_BIRCH));
+			entries.add(ItemWalker.withWheels(WALKER_DARK_OAK, WHEEL_DARK_OAK));
+			entries.add(ItemWalker.withWheels(WALKER_JUNGLE, WHEEL_JUNGLE));
+			entries.add(ItemWalker.withWheels(WALKER_ACACIA, WHEEL_ACACIA));
+			entries.add(ItemWalker.withWheels(WALKER_CRIMSON, WHEEL_CRIMSON));
+			entries.add(ItemWalker.withWheels(WALKER_WARPED, WHEEL_WARPED));
+			entries.add(ItemWalker.withWheels(WALKER_MANGROVE, WHEEL_MANGROVE));
+			entries.add(ItemWalker.withWheels(WALKER_CHERRY, WHEEL_CHERRY));
+			entries.add(ItemWalker.withWheels(WALKER_BAMBOO, WHEEL_BAMBOO));
+			
 			entries.add(WHEEL_OAK);
 			entries.add(WHEEL_SPRUCE);
 			entries.add(WHEEL_BIRCH);
@@ -156,7 +182,7 @@ public class WHCItems
     
     private static Item register(String nameIn, Item itemIn)
     {
-    	if(itemIn instanceof ItemWheelchair)
+    	if(itemIn instanceof IBonusBlockItem)
     		WHCBlocks.registerFakeBlock(nameIn);
     	ITEMS.put(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
     	return itemIn;
@@ -174,6 +200,12 @@ public class WHCItems
     {
     	String fullName = name+"_wheelchair";
     	return register(fullName, new ItemWheelchair(new FabricItemSettings().maxCount(1)));
+    }
+    
+    private static Item walker(String name)
+    {
+    	String fullName = name+"_walker";
+    	return register(fullName, new ItemWalker(new FabricItemSettings().maxCount(1)));
     }
     
     private static Item wheel(String name)

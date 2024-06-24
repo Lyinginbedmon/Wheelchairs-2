@@ -1,4 +1,4 @@
 accessWidener v2 named
 
-accessible	field	net/minecraft/entity/SaddledComponent	boosted	Z
 accessible	method	net/minecraft/entity/Entity	adjustMovementForCollisions	(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;
+accessible	method	net/minecraft/entity/LivingEntity	travelControlled	(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/Vec3d;)V

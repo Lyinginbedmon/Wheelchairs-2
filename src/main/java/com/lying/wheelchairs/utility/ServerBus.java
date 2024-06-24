@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.lying.wheelchairs.Wheelchairs;
 import com.lying.wheelchairs.data.WHCItemTags;
+import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.init.WHCChairspaceConditions;
 import com.lying.wheelchairs.init.WHCEntityTypes;
@@ -86,6 +87,18 @@ public class ServerBus
 	public interface DoubleJumpEvent
 	{
 		void onDoubleJump(LivingEntity living);
+	}
+	
+	public static final Event<WalkerBindEvent> ON_WALKER_BIND = EventFactory.createArrayBacked(WalkerBindEvent.class, callbacks -> (living, walker) -> 
+	{
+		for(WalkerBindEvent callback : callbacks)
+			callback.onBindToWalker(living, walker);
+	});
+	
+	@FunctionalInterface
+	public interface WalkerBindEvent
+	{
+		void onBindToWalker(LivingEntity living, EntityWalker walker);
 	}
 	
 	public static void registerEventCallbacks()
@@ -190,6 +203,11 @@ public class ServerBus
 				if(next != null && next.getType() != WHCEntityTypes.WHEELCHAIR && (!chair.hasInventory() || chair.getInventory().isEmpty()))
 					chair.convertToItem((PlayerEntity)living);
 			}
+		});
+		
+		ServerBus.ON_WALKER_BIND.register((living, walker) -> 
+		{
+			living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(16D), wal -> wal.isParent(living) && wal != walker).forEach(EntityWalker::clearParent);
 		});
 	}
 }
