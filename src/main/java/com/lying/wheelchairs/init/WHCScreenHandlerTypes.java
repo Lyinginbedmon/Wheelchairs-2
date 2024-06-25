@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.screen.ChairInventoryScreenHandler;
+import com.lying.wheelchairs.screen.WalkerInventoryScreenHandler;
 
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.registry.Registries;
@@ -18,7 +19,8 @@ public class WHCScreenHandlerTypes
 {
 	private static final Map<Identifier, ScreenHandlerType<?>> HANDLERS = new HashMap<>();
 	
-	public static final ScreenHandlerType<ChairInventoryScreenHandler> INVENTORY_SCREEN_HANDLER = register("inventory_screen", new ScreenHandlerType<>((syncId, playerInventory) -> new ChairInventoryScreenHandler(syncId, playerInventory, new SimpleInventory(15)), FeatureFlags.VANILLA_FEATURES));
+	public static final ScreenHandlerType<ChairInventoryScreenHandler> WHEELCHAIR_INVENTORY_HANDLER	= register("wheelchair_inventory", new ScreenHandlerType<>((syncId, playerInventory) -> new ChairInventoryScreenHandler(syncId, playerInventory, new SimpleInventory(15)), FeatureFlags.VANILLA_FEATURES));
+	public static final ScreenHandlerType<WalkerInventoryScreenHandler> WALKER_INVENTORY_HANDLER	= register("walker_inventory", new ScreenHandlerType<>((syncId, playerInventory) -> new WalkerInventoryScreenHandler(syncId, playerInventory, new SimpleInventory(15)), FeatureFlags.VANILLA_FEATURES));
 	
 	private static <T extends ScreenHandler> ScreenHandlerType<T> register(String nameIn, ScreenHandlerType<T> typeIn)
 	{

@@ -16,6 +16,7 @@ import com.lying.wheelchairs.network.WHCPacketHandler;
 import com.lying.wheelchairs.renderer.entity.EntityWalkerRenderer;
 import com.lying.wheelchairs.renderer.entity.EntityWheelchairRenderer;
 import com.lying.wheelchairs.screen.ChairInventoryScreen;
+import com.lying.wheelchairs.screen.WalkerInventoryScreen;
 import com.lying.wheelchairs.utility.ClientBus;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -56,7 +57,8 @@ public class WheelchairsClient implements ClientModInitializer
 		
 		registerEventCallbacks();
 		
-		HandledScreens.register(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER, ChairInventoryScreen::new);
+		HandledScreens.register(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER, ChairInventoryScreen::new);
+		HandledScreens.register(WHCScreenHandlerTypes.WALKER_INVENTORY_HANDLER, WalkerInventoryScreen::new);
 		
 		ClientPlayNetworking.registerGlobalReceiver(WHCPacketHandler.PARENTED_MOVE_ID, new ParentedEntityPositionReceiver());
 	}
@@ -81,7 +83,7 @@ public class WheelchairsClient implements ClientModInitializer
 		ClientTickEvents.END_CLIENT_TICK.register(client -> 
 		{
 			ClientPlayerEntity player = mc.player;
-			if(player != null && player.hasVehicle())
+			if(player != null)
 			{
 				// Allows for opening wheelchair inventory
 				while(WHCKeybinds.keyOpenChair.wasPressed())

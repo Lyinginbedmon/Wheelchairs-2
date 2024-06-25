@@ -1,8 +1,12 @@
 package com.lying.wheelchairs.network;
 
+import java.util.UUID;
+
+import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.screen.ChairInventoryScreenHandler;
+import com.lying.wheelchairs.screen.WalkerInventoryScreenHandler;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.PlayChannelHandler;
@@ -18,5 +22,14 @@ public class OpenInventoryScreenReceiver implements PlayChannelHandler
 	{
 		if(player.hasVehicle() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).hasInventory())
 			player.openHandledScreen(new SimpleNamedScreenHandlerFactory((id, playerInventory, custom) -> new ChairInventoryScreenHandler(id, playerInventory, ((EntityWheelchair)custom.getVehicle()).getInventory()), player.getVehicle().getDisplayName()));
+		else if(buf.readBoolean())
+		{
+			UUID uuid = buf.readUuid();
+			player.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, player.getBoundingBox().expand(4D), EntityWalker::hasInventory).forEach(walker -> 
+			{
+				if(walker.getUuid().equals(uuid))
+					player.openHandledScreen(new SimpleNamedScreenHandlerFactory((id, playerInventory, custom) -> new WalkerInventoryScreenHandler(id, playerInventory, walker.getInventory(), walker), walker.getDisplayName()));
+			});
+		}
 	}
 }

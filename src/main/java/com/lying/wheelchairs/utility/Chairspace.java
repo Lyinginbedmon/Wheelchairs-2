@@ -1,5 +1,6 @@
 package com.lying.wheelchairs.utility;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,17 +9,22 @@ import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
+import com.lying.wheelchairs.Wheelchairs;
+import com.lying.wheelchairs.entity.IParentedEntity;
 import com.lying.wheelchairs.init.WHCChairspaceConditions;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.World;
@@ -121,14 +127,16 @@ public class Chairspace extends PersistentState
 	/** Returns true if there is at least one entity in storage under the given UUID */
 	public boolean hasEntityFor(UUID ownerID){ return storage.containsKey(ownerID) && !storage.get(ownerID).isEmpty(); }
 	
-	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition, boolean mountOnRespawn)
+	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition, Flag... flags)
 	{
+		Wheelchairs.LOGGER.info("Stored entity "+ent.getName().getString()+" in Chairspace with condition "+condition.registryName().toString());
+		
 		NbtCompound data = new NbtCompound();
 		ent.saveNbt(data);
 		
 		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
 		List<RespawnData> listForCondition = ownerMap.getOrDefault(condition, Lists.newArrayList());
-		listForCondition.add(RespawnData.of(ent, mountOnRespawn));
+		listForCondition.add(RespawnData.of(ent, flags));
 		ownerMap.put(condition, listForCondition);
 		storage.put(ownerID, ownerMap);
 		
@@ -169,38 +177,50 @@ public class Chairspace extends PersistentState
 	private static class RespawnData
 	{
 		private final NbtCompound entityData;
-		private final boolean shouldMount;
+		private final EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
 		
-		public RespawnData(NbtCompound data, boolean mount)
+		public RespawnData(NbtCompound data, Flag... flags)
 		{
 			this.entityData = data;
-			this.shouldMount = mount;
+			for(Flag flag : flags)
+				if(!this.flags.contains(flag))
+					this.flags.add(flag);
 		}
 		
-		public static RespawnData of(Entity entity, boolean mount)
+		public static RespawnData of(Entity entity, Flag... flags)
 		{
 			NbtCompound data = new NbtCompound();
 			entity.saveNbt(data);
-			return new RespawnData(data, mount);
+			return new RespawnData(data, flags);
 		}
 		
 		public NbtCompound writeToNbt()
 		{
 			NbtCompound data = new NbtCompound();
 			data.put("Entity", entityData);
-			data.putBoolean("Mount", shouldMount);
+			
+			NbtList list = new NbtList();
+			
+			data.put("Flags", list);
 			return data;
 		}
 		
 		public static RespawnData readFromNbt(NbtCompound nbt)
 		{
-			return new RespawnData(nbt.getCompound("Entity"), nbt.getBoolean("Mount"));
+			NbtList list = nbt.getList("Flags", NbtElement.STRING_TYPE);
+			List<Flag> flags = Lists.newArrayList();
+			for(int i=0; i<list.size(); i++)
+			{
+				Flag flag = Flag.get(list.getString(i));
+				if(flag != null)
+					flags.add(flag);
+			}
+			return new RespawnData(nbt.getCompound("Entity"), flags.toArray(new Flag[0]));
 		}
 		
 		@Nullable
 		public Entity respawn(Entity owner, ServerWorld world)
 		{
-
 			Entity storedEntity = EntityType.loadEntityWithPassengers(entityData, world, entity -> {
 				entity.refreshPositionAndAngles(owner.getX(), owner.getY(), owner.getZ(), owner.getYaw(), owner.getPitch());
 	            return entity;
@@ -208,12 +228,41 @@ public class Chairspace extends PersistentState
 			
 			if(storedEntity != null)
 			{
+				Wheelchairs.LOGGER.info("Restored entity "+storedEntity.getName().getString()+" from Chairspace with owner "+owner.getName().getString());
 				world.spawnEntity(storedEntity);
 				
-				if(shouldMount && !owner.hasVehicle())
+				if(flags.contains(Flag.MOUNT) && !owner.hasVehicle())
 					owner.startRiding(storedEntity);
+				
+				if(flags.contains(Flag.PARENT) && storedEntity instanceof IParentedEntity && owner instanceof LivingEntity)
+				{
+					LivingEntity parent = (LivingEntity)owner;
+					IParentedEntity child = (IParentedEntity)storedEntity;
+					
+					Vec3d offset = child.getParentOffset(parent, parent.getYaw(), parent.getPitch());
+					storedEntity.updatePosition(parent.getX() + offset.getX(), parent.getY() + offset.getY(), parent.getZ() + offset.getY());
+					child.parentTo(parent);
+				}
 			}
 			return storedEntity;
+		}
+	}
+	
+	/** Specific post-respawn effects that should be applied to a specific stored entity when respawned */
+	public static enum Flag implements StringIdentifiable
+	{
+		MOUNT,
+		PARENT;
+		
+		public String asString() { return name().toString(); }
+		
+		@Nullable
+		public static Flag get(String nameIn)
+		{
+			for(Flag flag : values())
+				if(flag.name().equals(nameIn))
+					return flag;
+			return null;
 		}
 	}
 }

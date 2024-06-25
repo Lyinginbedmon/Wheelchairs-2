@@ -2,6 +2,7 @@ package com.lying.wheelchairs.entity;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,8 @@ import net.minecraft.util.math.Vec3d;
 
 public interface IParentedEntity
 {
+	public static Predicate<Entity> isChildOf(LivingEntity entity) { return ent -> ent instanceof IParentedEntity && ((IParentedEntity)ent).isParent(entity); } 
+	
 	public boolean hasParent();
 	
 	public boolean isParent(Entity entity);

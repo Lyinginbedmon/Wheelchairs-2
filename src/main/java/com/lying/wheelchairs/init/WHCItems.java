@@ -190,6 +190,8 @@ public class WHCItems
     
     public static void init()
     {
+    	WHCBlocks.registerFakeBlock("walker_chest");
+    	
 		for(Entry<Identifier, Item> entry : ITEMS.entrySet())
 			Registry.register(Registries.ITEM, entry.getKey(), entry.getValue());
 		

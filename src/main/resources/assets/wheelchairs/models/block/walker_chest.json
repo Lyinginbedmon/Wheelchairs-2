@@ -1,0 +1,44 @@
+{
+	"parent": "block",
+	"textures": {
+		"chest": "wheelchairs:block/walker_chest"
+	},
+	"elements": [
+		{
+			"name": "chest",
+			"from": [4, 6.5, 5.5],
+			"to": [12, 9.5, 9.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [4, 6.5, 5.5]},
+			"faces": {
+				"north": {"uv": [4, 4, 12, 7], "texture": "#chest"},
+				"east": {"uv": [0, 0, 4, 3], "texture": "#chest"},
+				"south": {"uv": [4, 7, 12, 10], "texture": "#chest"},
+				"west": {"uv": [0, 0, 4, 3], "texture": "#chest"},
+				"up": {"uv": [4, 0, 12, 4], "texture": "#chest"}
+			}
+		},
+		{
+			"name": "latch",
+			"from": [7, 7, 5],
+			"to": [9, 9, 6],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 7, 5]},
+			"faces": {
+				"north": {"uv": [0, 4, 2, 6], "texture": "#chest"},
+				"east": {"uv": [2, 4, 3, 6], "texture": "#chest"},
+				"south": {"uv": [0, 5, 2, 7], "texture": "#chest"},
+				"west": {"uv": [2, 4, 3, 6], "texture": "#chest"},
+				"up": {"uv": [0, 3, 2, 4], "texture": "#chest"},
+				"down": {"uv": [0, 3, 2, 4], "texture": "#chest"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "chest",
+			"origin": [4, 6.5, 5.5],
+			"color": 0,
+			"nbt": "{}",
+			"children": [0, 1]
+		}
+	]
+}

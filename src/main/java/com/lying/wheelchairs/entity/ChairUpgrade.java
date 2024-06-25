@@ -21,6 +21,7 @@ import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -28,6 +29,7 @@ public class ChairUpgrade
 {
 	private final Identifier name;
 	private final Predicate<ItemStack> isKeyItem;
+	private final Item dropItem;
 	private final boolean hasModel;
 	
 	private final Consumer<EntityWheelchair> onApplied, onRemoved;
@@ -37,13 +39,14 @@ public class ChairUpgrade
 	private final Supplier<List<ChairUpgrade>> incompatibleWith;
 	
 	protected ChairUpgrade(Identifier nameIn, boolean modelled, 
-			Predicate<ItemStack> keyItem, Predicate<EntityWheelchair> valid, 
+			Predicate<ItemStack> keyItem, Item dropItem, Predicate<EntityWheelchair> valid, 
 			Supplier<List<ChairUpgrade>> incompatibleWith, 
 			Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed, Map<EntityAttribute, AttributeModifierCreator> modifiers)
 	{
 		this.name = nameIn;
 		this.hasModel = modelled;
 		this.isKeyItem = keyItem;
+		this.dropItem = dropItem;
 		this.isValid = valid;
 		this.incompatibleWith = incompatibleWith;
 		this.onApplied = applied;
@@ -57,6 +60,8 @@ public class ChairUpgrade
 	public final Identifier registryName() { return name; }
 	
 	public Text translate() { return Text.translatable("upgrade."+name.getNamespace()+"."+name.getPath()); }
+	
+	public Item dropItem() { return dropItem; }
 	
 	public boolean matches(ItemStack stack) { return isKeyItem.apply(stack); }
 	
@@ -105,6 +110,7 @@ public class ChairUpgrade
 	{
 		private final Identifier name;
 		private Predicate<ItemStack> isKeyItem = Predicates.alwaysFalse();
+		private Item dropItem = Items.STICK;
 		private Predicate<EntityWheelchair> isValid = Predicates.alwaysTrue();
 		private Supplier<List<ChairUpgrade>> incompatibleWith = () -> Lists.newArrayList();
 		
@@ -118,12 +124,23 @@ public class ChairUpgrade
 		public static Builder of(String nameIn) { return new Builder(new Identifier(Reference.ModInfo.MOD_ID, nameIn)); }
 		
 		/** Defines the item needed to apply this upgrade to a wheelchair */
-		public final Builder keyItem(Item itemIn) { keyItem((stack) -> stack.getItem() == itemIn); return this; }
+		public final Builder keyItem(Item itemIn)
+		{
+			dropItem = itemIn;
+			keyItem((stack) -> stack.getItem() == itemIn);
+			return this;
+		}
 		
 		/** Defines an {@link ItemStack} predicate to apply this upgrade to a wheelchair */
 		public final Builder keyItem(Predicate<ItemStack> itemIn)
 		{
 			this.isKeyItem = itemIn;
+			return this;
+		}
+		
+		public final Builder dropItem(Item itemIn)
+		{
+			dropItem = itemIn;
 			return this;
 		}
 		
@@ -173,7 +190,7 @@ public class ChairUpgrade
 		
 		public ChairUpgrade build()
 		{
-			return new ChairUpgrade(name, hasModel, isKeyItem, isValid, incompatibleWith, onApplied, onRemoved, attributeModifiers);
+			return new ChairUpgrade(name, hasModel, isKeyItem, dropItem, isValid, incompatibleWith, onApplied, onRemoved, attributeModifiers);
 		}
 		
 		private class UpgradeAttributeModifierCreator implements AttributeModifierCreator

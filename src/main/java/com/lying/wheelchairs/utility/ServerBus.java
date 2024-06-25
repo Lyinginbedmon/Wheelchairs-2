@@ -6,9 +6,11 @@ import com.lying.wheelchairs.Wheelchairs;
 import com.lying.wheelchairs.data.WHCItemTags;
 import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.entity.EntityWheelchair;
+import com.lying.wheelchairs.entity.IParentedEntity;
 import com.lying.wheelchairs.init.WHCChairspaceConditions;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.reference.Reference;
+import com.lying.wheelchairs.utility.Chairspace.Flag;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -137,13 +139,26 @@ public class ServerBus
 		// Storing wheelchair due to rider death
 		ServerLivingEntityEvents.AFTER_DEATH.register((entity,damage) -> 
 		{
-			if(entity.getType() != EntityType.PLAYER || entity.getVehicle() == null || entity.getVehicle().getType() != WHCEntityTypes.WHEELCHAIR || entity.getWorld().isClient())
+			if(entity.getType() != EntityType.PLAYER || entity.getWorld().isClient())
 				return;
 			
-			Entity vehicle = entity.getVehicle();
-			if(!entity.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
-				((EntityWheelchair)vehicle).dropInventory();
-			Chairspace.getChairspace(entity.getServer()).storeEntityInChairspace(vehicle, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN, true);
+			Chairspace chairs = Chairspace.getChairspace(entity.getServer());
+			boolean shouldDropContents = !entity.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY);
+			
+			if(entity.hasVehicle() && entity.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR)
+			{
+				Entity vehicle = entity.getVehicle();
+				if(shouldDropContents)
+					((EntityWheelchair)vehicle).dropInventory();
+				chairs.storeEntityInChairspace(vehicle, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN, Flag.MOUNT);
+			}
+			
+			entity.getWorld().getEntitiesByClass(LivingEntity.class, entity.getBoundingBox().expand(6D), IParentedEntity.isChildOf(entity)).forEach(ent -> 
+				{
+					if(ent.getType() == WHCEntityTypes.WALKER && ((EntityWalker)ent).hasInventory())
+						((EntityWalker)ent).dropInventory();
+					chairs.storeEntityInChairspace(ent, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN, Flag.PARENT);
+				});
 		});
 		
 		// Retrieving wheelchair when rider respawns
@@ -167,8 +182,15 @@ public class ServerBus
 				{
 					Entity vehicle = player.getVehicle();
 					player.stopRiding();
-					chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_LEAVE_SPECTATOR, true);
+					chairs.storeEntityInChairspace(vehicle, player.getUuid(), WHCChairspaceConditions.ON_LEAVE_SPECTATOR, Flag.MOUNT);
 				}
+				
+				player.getWorld().getEntitiesByClass(LivingEntity.class, player.getBoundingBox().expand(6D), IParentedEntity.isChildOf(player)).forEach(ent -> 
+					{
+						if(ent.getType() == WHCEntityTypes.WALKER && ((EntityWalker)ent).hasInventory())
+							((EntityWalker)ent).dropInventory();
+						chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LEAVE_SPECTATOR, Flag.PARENT);
+					});
 			}
 			
 			chairs.reactToEvent(ServerBus.AFTER_PLAYER_CHANGE_GAME_MODE, player);

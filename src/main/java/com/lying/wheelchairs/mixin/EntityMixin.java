@@ -101,7 +101,7 @@ public abstract class EntityMixin
 	private void whc$tick(final CallbackInfo ci)
 	{
 		Entity ent = (Entity)(Object)this;
-		if(ent instanceof IParentedEntity)
+		if(ent instanceof IParentedEntity && !getWorld().isClient())
 		{
 			IParentedEntity child = (IParentedEntity)ent;
 			LivingEntity parent = child.tryGetParent();

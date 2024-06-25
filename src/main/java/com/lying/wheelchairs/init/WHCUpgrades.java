@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
@@ -30,7 +31,8 @@ public class WHCUpgrades
 			.applied(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, true))
 			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
 	public static final ChairUpgrade STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
-			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))));
+			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST)))
+			.dropItem(Items.CHEST));
 	public static final ChairUpgrade FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
 			.keyItem(Items.PUMPKIN));
 	public static final ChairUpgrade NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
@@ -92,5 +94,12 @@ public class WHCUpgrades
 				upgrades.add(upgrade);
 		}
 		return upgrades;
+	}
+	
+	public static NbtList listToNbt(List<ChairUpgrade> upgrades)
+	{
+		NbtList list = new NbtList();
+		upgrades.forEach(upg -> list.add(NbtString.of(upg.registryName().toString())));
+		return list;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.item.ItemWalker;
+import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.renderer.entity.feature.EntityFeatureRenderer;
 
 import net.minecraft.client.render.OverlayTexture;
@@ -30,6 +31,7 @@ import net.minecraft.world.World;
 
 public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 {
+	private static final ModelIdentifier CHEST_MODEL = new ModelIdentifier(new Identifier(Reference.ModInfo.MOD_ID, "walker_chest"), "");
 	private static final double xOffset = 0.325D;
 	private final List<EntityFeatureRenderer<EntityWalker>> featureRenderers = Lists.newArrayList();
 	
@@ -63,6 +65,15 @@ public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 			matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f - frameYaw));
 			BakedModelManager bakedModelManager = this.blockRenderManager.getModels().getModelManager();
 			BlockModelRenderer modelRenderer = this.blockRenderManager.getModelRenderer();
+			
+			// Upgrades
+			if(entity.hasInventory())
+			{
+				matrices.push();
+					matrices.translate(-0.5F, 0F, -0.5F);
+					modelRenderer.render(matrices.peek(), vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout()), null, bakedModelManager.getModel(CHEST_MODEL), 1, 1, 1, light, OverlayTexture.DEFAULT_UV);
+				matrices.pop();
+			}
 			
 			// Seat
 			ItemStack chair = entity.getFrame();

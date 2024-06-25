@@ -1,7 +1,6 @@
 package com.lying.wheelchairs.screen;
 
-import com.lying.wheelchairs.entity.EntityWheelchair;
-import com.lying.wheelchairs.init.WHCEntityTypes;
+import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
 
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,14 +10,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
-public class ChairInventoryScreenHandler extends ScreenHandler
+public class WalkerInventoryScreenHandler extends ScreenHandler
 {
 	private final Inventory inv;
+	private final EntityWalker walker;
 	
-	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv)
+	public WalkerInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv)
+	{
+		this(syncId, playerInventory, inv, null);
+	}
+	
+	public WalkerInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv, EntityWalker walkerIn)
 	{
 		super(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER, syncId);
 		this.inv = inv;
+		this.walker = walkerIn;
 		
 		// Chair inventory slots
 		for(int k=0; k<3; ++k)
@@ -73,6 +79,9 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 		return stack;
 	}
 	
-	public boolean canUse(PlayerEntity player) { return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).hasInventory(); }
+	public boolean canUse(PlayerEntity player)
+	{
+		return player.isAlive() && (walker == null || walker.isAlive() && walker.hasInventory() && player.distanceTo(walker) <= 4D);
+	}
 
 }

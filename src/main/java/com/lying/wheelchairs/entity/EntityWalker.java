@@ -27,10 +27,15 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -44,11 +49,18 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	private static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<Optional<UUID>> USER_ID = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+	private static final TrackedData<Boolean> HAS_INV = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.BOOLEAN);
+	
+	/*
+	 * TODO Add walker crafting recipe
+	 */
 	
 	private LivingEntity user = null;
 	public float prevFrameYaw, frameYaw = 0F;
 	public float prevCasterYaw, casterYaw = 0F;
 	public float spinLeft, spinRight;
+	
+	protected SimpleInventory items;
 	
 	public EntityWalker(EntityType<? extends EntityWalker> entityType, World world)
 	{
@@ -64,6 +76,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		this.getDataTracker().startTracking(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(USER_ID, Optional.empty());
+		this.getDataTracker().startTracking(HAS_INV, false);
 	}
 	
 	public static DefaultAttributeContainer.Builder createChairAttributes()
@@ -87,6 +100,20 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		
 		if(data.contains("User", NbtElement.INT_ARRAY_TYPE))
 			getDataTracker().set(USER_ID, Optional.of(data.getUuid("User")));
+		
+		if(data.contains("Items", NbtElement.LIST_TYPE))
+		{
+			setHasInventory();
+			
+			NbtList items = data.getList("Items", NbtElement.COMPOUND_TYPE);
+			for(int i=0; i<items.size(); ++i)
+			{
+				NbtCompound nbt = items.getCompound(i);
+				int j = nbt.getByte("Slot") & 0xFF;
+				if (j < this.items.size())
+					this.items.setStack(j, ItemStack.fromNbt(nbt));
+			}
+		}
 	}
 	
 	public void writeCustomDataToNbt(NbtCompound data)
@@ -100,13 +127,45 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		
 		if(hasParent())
 			data.putUuid("User", getDataTracker().get(USER_ID).get());
+		
+		if(hasInventory())
+		{
+			NbtList items = new NbtList();
+			for(int i=0; i<this.items.size(); ++i)
+			{
+				ItemStack stack = this.items.getStack(i);
+				if(stack.isEmpty()) continue;
+				NbtCompound nbt = new NbtCompound();
+				nbt.putByte("Slot", (byte)i);
+				stack.writeNbt(nbt);
+				items.add(nbt);
+			}
+			data.put("Items", items);
+		}
 	}
 	
 	public ActionResult interact(PlayerEntity player, Hand hand)
 	{
+		ItemStack heldStack = player.getStackInHand(hand);
 		if(player.shouldCancelInteraction())
 		{
-			this.convertToItem(null);
+			if(!hasInventory() && (heldStack.isOf(Items.CHEST) || heldStack.isOf(Items.TRAPPED_CHEST)))
+			{
+				addInventory();
+				if(!player.getAbilities().creativeMode)
+					heldStack.decrement(1);
+			}
+			else if(hasInventory() && heldStack.isIn(ItemTags.AXES))
+			{
+				dropItem(Items.CHEST);
+				dropInventory();
+				getDataTracker().set(HAS_INV, false);
+				if(!player.isCreative())
+					heldStack.damage(1, player, playerx -> playerx.sendToolBreakStatus(hand));
+				playSound(SoundEvents.ITEM_AXE_STRIP, getSoundVolume(), getSoundPitch());
+			}
+			else
+				convertToItem(null);
 			return ActionResult.CONSUME;
 		}
 		else if(!getWorld().isClient())
@@ -119,6 +178,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	{
 		ItemStack stack = chair.getFrame();
 		ItemWalker.setWheels(stack, chair.getLeftWheel(), chair.getRightWheel());
+		ItemWalker.setHasChest(stack);
 		return stack;
 	}
 	
@@ -127,6 +187,8 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		getDataTracker().set(CHAIR, stack.copy());
 		getDataTracker().set(LEFT_WHEEL, ItemWalker.getWheel(stack, Arm.LEFT));
 		getDataTracker().set(RIGHT_WHEEL, ItemWalker.getWheel(stack, Arm.RIGHT));
+		if(ItemWalker.hasChest(stack))
+			setHasInventory();
 	}
 	
 	@Nullable
@@ -286,6 +348,8 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public void parentTo(@Nullable LivingEntity entity)
 	{
+		if(entity != null)
+			System.out.println("Parenting link established between "+getName().getString()+" and "+entity.getName().getString());
 		getDataTracker().set(USER_ID, entity == null ? Optional.empty() : Optional.of(entity.getUuid()));
 	}
 	
@@ -306,11 +370,59 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		
 		// Unbind from user if user is riding or holding two items
 		if(!canUseWalker(parent, this))
+		{
 			clearParent();
+			System.out.println("Parenting link severed between "+getName().getString()+" and "+parent.getName().getString());
+		}
 	}
 	
 	protected float getSaddledSpeed(PlayerEntity controllingPlayer)
 	{
 		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+	}
+	
+	public boolean hasInventory() { return getDataTracker().get(HAS_INV).booleanValue(); }
+	
+	public void addInventory()
+	{
+		if(hasInventory())
+			return;
+		
+		setHasInventory();
+		playSound(SoundEvents.ITEM_ARMOR_EQUIP_IRON, getSoundVolume(), getSoundPitch());
+	}
+	
+	public void setHasInventory()
+	{
+		getDataTracker().set(HAS_INV, true);
+		onChestedStatusChanged();
+	}
+	
+	public Inventory getInventory() { return this.items; }
+	
+	protected void onChestedStatusChanged()
+	{
+		SimpleInventory inv = this.items;
+		this.items = new SimpleInventory(15);
+		if(inv != null)
+			for(int j=0; j<Math.min(inv.size(), this.items.size()); ++j)
+			{
+				ItemStack stack = inv.getStack(j);
+				if(!stack.isEmpty())
+					this.items.setStack(j, stack.copy());
+			}
+	}
+	
+	public void dropInventory()
+	{
+		super.dropInventory();
+		if(this.items != null)
+			for(int i=0; i<this.items.size(); ++i)
+			{
+				ItemStack stack = this.items.getStack(i);
+				if(stack.isEmpty() || EnchantmentHelper.hasVanishingCurse(stack)) continue;
+				this.dropStack(stack);
+				this.items.setStack(i, ItemStack.EMPTY);
+			}
 	}
 }

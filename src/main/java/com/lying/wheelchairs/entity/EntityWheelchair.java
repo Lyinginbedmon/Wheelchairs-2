@@ -56,6 +56,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
@@ -250,6 +251,21 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		playSound(SoundEvents.ITEM_ARMOR_EQUIP_IRON, getSoundVolume(), getSoundPitch());
 	}
 	
+	public void removeUpgrade(ChairUpgrade upgrade)
+	{
+		if(!hasUpgrade(upgrade) || hasPassengers())
+			return;
+		
+		List<ChairUpgrade> upgrades = getUpgrades();
+		upgrades.remove(upgrade);
+		setUpgrades(WHCUpgrades.listToNbt(upgrades));
+		onChestedStatusChanged();
+		
+		dropItem(upgrade.dropItem());
+		
+		playSound(SoundEvents.ITEM_AXE_STRIP, getSoundVolume(), getSoundPitch());
+	}
+	
 	/** Returns true if this wheelchair has the Storage upgrade */
 	public boolean hasInventory() { return hasUpgrade(WHCUpgrades.STORAGE); }
 	
@@ -257,6 +273,9 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	
 	protected void onChestedStatusChanged()
 	{
+		if(!hasInventory())
+			dropInventory();
+		
 		SimpleInventory inv = this.items;
 		this.items = new SimpleInventory(15);
 		if(inv != null)
@@ -286,14 +305,29 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		ItemStack heldStack = player.getStackInHand(hand);
 		if(player.shouldCancelInteraction())
 		{
-			List<ChairUpgrade> possibleUpgrades = Lists.newArrayList();
-			possibleUpgrades.addAll(WHCUpgrades.fromItem(heldStack, this));
-			if(!possibleUpgrades.isEmpty())
+			if(heldStack.isIn(ItemTags.AXES))
 			{
-				addUpgrade(possibleUpgrades.stream().findFirst().get());
-				if(!player.getAbilities().creativeMode)
-					heldStack.decrement(1);
+				// get the last upgrade and remove
+				List<ChairUpgrade> upgrades = getUpgrades();
+				if(upgrades.isEmpty())
+					return ActionResult.FAIL;
+				
+				removeUpgrade(upgrades.get(upgrades.size() - 1));
+				if(!player.isCreative())
+					heldStack.damage(1, player, playerx -> playerx.sendToolBreakStatus(hand));
 				return ActionResult.success(getWorld().isClient());
+			}
+			else
+			{
+				List<ChairUpgrade> possibleUpgrades = Lists.newArrayList();
+				possibleUpgrades.addAll(WHCUpgrades.fromItem(heldStack, this));
+				if(!possibleUpgrades.isEmpty())
+				{
+					addUpgrade(possibleUpgrades.stream().findFirst().get());
+					if(!player.getAbilities().creativeMode)
+						heldStack.decrement(1);
+					return ActionResult.success(getWorld().isClient());
+				}
 			}
 		}
 		
