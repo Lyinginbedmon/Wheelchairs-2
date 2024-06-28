@@ -16,12 +16,14 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
@@ -166,6 +168,26 @@ public class ServerBus
 		{
 			if(!newPlayer.getWorld().isClient())
 				Chairspace.getChairspace(newPlayer.getServer()).reactToEvent(ServerPlayerEvents.AFTER_RESPAWN, newPlayer);
+		});
+		
+		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> 
+		{
+			ServerPlayerEntity player = handler.player;
+			if(player == null || player.getWorld() == null)
+				return;
+			
+			Chairspace chairs = Chairspace.getChairspace(server);
+			IParentedEntity.getParentedEntitiesOf(handler.getPlayer()).forEach(ent -> chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LOGIN, Flag.PARENT));
+		});
+		
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> 
+		{
+			ServerPlayerEntity player = handler.player;
+			if(player == null || player.getWorld() == null)
+				return;
+			
+			Chairspace chairs = Chairspace.getChairspace(server);
+			chairs.reactToEvent(ServerPlayConnectionEvents.JOIN, player);
 		});
 		
 		// Storage/retrieval due to rider being in/out of Spectator

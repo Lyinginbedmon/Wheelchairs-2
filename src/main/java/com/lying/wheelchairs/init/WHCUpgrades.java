@@ -44,7 +44,7 @@ public class WHCUpgrades
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
 	
-	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference zimmer frames, incl. means for rider to unbind
+	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference walkers, incl. means for rider to unbind
 			.keyItem(Items.IRON_BARS));
 	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
 			.keyItem(Items.DISPENSER));

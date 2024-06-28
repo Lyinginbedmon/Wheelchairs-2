@@ -24,11 +24,7 @@ public class WHCEntityTypes
 	
     /**
      * TODO Entities for later versions
-     * Rollator-style walker/zimmer frame
-     * 	Bind to user similar to leashing or firework rocket
-     * 	Limited upgrades (storage)
-     * 
-     * Wheeled stool (see: my kitchen :P )
+     * Wheeled stool (no upgrades, half block step height, but gets you off your feet)
      */
 	
 	private static <T extends Entity> EntityType<T> register(String name, EntityType<T> entry)

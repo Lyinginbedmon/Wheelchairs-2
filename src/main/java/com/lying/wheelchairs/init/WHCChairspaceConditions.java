@@ -13,6 +13,7 @@ import com.lying.wheelchairs.utility.ServerBus;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
@@ -32,6 +33,9 @@ public class WHCChairspaceConditions
 	
 	/** Respawn whenever the owner respawns */
 	public static final ChairspaceCondition ON_RESPAWN = register(ChairspaceCondition.Builder.of("on_respawn", ServerPlayerEvents.AFTER_RESPAWN));
+	
+	/** Respawn whenever the owner logs in */
+	public static final ChairspaceCondition ON_LOGIN = register(ChairspaceCondition.Builder.of("on_login", ServerPlayConnectionEvents.JOIN));
 	
 	/** Respawn when the server receives a teleport confirmation packet from the owner */
 	public static final ChairspaceCondition ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport", ServerBus.AFTER_PLAYER_TELEPORT));

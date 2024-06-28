@@ -61,7 +61,7 @@ public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 	public void render(EntityWalker entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light)
 	{
 		matrices.push();
-			float frameYaw = MathHelper.lerpAngleDegrees((float)tickDelta, (float)(entity).prevFrameYaw, (float)(entity).frameYaw);
+			float frameYaw = MathHelper.lerpAngleDegrees((float)tickDelta, (float)(entity).prevYaw, (float)(entity).getYaw());
 			matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0f - frameYaw));
 			BakedModelManager bakedModelManager = this.blockRenderManager.getModels().getModelManager();
 			BlockModelRenderer modelRenderer = this.blockRenderManager.getModelRenderer();

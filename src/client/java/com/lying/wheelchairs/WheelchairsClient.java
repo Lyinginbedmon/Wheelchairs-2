@@ -11,8 +11,6 @@ import com.lying.wheelchairs.init.WHCModelParts;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
 import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.network.OpenInventoryScreenPacket;
-import com.lying.wheelchairs.network.ParentedEntityPositionReceiver;
-import com.lying.wheelchairs.network.WHCPacketHandler;
 import com.lying.wheelchairs.renderer.entity.EntityWalkerRenderer;
 import com.lying.wheelchairs.renderer.entity.EntityWheelchairRenderer;
 import com.lying.wheelchairs.screen.ChairInventoryScreen;
@@ -23,7 +21,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -59,8 +56,6 @@ public class WheelchairsClient implements ClientModInitializer
 		
 		HandledScreens.register(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER, ChairInventoryScreen::new);
 		HandledScreens.register(WHCScreenHandlerTypes.WALKER_INVENTORY_HANDLER, WalkerInventoryScreen::new);
-		
-		ClientPlayNetworking.registerGlobalReceiver(WHCPacketHandler.PARENTED_MOVE_ID, new ParentedEntityPositionReceiver());
 	}
 	
 	public void registerEventCallbacks()

@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.lying.wheelchairs.entity.IParentedEntity;
 import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.item.ItemCrutch;
 
@@ -37,8 +38,17 @@ public class BipedEntityModelMixin extends EntityModelMixin
 	@Shadow
 	public ModelPart getArm(Arm armIn) { return null; }
 	
+	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("HEAD"), cancellable = true)
+	public void whc$setAnglesHead(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch, final CallbackInfo ci)
+	{
+		if(entity.getType() != EntityType.PLAYER || !(entity.isInPose(EntityPose.STANDING) || entity.isInPose(EntityPose.CROUCHING)) || (rightArmPose.isTwoHanded() || leftArmPose.isTwoHanded()))
+			return;
+		
+		animHandlingWalkers(entity);
+	}
+	
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"), cancellable = true)
-	public void whc$setAngles(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch, final CallbackInfo ci)
+	public void whc$setAnglesTail(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch, final CallbackInfo ci)
 	{
 		if(entity.getType() != EntityType.PLAYER || !(entity.isInPose(EntityPose.STANDING) || entity.isInPose(EntityPose.CROUCHING)) || (rightArmPose.isTwoHanded() || leftArmPose.isTwoHanded()))
 			return;
@@ -108,6 +118,21 @@ public class BipedEntityModelMixin extends EntityModelMixin
 			CrossbowPosing.swingArm(offArm, ageInTicks, isRightHanded ? 1F : -1F);
 			if(isCrouching)
 				offArm.pitch -= Math.toRadians(30D);
+		}
+	}
+	
+	private void animHandlingWalkers(LivingEntity entity)
+	{
+		if(IParentedEntity.getParentedEntitiesOf(entity).isEmpty()) return;
+		
+		if(rightArmPose == ArmPose.EMPTY)
+		{
+			rightArmPose = ArmPose.ITEM;
+		}
+		
+		if(leftArmPose == ArmPose.EMPTY)
+		{
+			leftArmPose = ArmPose.ITEM;
 		}
 	}
 	

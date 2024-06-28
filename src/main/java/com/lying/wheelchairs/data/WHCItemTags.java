@@ -20,6 +20,7 @@ public class WHCItemTags extends ItemTagProvider
 	public static final TagKey<Item> WHEELCHAIR = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "wheelchair"));
 	public static final TagKey<Item> CRUTCH = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "crutch"));
 	public static final TagKey<Item> CANE = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "cane"));
+	public static final TagKey<Item> WALKER = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "walker"));
 	public static final TagKey<Item> PRESERVED = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "preserved"));
 	
 	public static final TagKey<Item> FILTER_SWORD_CANE = TagKey.of(RegistryKeys.ITEM, new Identifier(Reference.ModInfo.MOD_ID, "cane_filter"));
@@ -79,7 +80,19 @@ public class WHCItemTags extends ItemTagProvider
 				WHCItems.CANE_WARPED,
 				WHCItems.CANE_CHERRY,
 				WHCItems.CANE_BAMBOO);
-		getOrCreateTagBuilder(PRESERVED).addTag(WHEELCHAIR).addTag(CRUTCH).addTag(CANE);
+		getOrCreateTagBuilder(WALKER).add(
+				WHCItems.WALKER_ACACIA,
+				WHCItems.WALKER_BAMBOO,
+				WHCItems.WALKER_BIRCH,
+				WHCItems.WALKER_CHERRY,
+				WHCItems.WALKER_CRIMSON,
+				WHCItems.WALKER_DARK_OAK,
+				WHCItems.WALKER_JUNGLE,
+				WHCItems.WALKER_MANGROVE,
+				WHCItems.WALKER_OAK,
+				WHCItems.WALKER_SPRUCE,
+				WHCItems.WALKER_WARPED);
+		getOrCreateTagBuilder(PRESERVED).addTag(WHEELCHAIR).addTag(CRUTCH).addTag(CANE).addTag(WALKER);
 		
 		getOrCreateTagBuilder(FILTER_SWORD_CANE).add(
 				Items.DIAMOND_SWORD,

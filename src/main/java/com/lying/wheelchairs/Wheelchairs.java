@@ -15,8 +15,6 @@ import com.lying.wheelchairs.init.WHCSpecialRecipes;
 import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.network.FlyingMountRocketReceiver;
 import com.lying.wheelchairs.network.OpenInventoryScreenReceiver;
-import com.lying.wheelchairs.network.ParentedEntityInputReceiver;
-import com.lying.wheelchairs.network.ParentedEntityMoveReceiver;
 import com.lying.wheelchairs.network.StartFlyingReceiver;
 import com.lying.wheelchairs.network.WHCPacketHandler;
 import com.lying.wheelchairs.reference.Reference;
@@ -51,7 +49,5 @@ public class Wheelchairs implements ModInitializer
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.OPEN_INVENTORY_ID, new OpenInventoryScreenReceiver());
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.FLYING_START_ID, new StartFlyingReceiver());
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.FLYING_ROCKET_ID, new FlyingMountRocketReceiver());
-		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.PARENTED_MOVE_ID, new ParentedEntityMoveReceiver());
-		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.PARENTED_INPUT_ID, new ParentedEntityInputReceiver());
 	}
 }

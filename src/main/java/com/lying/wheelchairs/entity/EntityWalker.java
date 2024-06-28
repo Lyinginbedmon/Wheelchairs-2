@@ -53,6 +53,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	/*
 	 * TODO Add walker crafting recipe
+	 * FIXME Walker wheels do not animate
 	 */
 	
 	private LivingEntity user = null;
@@ -348,37 +349,23 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public void parentTo(@Nullable LivingEntity entity)
 	{
-		if(entity != null)
-			System.out.println("Parenting link established between "+getName().getString()+" and "+entity.getName().getString());
 		getDataTracker().set(USER_ID, entity == null ? Optional.empty() : Optional.of(entity.getUuid()));
 	}
 	
 	public Vec3d getParentOffset(LivingEntity parent, float yaw, float pitch)
 	{
-		return IParentedEntity.getRotationVector(0F, yaw).normalize().multiply(0.4D);
+		return new Vec3d(0, 0, 0.5D).rotateY(-parent.bodyYaw * ((float)Math.PI / 180));
 	}
 	
-	public void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
-	{
-		this.prevFrameYaw = this.frameYaw;
-		this.frameYaw = controllingPlayer.getBodyYaw();
-	}
-	
-	public void tickParented(@NotNull LivingEntity parent)
+	public void tickParented(@NotNull LivingEntity parent, float yaw, float pitch)
 	{
 		if(parent == null) return;
 		
+		this.setRotation(parent.bodyYaw, 0F);
+		
 		// Unbind from user if user is riding or holding two items
 		if(!canUseWalker(parent, this))
-		{
 			clearParent();
-			System.out.println("Parenting link severed between "+getName().getString()+" and "+parent.getName().getString());
-		}
-	}
-	
-	protected float getSaddledSpeed(PlayerEntity controllingPlayer)
-	{
-		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
 	}
 	
 	public boolean hasInventory() { return getDataTracker().get(HAS_INV).booleanValue(); }

@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 
 public interface IParentedEntity
 {
-	public static Predicate<Entity> isChildOf(LivingEntity entity) { return ent -> ent instanceof IParentedEntity && ((IParentedEntity)ent).isParent(entity); } 
+	public static Predicate<Entity> isChildOf(LivingEntity entity) { return ent -> ent.isAlive() && ent instanceof IParentedEntity && ((IParentedEntity)ent).isParent(entity); } 
 	
 	public boolean hasParent();
 	
@@ -28,7 +28,7 @@ public interface IParentedEntity
 	
 	public default Vec3d getParentOffset(LivingEntity parent, float yaw, float pitch) { return Vec3d.ZERO; }
 	
-	public default void tickParented(@NotNull LivingEntity parent) { }
+	public default void tickParented(@NotNull LivingEntity parent, float yaw, float pitch) { }
 	
 	@SuppressWarnings("unchecked")
 	@Nullable
@@ -67,5 +67,27 @@ public interface IParentedEntity
 		float j = MathHelper.cos((float)f);
 		float k = MathHelper.sin((float)f);
 		return new Vec3d((double)(i * j), (double)(-k), (double)(h * j));
+	}
+	
+	/** Updates the position and rotation of the child entity according to the position and rotation of the parent entity */
+	public static void updateParentingBond(LivingEntity child, LivingEntity parent)
+	{
+		if(child == null || parent == null || parent == child || !(child instanceof IParentedEntity) || !((IParentedEntity)child).isParent(parent))
+			return;
+		
+		float yaw = parent.getBodyYaw();
+		float pitch = parent.getPitch();
+		
+		child.setVelocity(Vec3d.ZERO);
+		child.tick();
+		
+		IParentedEntity parented = (IParentedEntity)child;
+		parented.tickParented(parent, yaw, pitch);
+		
+		// Stop calculating if the parented tick has severed the parenting bond
+		if(!parented.hasParent())
+			return;
+		
+		child.setPosition(parent.getPos().add(parented.getParentOffset(parent, yaw, pitch)));
 	}
 }

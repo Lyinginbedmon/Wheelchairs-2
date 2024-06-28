@@ -8,11 +8,11 @@
 		"EnchantmentHelperMixin",
 		"EntityMixin",
 		"ItemEntityMixin",
-		"LivingEntityMixin",
 		"PlayerEntityMixin",
 		"ServerPlayerEntityMixin",
 		"ServerPlayNetworkHandlerMixin",
-		"PlayerInventoryMixin"
+		"PlayerInventoryMixin",
+		"ServerWorldMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

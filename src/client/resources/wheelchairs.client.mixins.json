@@ -11,7 +11,8 @@
 		"ItemRendererMixin",
 		"HeldItemRendererMixin",
 		"ModelLoaderMixin",
-		"ClientPlayerEntityMixin"
+		"ClientWorldMixin",
+		"TickManagerMixinClient"
 	],
 	"injectors": {
 		"defaultRequire": 1
