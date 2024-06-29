@@ -8,8 +8,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.lying.wheelchairs.utility.ServerBus;
+import com.lying.wheelchairs.utility.ServerEvents;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Box;
@@ -27,6 +29,9 @@ public abstract class EntityMixin
 	private Entity originalVehicle;
 	
 	@Shadow
+	protected static final int FALL_FLYING_FLAG_INDEX = 7;
+	
+	@Shadow
 	public boolean hasVehicle() { return false; }
 	
 	@Shadow
@@ -40,6 +45,12 @@ public abstract class EntityMixin
 	
 	@Shadow
 	public Box getBoundingBox() { return null; }
+	
+	@Shadow
+	protected boolean getFlag(int index) { return false; }
+	
+	@Shadow
+	public EntityPose getPose() { return EntityPose.STANDING; }
 	
 	private boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
 	
@@ -65,7 +76,7 @@ public abstract class EntityMixin
 		if(--calls <= 0 && ent instanceof LivingEntity)
 		{
 			if(getVehicle() != originalVehicle)
-				ServerBus.AFTER_LIVING_CHANGE_MOUNT.invoker().afterChangeMount((LivingEntity)ent, getVehicle(), originalVehicle);
+				ServerEvents.AFTER_LIVING_CHANGE_MOUNT.invoker().afterChangeMount((LivingEntity)ent, getVehicle(), originalVehicle);
 			
 			originalVehicle = null;
 			calls = 0;
@@ -90,7 +101,7 @@ public abstract class EntityMixin
 		{
 			Entity ent = (Entity)(Object)this;
 			if(ent instanceof LivingEntity)
-				ServerBus.AFTER_LIVING_CHANGE_MOUNT.invoker().afterChangeMount((LivingEntity)ent, null, originalVehicle);
+				ServerEvents.AFTER_LIVING_CHANGE_MOUNT.invoker().afterChangeMount((LivingEntity)ent, null, originalVehicle);
 			
 			originalVehicle = null;
 		}

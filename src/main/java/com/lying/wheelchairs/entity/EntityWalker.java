@@ -6,10 +6,11 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.lying.wheelchairs.Wheelchairs;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.item.ItemWalker;
-import com.lying.wheelchairs.utility.ServerBus;
+import com.lying.wheelchairs.utility.ServerEvents;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -52,7 +53,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	private static final TrackedData<Boolean> HAS_INV = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
 	/*
-	 * TODO Add walker crafting recipe
+	 * FIXME Add walker crafting recipe
 	 * FIXME Walker wheels do not animate
 	 */
 	
@@ -102,10 +103,9 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		if(data.contains("User", NbtElement.INT_ARRAY_TYPE))
 			getDataTracker().set(USER_ID, Optional.of(data.getUuid("User")));
 		
+		setHasInventory(data.getBoolean("Chested"));
 		if(data.contains("Items", NbtElement.LIST_TYPE))
 		{
-			setHasInventory();
-			
 			NbtList items = data.getList("Items", NbtElement.COMPOUND_TYPE);
 			for(int i=0; i<items.size(); ++i)
 			{
@@ -129,13 +129,15 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		if(hasParent())
 			data.putUuid("User", getDataTracker().get(USER_ID).get());
 		
+		data.putBoolean("Chested", hasInventory());
 		if(hasInventory())
 		{
 			NbtList items = new NbtList();
-			for(int i=0; i<this.items.size(); ++i)
+			for(int i=0; i<this.items.size(); i++)
 			{
 				ItemStack stack = this.items.getStack(i);
-				if(stack.isEmpty()) continue;
+				if(stack.isEmpty())
+					continue;
 				NbtCompound nbt = new NbtCompound();
 				nbt.putByte("Slot", (byte)i);
 				stack.writeNbt(nbt);
@@ -147,30 +149,36 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public ActionResult interact(PlayerEntity player, Hand hand)
 	{
+		/* If this walker either has no parent OR the interacting player is the parent */
+		boolean shouldRespond = !hasParent() || isParent(player);
 		ItemStack heldStack = player.getStackInHand(hand);
 		if(player.shouldCancelInteraction())
 		{
-			if(!hasInventory() && (heldStack.isOf(Items.CHEST) || heldStack.isOf(Items.TRAPPED_CHEST)))
+			boolean hasInv = hasInventory();
+			// Chest upgrade application
+			if(!hasInv && (heldStack.isOf(Items.CHEST) || heldStack.isOf(Items.TRAPPED_CHEST)))
 			{
 				addInventory();
 				if(!player.getAbilities().creativeMode)
 					heldStack.decrement(1);
 			}
-			else if(hasInventory() && heldStack.isIn(ItemTags.AXES))
+			// Chest upgrade removal
+			else if(hasInv && heldStack.isIn(ItemTags.AXES))
 			{
 				dropItem(Items.CHEST);
-				dropInventory();
-				getDataTracker().set(HAS_INV, false);
+				setHasInventory(false);
+				
 				if(!player.isCreative())
 					heldStack.damage(1, player, playerx -> playerx.sendToolBreakStatus(hand));
 				playSound(SoundEvents.ITEM_AXE_STRIP, getSoundVolume(), getSoundPitch());
 			}
-			else
+			// Item conversion
+			else if(shouldRespond)
 				convertToItem(null);
 			return ActionResult.CONSUME;
 		}
 		else if(!getWorld().isClient())
-			return bindToPlayer(player) ? ActionResult.CONSUME : ActionResult.PASS;
+			return shouldRespond && bindToPlayer(player) ? ActionResult.CONSUME : ActionResult.PASS;
 		
 		return ActionResult.SUCCESS;
 	}
@@ -179,7 +187,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	{
 		ItemStack stack = chair.getFrame();
 		ItemWalker.setWheels(stack, chair.getLeftWheel(), chair.getRightWheel());
-		ItemWalker.setHasChest(stack);
+		ItemWalker.setHasChest(stack, chair.hasInventory());
 		return stack;
 	}
 	
@@ -189,7 +197,20 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		getDataTracker().set(LEFT_WHEEL, ItemWalker.getWheel(stack, Arm.LEFT));
 		getDataTracker().set(RIGHT_WHEEL, ItemWalker.getWheel(stack, Arm.RIGHT));
 		if(ItemWalker.hasChest(stack))
-			setHasInventory();
+		{
+			setHasInventory(true);
+			if(stack.getOrCreateNbt().contains("Items", NbtElement.LIST_TYPE))
+			{
+				NbtList list = stack.getOrCreateNbt().getList("Items", NbtElement.COMPOUND_TYPE);
+				for(int i=0; i<list.size(); i++)
+				{
+					NbtCompound nbt = list.getCompound(i);
+					int j = nbt.getByte("Slot") & 0xFF;
+					if (j < this.items.size())
+						this.items.setStack(j, ItemStack.fromNbt(nbt));
+				}
+			}
+		}
 	}
 	
 	@Nullable
@@ -217,7 +238,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			parentTo(player);
 			playSound(WHCSoundEvents.SEATBELT_ON, 1F, 1F);
 			
-			ServerBus.ON_WALKER_BIND.invoker().onBindToWalker(player, this);
+			ServerEvents.ON_WALKER_BIND.invoker().onBindToWalker(player, this);
 			return true;
 		}
 		
@@ -241,34 +262,28 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public static boolean canUseWalker(LivingEntity entity, Entity walker)
 	{
-		return !entity.hasVehicle() && (entity.getMainHandStack().isEmpty() || entity.getOffHandStack().isEmpty()) && entity.distanceTo(walker) < 5D;
+		return !entity.hasVehicle() && (!Wheelchairs.config.handsyWalkers() || (entity.getMainHandStack().isEmpty() || entity.getOffHandStack().isEmpty())) && entity.distanceTo(walker) < 5D;
 	}
 	
 	public void pushAway(Entity entity)
 	{
-		if(isParent(entity))
-			return;
-		super.pushAway(entity);
+		if(!isParent(entity))
+			super.pushAway(entity);
 	}
 	
 	public void pushAwayFrom(Entity entity)
 	{
-		if(isParent(entity))
-			return;
-		super.pushAwayFrom(entity);
-	}
-	
-	public Vec3d getVelocity()
-	{
-		Entity user = getUser();
-		return user == null ? super.getVelocity() : user.getVelocity();
+		if(!isParent(entity))
+			super.pushAwayFrom(entity);
 	}
 	
 	public void travel(Vec3d movementInput)
 	{
 		super.travel(movementInput);
 		
-		if(isFallFlying()) return;
+		if(isFallFlying())
+			return;
+		
 		double speed = movementInput.getZ() * getMovementSpeed();
 		this.spinLeft = addSpin(this.spinLeft, (float)speed);
 		this.spinRight = addSpin(this.spinRight, (float)speed);
@@ -375,13 +390,13 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		if(hasInventory())
 			return;
 		
-		setHasInventory();
+		setHasInventory(true);
 		playSound(SoundEvents.ITEM_ARMOR_EQUIP_IRON, getSoundVolume(), getSoundPitch());
 	}
 	
-	public void setHasInventory()
+	public void setHasInventory(boolean bool)
 	{
-		getDataTracker().set(HAS_INV, true);
+		getDataTracker().set(HAS_INV, bool);
 		onChestedStatusChanged();
 	}
 	
@@ -389,6 +404,9 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	protected void onChestedStatusChanged()
 	{
+		if(!hasInventory())
+			dropInventory();
+		
 		SimpleInventory inv = this.items;
 		this.items = new SimpleInventory(15);
 		if(inv != null)

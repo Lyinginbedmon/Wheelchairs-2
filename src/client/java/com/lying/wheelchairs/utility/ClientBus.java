@@ -7,7 +7,7 @@ public class ClientBus
 {
 	public static void registerEventCallbacks()
 	{
-		ServerBus.ON_DOUBLE_JUMP.register((living) -> 
+		ServerEvents.ON_DOUBLE_JUMP.register((living) -> 
 		{
 			if(living instanceof IFlyingMount && ((IFlyingMount)living).canStartFlying())
 				StartFlyingPacket.send();

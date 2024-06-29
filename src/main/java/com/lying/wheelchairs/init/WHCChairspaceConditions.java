@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Lists;
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.utility.ChairspaceCondition;
-import com.lying.wheelchairs.utility.ServerBus;
+import com.lying.wheelchairs.utility.ServerEvents;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.Event;
@@ -38,11 +38,14 @@ public class WHCChairspaceConditions
 	public static final ChairspaceCondition ON_LOGIN = register(ChairspaceCondition.Builder.of("on_login", ServerPlayConnectionEvents.JOIN));
 	
 	/** Respawn when the server receives a teleport confirmation packet from the owner */
-	public static final ChairspaceCondition ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport", ServerBus.AFTER_PLAYER_TELEPORT));
+	public static final ChairspaceCondition ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport", ServerEvents.AFTER_PLAYER_TELEPORT));
 	
 	/** Respawn when the owner exits Spectator mode */
-	public static final ChairspaceCondition ON_LEAVE_SPECTATOR = register(ChairspaceCondition.Builder.of("on_leave_spectator", ServerBus.AFTER_PLAYER_CHANGE_GAME_MODE)
+	public static final ChairspaceCondition ON_LEAVE_SPECTATOR = register(ChairspaceCondition.Builder.of("on_leave_spectator", ServerEvents.AFTER_PLAYER_CHANGE_GAME_MODE)
 			.condition(player -> !player.isSpectator()));
+	
+	/** Respawn when the user stops fall-flying */
+	public static final ChairspaceCondition ON_STOP_FLYING = register(ChairspaceCondition.Builder.of("on_stop_flying", ServerEvents.ON_STOP_FLYING));
 	
 	private static ChairspaceCondition register(ChairspaceCondition.Builder builder)
 	{

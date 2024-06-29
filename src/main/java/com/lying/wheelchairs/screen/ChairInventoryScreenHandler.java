@@ -73,6 +73,9 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 		return stack;
 	}
 	
-	public boolean canUse(PlayerEntity player) { return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).hasInventory(); }
+	public boolean canUse(PlayerEntity player)
+	{
+		return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).hasInventory();
+	}
 
 }

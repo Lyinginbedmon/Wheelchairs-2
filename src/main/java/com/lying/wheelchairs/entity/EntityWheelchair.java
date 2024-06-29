@@ -13,7 +13,7 @@ import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
-import com.lying.wheelchairs.utility.ServerBus;
+import com.lying.wheelchairs.utility.ServerEvents;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -150,8 +150,8 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
 			setUpgrades(data.getList("Upgrades", NbtElement.STRING_TYPE));
 		
-		this.onChestedStatusChanged();
-		if(this.hasUpgrade(WHCUpgrades.STORAGE))
+		onChestedStatusChanged();
+		if(hasUpgrade(WHCUpgrades.STORAGE))
 		{
 			NbtList items = data.getList("Items", NbtElement.COMPOUND_TYPE);
 			for(int i=0; i<items.size(); ++i)
@@ -334,7 +334,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		if(!hasPassengers())
 			if(player.shouldCancelInteraction())
 			{
-				this.convertToItem(null);
+				convertToItem(null);
 				return ActionResult.CONSUME;
 			}
 			else if(!this.getWorld().isClient())
@@ -454,7 +454,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		{
 				if(!isOnGround() && canStartFlying())
 				{
-					ServerBus.ON_DOUBLE_JUMP.invoker().onDoubleJump(this);
+					ServerEvents.ON_DOUBLE_JUMP.invoker().onDoubleJump(this);
 					startFlying();
 				}
 				else

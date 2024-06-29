@@ -115,10 +115,10 @@ public class ItemWalker extends Item implements IBonusBlockItem
 		stack.setNbt(data);
 	}
 	
-	public static void setHasChest(ItemStack stack)
+	public static void setHasChest(ItemStack stack, boolean contents)
 	{
 		NbtCompound data = stack.getOrCreateNbt();
-		data.putBoolean("HasChest", true);
+		data.putBoolean("HasChest", contents);
 		stack.setNbt(data);
 	}
 	

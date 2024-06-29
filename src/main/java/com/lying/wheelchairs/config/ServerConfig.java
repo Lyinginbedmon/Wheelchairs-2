@@ -17,6 +17,8 @@ public class ServerConfig extends Config
 	
 	private SwordCaneFilter swordCanes = SwordCaneFilter.ENCHANT;
 	
+	private boolean handsyWalkers = false;
+	
 	public ServerConfig(String fileIn)
 	{
 		super(fileIn);
@@ -26,14 +28,24 @@ public class ServerConfig extends Config
 	
 	public SwordCaneFilter swordCaneFilter() { return this.swordCanes; }
 	
+	public boolean handsyWalkers() { return this.handsyWalkers; }
+	
 	protected void readValues(Properties valuesIn)
 	{
 		swordCanes = SwordCaneFilter.get(parseStringOr(valuesIn.getProperty("SwordCaneFilter"), null));
+		handsyWalkers = parseBoolOr(valuesIn.getProperty("HandsyWalkers"), false);
 	}
 	
 	protected void writeValues(FileWriter writer)
 	{
 		writeString(writer, "SwordCaneFilter", swordCanes.asString());
+		writeBool(writer, "HandsyWalkers", handsyWalkers);
+	}
+	
+	static
+	{
+		DEFAULT_SETTINGS.put("SwordCaneFilter", SwordCaneFilter.ENCHANT.asString());
+		DEFAULT_SETTINGS.put("HandsyWalkers", "FALSE");
 	}
 	
 	public static enum SwordCaneFilter implements StringIdentifiable
