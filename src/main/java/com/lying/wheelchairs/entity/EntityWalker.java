@@ -11,6 +11,7 @@ import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.item.ItemWalker;
 import com.lying.wheelchairs.utility.ServerEvents;
+import com.lying.wheelchairs.utility.WHCUtils;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -53,12 +54,11 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	private static final TrackedData<Boolean> HAS_INV = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
 	/*
-	 * FIXME Add walker crafting recipe
 	 * FIXME Walker wheels do not animate
 	 */
 	
 	private LivingEntity user = null;
-	public float prevFrameYaw, frameYaw = 0F;
+	
 	public float prevCasterYaw, casterYaw = 0F;
 	public float spinLeft, spinRight;
 	
@@ -277,38 +277,6 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			super.pushAwayFrom(entity);
 	}
 	
-	public void travel(Vec3d movementInput)
-	{
-		super.travel(movementInput);
-		
-		if(isFallFlying())
-			return;
-		
-		double speed = movementInput.getZ() * getMovementSpeed();
-		this.spinLeft = addSpin(this.spinLeft, (float)speed);
-		this.spinRight = addSpin(this.spinRight, (float)speed);
-	}
-	
-	private static float addSpin(float initial, float forwardSpeed)
-	{
-		if(forwardSpeed == 0F)
-			return initial;
-		
-		float amount = 360F / (float)(forwardSpeed / Math.PI);
-		return clampRotation(initial + amount);
-	}
-	
-	private static float clampRotation(float value)
-	{
-		if(value > 0F)
-			value %= 360F;
-		else
-			while(value < 0F)
-				value += 360F;
-		
-		return value;
-	}
-	
 	public boolean isInvulnerableTo(DamageSource damageSource)
 	{
 		DamageSources sources = getWorld().getDamageSources();
@@ -369,18 +337,50 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public Vec3d getParentOffset(LivingEntity parent, float yaw, float pitch)
 	{
-		return new Vec3d(0, 0, 0.5D).rotateY(-parent.bodyYaw * ((float)Math.PI / 180));
+		return WHCUtils.localToGlobal(new Vec3d(0, 0, 0.5D), parent.bodyYaw);
+	}
+	
+	public void tick()
+	{
+		super.tick();
+		if(hasParent() && IParentedEntity.getParentOf(this) == null)
+			parentTo(null);
 	}
 	
 	public void tickParented(@NotNull LivingEntity parent, float yaw, float pitch)
 	{
-		if(parent == null) return;
+		if(parent == null)
+		{
+			parentTo(null);
+			return;
+		}
 		
-		this.setRotation(parent.bodyYaw, 0F);
+		setRotation(parent.bodyYaw, 0F);
 		
 		// Unbind from user if user is riding or holding two items
 		if(!canUseWalker(parent, this))
 			clearParent();
+	}
+	
+	public void setPosition(double x, double y, double z)
+	{
+		Vec3d prevPos = getPos().subtract(0, getPos().y, 0);
+		super.setPosition(x, y, z);
+		
+		Vec3d pos = getPos().subtract(0, getPos().y, 0);
+		Vec3d offset = pos.subtract(prevPos);
+		if(offset.length() > 0D && getWorld().isClient())
+		{
+			/*
+			 * Calculate offset from previous planar position to current planar position
+			 * Convert offset to local directional vector
+			 * Apply wheel movement as Z value of resulting vector
+			 */
+			Vec3d localised = WHCUtils.globalToLocal(offset, getYaw());
+			float spin = WHCUtils.calculateSpin((float)localised.z, 5F / 16F);
+			this.spinLeft = WHCUtils.clampRotation(this.spinLeft + spin);
+			this.spinRight = WHCUtils.clampRotation(this.spinRight + spin);
+		}
 	}
 	
 	public boolean hasInventory() { return getDataTracker().get(HAS_INV).booleanValue(); }

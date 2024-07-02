@@ -6,6 +6,7 @@ import java.util.Map;
 import com.lying.wheelchairs.data.recipe.RecipeCane;
 import com.lying.wheelchairs.data.recipe.RecipeCaneSword;
 import com.lying.wheelchairs.data.recipe.RecipeHandle;
+import com.lying.wheelchairs.data.recipe.RecipeWalker;
 import com.lying.wheelchairs.data.recipe.RecipeWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 
@@ -28,6 +29,7 @@ public class WHCSpecialRecipes
 	public static final RecipeSerializer<RecipeCane> CANE_SERIALIZER = makeSerializer(RecipeCane.ID, new RecipeCane.Serializer());
 	public static final RecipeSerializer<RecipeHandle> HANDLE_SERIALIZER = makeSerializer(RecipeHandle.ID, new RecipeHandle.Serializer());
 	public static final RecipeSerializer<RecipeCaneSword> CANE_SWORD_SERIALIZER = makeSerializer(RecipeCaneSword.ID, new SpecialRecipeSerializer<RecipeCaneSword>((category) -> new RecipeCaneSword()));
+	public static final RecipeSerializer<RecipeWalker> WALKER_SERIALIZER = makeSerializer(RecipeWalker.ID, new RecipeWalker.Serializer());
 	
 	static <T extends Recipe<?>> RecipeSerializer<T> makeSerializer(Identifier name, RecipeSerializer<T> serializer)
 	{

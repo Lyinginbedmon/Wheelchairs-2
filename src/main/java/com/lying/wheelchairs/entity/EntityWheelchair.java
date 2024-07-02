@@ -14,6 +14,7 @@ import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.utility.ServerEvents;
+import com.lying.wheelchairs.utility.WHCUtils;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -558,8 +559,8 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			return;
 		
 		if(isFallFlying()) return;
-		this.spinLeft = clampRotation(this.spinLeft + amount);
-		this.spinRight = clampRotation(this.spinRight - amount);
+		this.spinLeft = WHCUtils.clampRotation(this.spinLeft + amount);
+		this.spinRight = WHCUtils.clampRotation(this.spinRight - amount);
 	}
 	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
@@ -699,9 +700,9 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		super.travel(movementInput);
 		
 		if(isFallFlying()) return;
-		double speed = movementInput.getZ() * getMovementSpeed();
-		this.spinLeft = addSpin(this.spinLeft, (float)speed);
-		this.spinRight = addSpin(this.spinRight, (float)speed);
+		double speed = WHCUtils.calculateSpin((float)(movementInput.getZ() * getMovementSpeed()), 1F);
+		this.spinLeft = WHCUtils.clampRotation(this.spinLeft + (float)speed);
+		this.spinRight = WHCUtils.clampRotation(this.spinRight + (float)speed);
 	}
 	
 	public void applyMovementEffects(BlockPos pos)
@@ -746,26 +747,6 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			world.setBlockState(pos, frosted);
 			world.scheduleBlockTick(pos, WHCBlocks.FROSTED_LAVA, MathHelper.nextInt(entity.getRandom(), 60, 120));
 		}
-	}
-	
-	private static float addSpin(float initial, float forwardSpeed)
-	{
-		if(forwardSpeed == 0F)
-			return initial;
-		
-		float amount = 360F / (float)(forwardSpeed / Math.PI);
-		return clampRotation(initial + amount);
-	}
-	
-	private static float clampRotation(float value)
-	{
-		if(value > 0F)
-			value %= 360F;
-		else
-			while(value < 0F)
-				value += 360F;
-		
-		return value;
 	}
 	
 	protected void tickExhaustion(double deltaX, double deltaZ)
