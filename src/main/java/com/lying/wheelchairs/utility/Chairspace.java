@@ -20,6 +20,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -129,7 +130,7 @@ public class Chairspace extends PersistentState
 	
 	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition, Flag... flags)
 	{
-		Wheelchairs.LOGGER.info("Stored entity "+ent.getName().getString()+" in Chairspace with condition "+condition.registryName().toString());
+		if(ent == null || ent.getWorld().isClient()) return;
 		
 		NbtCompound data = new NbtCompound();
 		ent.saveNbt(data);
@@ -142,6 +143,7 @@ public class Chairspace extends PersistentState
 		
 		ent.discard();
 		this.markDirty();
+		Wheelchairs.LOGGER.info("Stored entity "+ent.getName().getString()+" in Chairspace with condition "+condition.registryName().toString());
 	}
 	
 	/** Respawns all associated entities across all applicable conditions (if any) */
@@ -154,7 +156,9 @@ public class Chairspace extends PersistentState
 	/** Respawns all associated entities stored under the given condition */
 	public void respawnForCondition(UUID ownerID, Entity owner, ChairspaceCondition condition)
 	{
-		if(owner == null || owner.getWorld() == null || owner.getWorld().isClient() || owner.isSpectator() || !hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner)) return;
+		// Do not fire if there is not an owner to spawn on, a world to spawn in, or the world is client-side
+		if(owner == null || owner.getWorld() == null || owner.isSpectator() || owner.getWorld().isClient() || !hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner))
+			return;
 		
 		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
 		if(!ownerMap.containsKey(condition)) return;
@@ -200,7 +204,7 @@ public class Chairspace extends PersistentState
 			data.put("Entity", entityData);
 			
 			NbtList list = new NbtList();
-			
+			this.flags.forEach(flag -> list.add(NbtString.of(flag.toString())));
 			data.put("Flags", list);
 			return data;
 		}

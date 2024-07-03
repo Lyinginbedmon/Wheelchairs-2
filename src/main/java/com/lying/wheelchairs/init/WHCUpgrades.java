@@ -43,11 +43,10 @@ public class WHCUpgrades
 	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
-	
-	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference walkers, incl. means for rider to unbind
-			.keyItem(Items.IRON_BARS));
-	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
+	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer").modelled()
 			.keyItem(Items.DISPENSER));
+	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles").modelled()	// TODO Use IParentedEntity, incl. means for rider to unbind
+			.keyItem(Items.IRON_BARS));
 	
 	private static ChairUpgrade register(ChairUpgrade.Builder builder)
 	{

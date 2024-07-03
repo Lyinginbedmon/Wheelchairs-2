@@ -16,6 +16,8 @@ import net.minecraft.util.math.Vec3d;
 
 public interface IParentedEntity
 {
+	public static final double SEARCH_RANGE = 8D;
+	
 	public static Predicate<Entity> isChildOf(LivingEntity entity) { return ent -> ent.isAlive() && ent instanceof IParentedEntity && ((IParentedEntity)ent).isParent(entity); } 
 	
 	public boolean hasParent();
@@ -40,7 +42,7 @@ public interface IParentedEntity
 	@Nullable
 	public static <T extends LivingEntity & IParentedEntity> LivingEntity getParentOf(T entity)
 	{
-		Optional<LivingEntity> bestGuess = entity.getWorld().getEntitiesByClass(LivingEntity.class, entity.getBoundingBox().expand(16D), ent -> ent.isAlive() && entity.isParent(ent)).stream().findFirst();
+		Optional<LivingEntity> bestGuess = entity.getWorld().getEntitiesByClass(LivingEntity.class, entity.getBoundingBox().expand(SEARCH_RANGE), ent -> ent.isAlive() && entity.isParent(ent)).stream().findFirst();
 		return bestGuess.orElseGet(() -> null);
 	}
 	
@@ -48,7 +50,7 @@ public interface IParentedEntity
 	public static <T extends LivingEntity & IParentedEntity> List<T> getParentedEntitiesOf(LivingEntity ent)
 	{
 		List<T> list = Lists.newArrayList();
-		for(LivingEntity living : ent.getWorld().getEntitiesByClass(LivingEntity.class, ent.getBoundingBox().expand(16D), wal -> wal instanceof IParentedEntity && ((IParentedEntity)wal).isParent(ent)))
+		for(LivingEntity living : ent.getWorld().getEntitiesByClass(LivingEntity.class, ent.getBoundingBox().expand(SEARCH_RANGE), wal -> wal instanceof IParentedEntity && ((IParentedEntity)wal).isParent(ent)))
 			list.add((T)living);
 		return list;
 	}

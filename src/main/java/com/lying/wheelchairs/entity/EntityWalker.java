@@ -47,19 +47,15 @@ import net.minecraft.world.World;
 
 public class EntityWalker extends LivingEntity implements IParentedEntity
 {
-	private static final TrackedData<ItemStack> CHAIR = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	private static final TrackedData<ItemStack> ITEM = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private static final TrackedData<Optional<UUID>> USER_ID = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final TrackedData<Boolean> HAS_INV = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
-	/*
-	 * FIXME Walker wheels do not animate
-	 */
-	
 	private LivingEntity user = null;
 	
-	public float prevCasterYaw, casterYaw = 0F;
+	private float prevCasterYaw, casterYaw = 0F;
 	public float spinLeft, spinRight;
 	
 	protected SimpleInventory items;
@@ -74,7 +70,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	{
 		super.initDataTracker();
 		
-		this.getDataTracker().startTracking(CHAIR, WHCItems.WHEELCHAIR_OAK.getDefaultStack());
+		this.getDataTracker().startTracking(ITEM, WHCItems.WALKER_OAK.getDefaultStack());
 		this.getDataTracker().startTracking(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		this.getDataTracker().startTracking(USER_ID, Optional.empty());
@@ -90,8 +86,10 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	{
 		super.readCustomDataFromNbt(data);
 		
-		if(data.contains("Chair", NbtElement.COMPOUND_TYPE))
-			getDataTracker().set(CHAIR, ItemStack.fromNbt(data.getCompound("Chair")));
+		if(data.contains("Item", NbtElement.COMPOUND_TYPE))
+			getDataTracker().set(ITEM, ItemStack.fromNbt(data.getCompound("Item")));
+		else if(data.contains("Chair", NbtElement.COMPOUND_TYPE))
+			getDataTracker().set(ITEM, ItemStack.fromNbt(data.getCompound("Chair")));
 		
 		if(data.contains("Wheels", NbtElement.COMPOUND_TYPE))
 		{
@@ -120,7 +118,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	public void writeCustomDataToNbt(NbtCompound data)
 	{
 		super.writeCustomDataToNbt(data);
-		data.put("Chair", getDataTracker().get(CHAIR).writeNbt(new NbtCompound()));
+		data.put("Item", getDataTracker().get(ITEM).writeNbt(new NbtCompound()));
 		NbtCompound wheels = new NbtCompound();
 			wheels.put("Left", getLeftWheel().writeNbt(new NbtCompound()));
 			wheels.put("Right", getRightWheel().writeNbt(new NbtCompound()));
@@ -193,7 +191,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public void copyFromItem(ItemStack stack)
 	{
-		getDataTracker().set(CHAIR, stack.copy());
+		getDataTracker().set(ITEM, stack.copy());
 		getDataTracker().set(LEFT_WHEEL, ItemWalker.getWheel(stack, Arm.LEFT));
 		getDataTracker().set(RIGHT_WHEEL, ItemWalker.getWheel(stack, Arm.RIGHT));
 		if(ItemWalker.hasChest(stack))
@@ -312,7 +310,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public ItemStack getFrame()
 	{
-		ItemStack stack = getDataTracker().get(CHAIR);
+		ItemStack stack = getDataTracker().get(ITEM);
 		return stack.getItem() instanceof ItemWalker ? stack : new ItemStack(WHCItems.WHEELCHAIR_OAK);
 	}
 	
@@ -332,6 +330,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public void parentTo(@Nullable LivingEntity entity)
 	{
+		if(getWorld().isClient()) return;
 		getDataTracker().set(USER_ID, entity == null ? Optional.empty() : Optional.of(entity.getUuid()));
 	}
 	
@@ -343,7 +342,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	public void tick()
 	{
 		super.tick();
-		if(hasParent() && IParentedEntity.getParentOf(this) == null)
+		if(!getWorld().isClient() && hasParent() && getUser() == null)
 			parentTo(null);
 	}
 	
@@ -378,9 +377,26 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			 */
 			Vec3d localised = WHCUtils.globalToLocal(offset, getYaw());
 			float spin = WHCUtils.calculateSpin((float)localised.z, 5F / 16F);
-			this.spinLeft = WHCUtils.clampRotation(this.spinLeft + spin);
-			this.spinRight = WHCUtils.clampRotation(this.spinRight + spin);
+			this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + spin);
+			this.spinRight = WHCUtils.wrapDegrees(this.spinRight + spin);
+			
+			offset = offset.normalize();
+			double nextCasterYaw = Math.atan(offset.x/-offset.z);
+			
+			this.prevCasterYaw = casterYaw;
+			this.casterYaw = (float)Math.toDegrees(nextCasterYaw);
 		}
+	}
+	
+	public float casterWheelYaw(float tickDelta)
+	{
+		float dif = this.casterYaw - this.prevCasterYaw;
+		if(dif > 180)
+			dif -= 180F;
+		else if(dif < -180F)
+			dif += 180F;
+		
+		return this.prevCasterYaw += dif * tickDelta;
 	}
 	
 	public boolean hasInventory() { return getDataTracker().get(HAS_INV).booleanValue(); }

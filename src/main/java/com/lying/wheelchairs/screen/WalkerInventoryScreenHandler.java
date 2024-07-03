@@ -22,7 +22,7 @@ public class WalkerInventoryScreenHandler extends ScreenHandler
 	
 	public WalkerInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv, EntityWalker walkerIn)
 	{
-		super(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER, syncId);
+		super(WHCScreenHandlerTypes.WALKER_INVENTORY_HANDLER, syncId);
 		this.inv = inv;
 		this.walker = walkerIn;
 		

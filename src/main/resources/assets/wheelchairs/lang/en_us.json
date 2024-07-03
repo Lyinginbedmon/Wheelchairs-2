@@ -85,6 +85,7 @@
 	"upgrade.wheelchairs.floating": "Floating",
 	"upgrade.wheelchairs.diving": "Diving",
 	"upgrade.wheelchairs.gliding": "Gliding",
+	"upgrade.wheelchairs.placer": "Placer",
 	"gui.wheelchairs.wheelchair.wheel_left": " Left: %s",
 	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s",
 	"gui.wheelchairs.upgrades": "Upgrades:",

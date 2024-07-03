@@ -86,7 +86,7 @@ public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 			}
 			
 			// Wheels
-			renderWheels(matrices, vertexConsumers, light, entity.getLeftWheel(), entity.spinLeft, entity.getRightWheel(), entity.spinRight, entity.getEntityWorld(), entity.getId());
+			renderWheels(matrices, vertexConsumers, light, entity.getLeftWheel(), entity.spinLeft, entity.getRightWheel(), entity.spinRight, frameYaw, entity.casterWheelYaw(tickDelta), entity.getEntityWorld(), entity.getId());
 			
 			float age = (float)entity.age + tickDelta;
 			float renderYaw = MathHelper.lerpAngleDegrees((float)tickDelta, (float)entity.prevHeadYaw, (float)entity.headYaw);
@@ -95,24 +95,28 @@ public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 		matrices.pop();
 	}
 	
-	private void renderWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, ItemStack left, float leftSpin, ItemStack right, float rightSpin, World world, int seed)
+	private void renderWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, ItemStack left, float leftSpin, ItemStack right, float rightSpin, float frameYaw, float casterYaw, World world, int seed)
 	{
-		renderWheels(matrices, renderTypeBuffer, light, left, right, leftSpin, rightSpin, xOffset, -0.15D, 0.25D, 0.3F, world, seed);
-		renderWheels(matrices, renderTypeBuffer, light, left, right, leftSpin, rightSpin, xOffset, -0.1D, -0.325D, 0.2F, world, seed);
+		renderFrontWheels(matrices, renderTypeBuffer, light, frameYaw, casterYaw, left, right, leftSpin, rightSpin, xOffset, -0.15D, 0.25D, world, seed);
+		renderRearWheels(matrices, renderTypeBuffer, light, left, right, leftSpin, rightSpin, xOffset, -0.1D, -0.325D, world, seed);
 	}
 	
-	private void renderWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, ItemStack left, ItemStack right, float leftSpin, float rightSpin, double xOffset, double yOffset, double zOffset, float scale, World world, int seed)
+	/** Renders the rotating front caster wheels */
+	private void renderFrontWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, float frameYaw, float yaw, ItemStack left, ItemStack right, float leftSpin, float rightSpin, double xOffset, double yOffset, double zOffset, World world, int seed)
 	{
+		float scale = 0.3F;
 		float thickness = 3F;
 		// Right wheel
 		matrices.push();
 			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
 			matrices.translate(xOffset, yOffset, zOffset);
 			matrices.push();
-				matrices.scale(scale * thickness, scale, scale);
-				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90F));
-				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-rightSpin));
-				renderItem.renderItem(right, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw - frameYaw + 90F));
+				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rightSpin * (yaw > 180F ? 1 : -1)));
+				matrices.push();
+					matrices.scale(scale, scale, scale * thickness);
+					renderItem.renderItem(right, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.pop();
 			matrices.pop();
 		matrices.pop();
 		
@@ -121,10 +125,46 @@ public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
 			matrices.translate(-xOffset, yOffset, zOffset);
 			matrices.push();
-			matrices.scale(scale * thickness, scale, scale);
+				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw - frameYaw + 90F));
+				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(leftSpin * (yaw > 180F ? 1 : -1)));
+				matrices.push();
+					matrices.scale(scale, scale, scale * thickness);
+					renderItem.renderItem(left, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.pop();
+			matrices.pop();
+		matrices.pop();
+	}
+	
+	/** Renders the smaller fixed-angle rear wheels */
+	private void renderRearWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, ItemStack left, ItemStack right, float leftSpin, float rightSpin, double xOffset, double yOffset, double zOffset, World world, int seed)
+	{
+		float scale = 0.2F;
+		float thickness = 3F;
+		// Right wheel
+		matrices.push();
+			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
+			matrices.translate(xOffset, yOffset, zOffset);
+			matrices.push();
+				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90F));
+				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-rightSpin));
+				matrices.push();
+					matrices.scale(scale, scale, scale * thickness);
+					renderItem.renderItem(right, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.pop();
+			matrices.pop();
+		matrices.pop();
+		
+		// Left wheel
+		matrices.push();
+			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
+			matrices.translate(-xOffset, yOffset, zOffset);
+			matrices.push();
 				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90F));
 				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-leftSpin));
-				renderItem.renderItem(left, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.push();
+					matrices.scale(scale, scale, scale * thickness);
+					renderItem.renderItem(left, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.pop();
 			matrices.pop();
 		matrices.pop();
 	}

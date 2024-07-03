@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 public class ChairInventoryScreen extends AbstractInventoryScreen<ChairInventoryScreenHandler>
 {
-	private static final Identifier TEXTURE = new Identifier(Reference.ModInfo.MOD_ID, "textures/gui/chair_inventory.png");
+	public static final Identifier TEXTURE = new Identifier(Reference.ModInfo.MOD_ID, "textures/gui/chair_inventory.png");
 	
 	public ChairInventoryScreen(ChairInventoryScreenHandler screenHandler, PlayerInventory playerInventory, Text text)
 	{
@@ -20,9 +20,15 @@ public class ChairInventoryScreen extends AbstractInventoryScreen<ChairInventory
 	
 	protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY)
 	{
-		int i = (this.width - this.backgroundWidth) / 2;
-		int j = (this.height - this.backgroundHeight) / 2;
-		context.drawTexture(TEXTURE, i, j, 0, 0, this.backgroundWidth, this.backgroundHeight);
+		int i = (this.width - 174) / 2;
+		int j = (this.height - 164) / 2;
+		context.drawTexture(TEXTURE, i, j, 0, 0, 174, 164);
+		
+		if(getScreenHandler().hasStorage)
+			context.drawTexture(TEXTURE, this.width / 2 - 45, this.height / 2 - 66, 0, 164, 90, 54);
+		
+		if(getScreenHandler().hasPlacer)
+			context.drawTexture(TEXTURE, this.width / 2 + 54, this.height / 2 - 48, 0, 218, 18, 18);
 	}
 	
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)

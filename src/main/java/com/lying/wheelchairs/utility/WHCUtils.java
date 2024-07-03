@@ -20,14 +20,18 @@ public class WHCUtils
 	}
 	
 	/** Clamps the given rotation in degrees to a value between 0 and 360 */
-	public static float clampRotation(float value)
+	public static float wrapDegrees(float value)
 	{
-		if(value > 0F)
-			value %= 360F;
-		else if(value < 0F)
-			value += MathHelper.ceil(Math.abs(value) / 360F) * 360F;
-		
-		return value;
+		switch((int)Math.signum(value))
+		{
+			case -1:
+				return value + MathHelper.ceil(Math.abs(value) / 360F) * 360F;
+			default:
+			case 0:
+				return value;
+			case 1:
+				return value % 360F;
+		}
 	}
 	
 	/** Calculates how many degrees a wheel will turn when moving a given distance forward or backward */
@@ -40,6 +44,6 @@ public class WHCUtils
 		float circumference = 2F * (float)Math.PI * radius;
 		float spin = (float)(Math.abs(movement) / circumference) * 360F * Math.signum(movement);
 		
-		return clampRotation(spin);
+		return wrapDegrees(spin);
 	}
 }

@@ -1,7 +1,5 @@
 package com.lying.wheelchairs.screen;
 
-import com.lying.wheelchairs.reference.Reference;
-
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -10,7 +8,7 @@ import net.minecraft.util.Identifier;
 
 public class WalkerInventoryScreen extends AbstractInventoryScreen<WalkerInventoryScreenHandler>
 {
-	private static final Identifier TEXTURE = new Identifier(Reference.ModInfo.MOD_ID, "textures/gui/chair_inventory.png");
+	private static final Identifier TEXTURE = ChairInventoryScreen.TEXTURE;
 	
 	public WalkerInventoryScreen(WalkerInventoryScreenHandler screenHandler, PlayerInventory playerInventory, Text text)
 	{
@@ -20,9 +18,10 @@ public class WalkerInventoryScreen extends AbstractInventoryScreen<WalkerInvento
 	
 	protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY)
 	{
-		int i = (this.width - this.backgroundWidth) / 2;
-		int j = (this.height - this.backgroundHeight) / 2;
-		context.drawTexture(TEXTURE, i, j, 0, 0, this.backgroundWidth, this.backgroundHeight);
+		int i = (this.width - 174) / 2;
+		int j = (this.height - 164) / 2;
+		context.drawTexture(TEXTURE, i, j, 0, 0, 174, 164);
+		context.drawTexture(TEXTURE, this.width / 2 - 45, this.height / 2 - 66, 0, 164, 90, 54);
 	}
 	
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)

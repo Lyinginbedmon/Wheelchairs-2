@@ -25,7 +25,6 @@ import net.minecraft.world.GameRules;
 
 public class ServerBus
 {
-	
 	public static void registerEventCallbacks()
 	{
 		ServerEvents.AFTER_LIVING_CHANGE_MOUNT.register(ServerEvents.EVENT_FIRST, (living, next, last) -> 
@@ -94,17 +93,20 @@ public class ServerBus
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> 
 		{
 			ServerPlayerEntity player = handler.player;
-			if(player == null || player.getWorld() == null)
+			if(player == null || player.getWorld() == null || player.getWorld().isClient())
 				return;
 			
 			Chairspace chairs = Chairspace.getChairspace(server);
-			IParentedEntity.getParentedEntitiesOf(handler.getPlayer()).forEach(ent -> chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LOGIN, Flag.PARENT));
+			IParentedEntity.getParentedEntitiesOf(handler.getPlayer()).forEach(ent -> {
+				ent.clearParent();
+				chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LOGIN, Flag.PARENT);
+			});
 		});
 		
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> 
 		{
 			ServerPlayerEntity player = handler.player;
-			if(player == null || player.getWorld() == null)
+			if(player == null || player.getWorld() == null || player.getWorld().isClient())
 				return;
 			
 			Chairspace chairs = Chairspace.getChairspace(server);
@@ -173,6 +175,9 @@ public class ServerBus
 			
 			if(next != null && next.getType() == WHCEntityTypes.WHEELCHAIR)
 				((EntityWheelchair)next).getUpgrades().forEach(upg -> upg.onStartRiding(living));
+			
+			// Clear all walker bindings whenever riding status changes
+			living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), wal -> wal.isParent(living)).forEach(EntityWalker::clearParent);
 		});
 		
 		// If a player leaves their wheelchair for a different non-wheelchair mount, and the wheelchair has no items, store it in their inventory
@@ -186,6 +191,8 @@ public class ServerBus
 			}
 		});
 		
-		ServerEvents.ON_WALKER_BIND.register((living, walker) -> living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(16D), wal -> wal.isParent(living) && wal != walker).forEach(EntityWalker::clearParent));
+		// Clear binding to any other walker when a player binds to a walker
+		ServerEvents.ON_WALKER_BIND.register((living, walker) -> 
+			living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), wal -> wal.isParent(living) && wal != walker).forEach(EntityWalker::clearParent));
 	}
 }

@@ -3,6 +3,7 @@ package com.lying.wheelchairs.init;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.screen.ChairInventoryScreenHandler;
 import com.lying.wheelchairs.screen.WalkerInventoryScreenHandler;
@@ -19,7 +20,7 @@ public class WHCScreenHandlerTypes
 {
 	private static final Map<Identifier, ScreenHandlerType<?>> HANDLERS = new HashMap<>();
 	
-	public static final ScreenHandlerType<ChairInventoryScreenHandler> WHEELCHAIR_INVENTORY_HANDLER	= register("wheelchair_inventory", new ScreenHandlerType<>((syncId, playerInventory) -> new ChairInventoryScreenHandler(syncId, playerInventory, new SimpleInventory(15)), FeatureFlags.VANILLA_FEATURES));
+	public static final ScreenHandlerType<ChairInventoryScreenHandler> WHEELCHAIR_INVENTORY_HANDLER	= register("wheelchair_inventory", new ScreenHandlerType<>((syncId, playerInventory) -> new ChairInventoryScreenHandler(syncId, playerInventory, (EntityWheelchair)playerInventory.player.getVehicle()), FeatureFlags.VANILLA_FEATURES));
 	public static final ScreenHandlerType<WalkerInventoryScreenHandler> WALKER_INVENTORY_HANDLER	= register("walker_inventory", new ScreenHandlerType<>((syncId, playerInventory) -> new WalkerInventoryScreenHandler(syncId, playerInventory, new SimpleInventory(15)), FeatureFlags.VANILLA_FEATURES));
 	
 	private static <T extends ScreenHandler> ScreenHandlerType<T> register(String nameIn, ScreenHandlerType<T> typeIn)

@@ -48,6 +48,8 @@ import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.AutomaticItemPlacementContext;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -268,7 +270,7 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	}
 	
 	/** Returns true if this wheelchair has the Storage upgrade */
-	public boolean hasInventory() { return hasUpgrade(WHCUpgrades.STORAGE); }
+	public boolean hasInventory() { return hasUpgrade(WHCUpgrades.STORAGE) || hasUpgrade(WHCUpgrades.PLACER); }
 	
 	public Inventory getInventory() { return this.items; }
 	
@@ -278,14 +280,28 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			dropInventory();
 		
 		SimpleInventory inv = this.items;
-		this.items = new SimpleInventory(15);
+		this.items = new SimpleInventory(16);
 		if(inv != null)
-			for(int j=0; j<Math.min(inv.size(), this.items.size()); ++j)
+		{
+			ItemStack stackInPlacer = inv.getStack(0);
+			if(!stackInPlacer.isEmpty())
 			{
-				ItemStack stack = inv.getStack(j);
-				if(!stack.isEmpty())
-					this.items.setStack(j, stack.copy());
+				if(hasUpgrade(WHCUpgrades.PLACER))
+					items.setStack(0, stackInPlacer.copy());
+				else if(!EnchantmentHelper.hasVanishingCurse(stackInPlacer))
+					dropStack(stackInPlacer);
 			}
+			
+			for(int i=1; i<inv.size(); i++)
+			{
+				ItemStack stack = inv.getStack(i);
+				if(!stack.isEmpty())
+					if(hasUpgrade(WHCUpgrades.STORAGE))
+						items.setStack(i, stack.copy());
+					else if(!EnchantmentHelper.hasVanishingCurse(stack))
+						dropStack(stack);
+			}
+		}
 	}
 	
 	public void dropInventory()
@@ -424,12 +440,45 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 	public void tick()
 	{
 		super.tick();
-		
+		if(getWorld().isClient())
+			clientTick();
+		else
+			serverTick();
+	}
+	
+	private void clientTick()
+	{
 		if(this.saddledComponent.getMovementSpeedMultiplier() > 1F)
 			getWorld().addParticle(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 0.0, 0.0, 0.0);
 		
 		if(hasUpgrade(WHCUpgrades.DIVING) && isSubmergedIn(FluidTags.WATER))
 			getWorld().addParticle(ParticleTypes.BUBBLE, getX(), getY() + 1.5D, getZ(), 0.0, 0.0, 0.0);
+	}
+	
+	private void serverTick()
+	{
+		if(hasControllingPassenger() && isOnGround() && !isFallFlying() && age%5 == 0 && hasUpgrade(WHCUpgrades.PLACER))
+		{
+			Inventory inv = getInventory();
+			ItemStack stack = inv.getStack(0);
+            if(tryPlaceBlock(stack))
+            	stack.decrement(1);
+		}
+	}
+	
+	private boolean tryPlaceBlock(ItemStack stack)
+	{
+		if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem) || getWorld().isClient())
+			return false;
+		
+		BlockItem item = (BlockItem)stack.getItem();
+        ServerWorld world = (ServerWorld)getWorld();
+        Direction direction = Direction.DOWN;
+        BlockPos blockPos = getBlockPos().offset(direction);
+        if(world.getBlockState(blockPos).getBlock() == item.getBlock())
+        	return false;
+        
+        return item.place(new AutomaticItemPlacementContext(world, blockPos, direction, stack, direction)).isAccepted();
 	}
 	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
@@ -559,8 +608,8 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 			return;
 		
 		if(isFallFlying()) return;
-		this.spinLeft = WHCUtils.clampRotation(this.spinLeft + amount);
-		this.spinRight = WHCUtils.clampRotation(this.spinRight - amount);
+		this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + amount);
+		this.spinRight = WHCUtils.wrapDegrees(this.spinRight - amount);
 	}
 	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
@@ -701,8 +750,8 @@ public class EntityWheelchair extends LivingEntity implements JumpingMount, Item
 		
 		if(isFallFlying()) return;
 		double speed = WHCUtils.calculateSpin((float)(movementInput.getZ() * getMovementSpeed()), 1F);
-		this.spinLeft = WHCUtils.clampRotation(this.spinLeft + (float)speed);
-		this.spinRight = WHCUtils.clampRotation(this.spinRight + (float)speed);
+		this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + (float)speed);
+		this.spinRight = WHCUtils.wrapDegrees(this.spinRight + (float)speed);
 	}
 	
 	public void applyMovementEffects(BlockPos pos)

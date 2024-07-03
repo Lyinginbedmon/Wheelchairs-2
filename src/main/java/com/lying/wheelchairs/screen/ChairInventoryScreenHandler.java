@@ -3,10 +3,13 @@ package com.lying.wheelchairs.screen;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
+import com.lying.wheelchairs.init.WHCUpgrades;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -14,16 +17,38 @@ import net.minecraft.screen.slot.Slot;
 public class ChairInventoryScreenHandler extends ScreenHandler
 {
 	private final Inventory inv;
+	public final boolean hasStorage;
+	public final boolean hasPlacer;
 	
-	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv)
+	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, final EntityWheelchair chair)
 	{
 		super(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER, syncId);
-		this.inv = inv;
+		boolean noChair = chair == null;
+		this.inv = noChair ? new SimpleInventory(16) : chair.getInventory();
 		
-		// Chair inventory slots
+		this.hasStorage = !noChair && chair.hasUpgrade(WHCUpgrades.STORAGE);
+		this.hasPlacer = !noChair && chair.hasUpgrade(WHCUpgrades.PLACER);
+		
+		// (Optional) Placer slot
+		this.addSlot(new Slot(inv, 0, 143, 36)
+			{
+				public boolean isEnabled() { return chair.hasUpgrade(WHCUpgrades.PLACER); }
+				
+				public boolean canInsert(ItemStack stack)
+				{
+					return stack.getItem() instanceof BlockItem;
+				}
+				
+				
+			});
+		
+		// (Optional) Main storage slots
 		for(int k=0; k<3; ++k)
 			for(int l=0; l < 5; ++l)
-				this.addSlot(new Slot(inv, l + k * 5, 44 + l * 18, 18 + k * 18));
+				this.addSlot(new Slot(inv, 1 + l + k * 5, 44 + l * 18, 18 + k * 18)
+					{
+						public boolean isEnabled() { return chair.hasUpgrade(WHCUpgrades.STORAGE); }
+					});
 		
 		// Player inventory slots
 		for(int k=0; k<3; ++k)
@@ -49,7 +74,7 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 				if(!insertItem(stackInSlot, chairInvSize, this.slots.size(), true))
 					return ItemStack.EMPTY;
 			}
-			else if(!insertItem(stackInSlot, 0, chairInvSize, false))
+			else if(!insertItem(stackInSlot, 1, chairInvSize, false))
 			{
 				int invStart = chairInvSize;
 				int hotbarStart = invStart + 27;
