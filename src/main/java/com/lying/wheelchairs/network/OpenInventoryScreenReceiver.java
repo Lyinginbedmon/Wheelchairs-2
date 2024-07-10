@@ -2,6 +2,7 @@ package com.lying.wheelchairs.network;
 
 import java.util.UUID;
 
+import com.lying.wheelchairs.entity.ChairUpgrade;
 import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.init.WHCEntityTypes;
@@ -21,7 +22,7 @@ public class OpenInventoryScreenReceiver implements PlayChannelHandler
 	public void receive(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender)
 	{
 		// If in wheelchair, open wheelchair inventory
-		if(player.hasVehicle() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).hasInventory())
+		if(player.hasVehicle() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).getUpgrades().stream().anyMatch(ChairUpgrade::enablesScreen))
 			player.openHandledScreen(new SimpleNamedScreenHandlerFactory((id, playerInventory, custom) -> new ChairInventoryScreenHandler(id, playerInventory, ((EntityWheelchair)custom.getVehicle())), player.getVehicle().getDisplayName()));
 		// Else if player was looking at an entity, try to open its inventory
 		else if(buf.readBoolean())

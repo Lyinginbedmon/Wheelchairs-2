@@ -1,5 +1,6 @@
 package com.lying.wheelchairs.init;
 
+import com.lying.wheelchairs.entity.EntityStool;
 import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.reference.Reference;
@@ -22,10 +23,8 @@ public class WHCEntityTypes
 	public static final EntityType<EntityWalker> WALKER = register("walker", 
 			FabricEntityTypeBuilder.create(SpawnGroup.MISC, EntityWalker::new).dimensions(EntityDimensions.fixed(0.7F, 0.9F)).build());
 	
-    /**
-     * TODO Entities for later versions
-     * Wheeled stool (no upgrades, half block step height, but gets you off your feet)
-     */
+	public static final EntityType<EntityStool> STOOL = register("stool",
+			FabricEntityTypeBuilder.create(SpawnGroup.MISC, EntityStool::new).dimensions(EntityDimensions.fixed(0.7F, 0.9F)).build());
 	
 	private static <T extends Entity> EntityType<T> register(String name, EntityType<T> entry)
 	{
@@ -37,7 +36,8 @@ public class WHCEntityTypes
 	
 	public static void init()
 	{
-		FabricDefaultAttributeRegistry.register(WHEELCHAIR, EntityWheelchair.createChairAttributes());
-		FabricDefaultAttributeRegistry.register(WALKER, EntityWalker.createChairAttributes());
+		FabricDefaultAttributeRegistry.register(WHEELCHAIR, EntityWheelchair.createMountAttributes());
+		FabricDefaultAttributeRegistry.register(WALKER, EntityWalker.createWalkerAttributes());
+		FabricDefaultAttributeRegistry.register(STOOL, EntityStool.createMountAttributes());
 	}
 }

@@ -14,6 +14,7 @@ import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.init.WHCSpecialRecipes;
 import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.network.FlyingMountRocketReceiver;
+import com.lying.wheelchairs.network.ForceUnparentReceiver;
 import com.lying.wheelchairs.network.OpenInventoryScreenReceiver;
 import com.lying.wheelchairs.network.StartFlyingReceiver;
 import com.lying.wheelchairs.network.WHCPacketHandler;
@@ -49,5 +50,6 @@ public class Wheelchairs implements ModInitializer
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.OPEN_INVENTORY_ID, new OpenInventoryScreenReceiver());
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.FLYING_START_ID, new StartFlyingReceiver());
 		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.FLYING_ROCKET_ID, new FlyingMountRocketReceiver());
+		ServerPlayNetworking.registerGlobalReceiver(WHCPacketHandler.FORCE_UNPARENT_ID, new ForceUnparentReceiver());
 	}
 }

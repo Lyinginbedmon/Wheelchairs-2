@@ -6,11 +6,8 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.wheelchairs.Wheelchairs;
 import com.lying.wheelchairs.init.WHCItems;
-import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.item.ItemWalker;
-import com.lying.wheelchairs.utility.ServerEvents;
 import com.lying.wheelchairs.utility.WHCUtils;
 
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -77,7 +74,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		this.getDataTracker().startTracking(HAS_INV, false);
 	}
 	
-	public static DefaultAttributeContainer.Builder createChairAttributes()
+	public static DefaultAttributeContainer.Builder createWalkerAttributes()
 	{
 		return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 1F).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.1F);
 	}
@@ -176,7 +173,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			return ActionResult.CONSUME;
 		}
 		else if(!getWorld().isClient())
-			return shouldRespond && bindToPlayer(player) ? ActionResult.CONSUME : ActionResult.PASS;
+			return shouldRespond && IParentedEntity.bindToPlayer(player, this) ? ActionResult.CONSUME : ActionResult.PASS;
 		
 		return ActionResult.SUCCESS;
 	}
@@ -212,35 +209,12 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	}
 	
 	@Nullable
-	public LivingEntity getUser()
+	public LivingEntity getParent()
 	{
 		if(!hasParent())
 			return null;
 		
 		return user == null ? (user = IParentedEntity.getParentOf(this)) : user;
-	}
-	
-	public boolean bindToPlayer(PlayerEntity player)
-	{
-		if(getWorld().isClient())
-			return false;
-		
-		if(isParent(player))
-		{
-			parentTo(null);
-			playSound(WHCSoundEvents.SEATBELT_OFF, 1F, 1F);
-			return true;
-		}
-		else if((!hasParent() || player.isCreative()) && canUseWalker(player, this))
-		{
-			parentTo(player);
-			playSound(WHCSoundEvents.SEATBELT_ON, 1F, 1F);
-			
-			ServerEvents.ON_WALKER_BIND.invoker().onBindToWalker(player, this);
-			return true;
-		}
-		
-		return false;
 	}
 	
 	/** Converts this wheelchair into an ItemEntity or (if a player is supplied) an ItemStack in a player's inventory */
@@ -256,11 +230,6 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 				getWorld().spawnEntity(item);
 			discard();
 		}
-	}
-	
-	public static boolean canUseWalker(LivingEntity entity, Entity walker)
-	{
-		return !entity.hasVehicle() && (!Wheelchairs.config.handsyWalkers() || (entity.getMainHandStack().isEmpty() || entity.getOffHandStack().isEmpty())) && entity.distanceTo(walker) < 5D;
 	}
 	
 	public void pushAway(Entity entity)
@@ -342,22 +311,16 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	public void tick()
 	{
 		super.tick();
-		if(!getWorld().isClient() && hasParent() && getUser() == null)
+		if(!getWorld().isClient() && hasParent() && getParent() == null)
 			parentTo(null);
 	}
 	
 	public void tickParented(@NotNull LivingEntity parent, float yaw, float pitch)
 	{
-		if(parent == null)
-		{
-			parentTo(null);
-			return;
-		}
-		
 		setRotation(parent.bodyYaw, 0F);
 		
 		// Unbind from user if user is riding or holding two items
-		if(!canUseWalker(parent, this))
+		if(!canParentToChild(parent, this))
 			clearParent();
 	}
 	

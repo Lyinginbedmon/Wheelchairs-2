@@ -8,9 +8,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
+import com.lying.wheelchairs.Wheelchairs;
+import com.lying.wheelchairs.init.WHCSoundEvents;
+import com.lying.wheelchairs.utility.ServerEvents;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -23,6 +27,9 @@ public interface IParentedEntity
 	public boolean hasParent();
 	
 	public boolean isParent(Entity entity);
+	
+	@Nullable
+	public LivingEntity getParent();
 	
 	public void parentTo(@Nullable LivingEntity parent);
 	
@@ -71,6 +78,11 @@ public interface IParentedEntity
 		return new Vec3d((double)(i * j), (double)(-k), (double)(h * j));
 	}
 	
+	public default <T extends LivingEntity & IParentedEntity> boolean canParentToChild(LivingEntity parent, T child)
+	{
+		return !parent.hasVehicle() && parent.distanceTo(child) < 5D && (!Wheelchairs.config.handsyWalkers() || (child.getMainHandStack().isEmpty() || child.getOffHandStack().isEmpty()));
+	}
+	
 	/** Updates the position and rotation of the child entity according to the position and rotation of the parent entity */
 	public static void updateParentingBond(LivingEntity child, LivingEntity parent)
 	{
@@ -91,5 +103,28 @@ public interface IParentedEntity
 			return;
 		
 		child.setPosition(parent.getPos().add(parented.getParentOffset(parent, yaw, pitch)));
+	}
+	
+	public static <T extends LivingEntity & IParentedEntity> boolean bindToPlayer(PlayerEntity player, T walker)
+	{
+		if(walker.getWorld().isClient())
+			return false;
+		
+		if(walker.isParent(player))
+		{
+			walker.parentTo(null);
+			walker.playSound(WHCSoundEvents.SEATBELT_OFF, 1F, 1F);
+			return true;
+		}
+		else if((!walker.hasParent() || player.isCreative()) && walker.canParentToChild(player, walker))
+		{
+			walker.parentTo(player);
+			walker.playSound(WHCSoundEvents.SEATBELT_ON, 1F, 1F);
+			
+			ServerEvents.ON_ENTITY_PARENT.invoker().onParentToEntity(player, walker);
+			return true;
+		}
+		
+		return false;
 	}
 }

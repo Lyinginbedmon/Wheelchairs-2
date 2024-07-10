@@ -9,6 +9,7 @@ import com.lying.wheelchairs.item.IBonusBlockItem;
 import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.item.ItemCaneHandle;
 import com.lying.wheelchairs.item.ItemCrutch;
+import com.lying.wheelchairs.item.ItemStool;
 import com.lying.wheelchairs.item.ItemWalker;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
@@ -105,7 +106,8 @@ public class WHCItems
 	public static final Item HANDLE_CHERRY = handle("cherry");
 	public static final Item HANDLE_BAMBOO = handle("bamboo");
 	
-	public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings(), WHCEntityTypes.WHEELCHAIR, 0));
+	public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings().maxCount(1), WHCEntityTypes.WHEELCHAIR, 0));
+	public static final Item STOOL = register("stool", new ItemStool(new FabricItemSettings().maxCount(1)));
 	
 	/**
 	 * TODO Items for later versions
@@ -178,6 +180,7 @@ public class WHCItems
 			entries.add(ItemCane.withHandle(CANE_BAMBOO, HANDLE_BAMBOO));
 			
 			entries.add(CONTROLLER);
+			entries.add(ItemStool.withWheels(STOOL, WHEEL_OAK));
 		}).build();
 	
 	private static Item register(String nameIn, Item itemIn)

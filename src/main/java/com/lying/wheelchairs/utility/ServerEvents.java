@@ -2,7 +2,6 @@ package com.lying.wheelchairs.utility;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.reference.Reference;
 
 import net.fabricmc.fabric.api.event.Event;
@@ -78,16 +77,16 @@ public class ServerEvents
 		void onDoubleJump(LivingEntity living);
 	}
 	
-	public static final Event<WalkerBindEvent> ON_WALKER_BIND = EventFactory.createArrayBacked(WalkerBindEvent.class, callbacks -> (living, walker) -> 
+	public static final Event<WalkerBindEvent> ON_ENTITY_PARENT = EventFactory.createArrayBacked(WalkerBindEvent.class, callbacks -> (living, walker) -> 
 	{
 		for(WalkerBindEvent callback : callbacks)
-			callback.onBindToWalker(living, walker);
+			callback.onParentToEntity(living, walker);
 	});
 	
 	@FunctionalInterface
 	public interface WalkerBindEvent
 	{
-		void onBindToWalker(LivingEntity living, EntityWalker walker);
+		void onParentToEntity(LivingEntity living, LivingEntity walker);
 	}
 	
 	public static final Event<StartFlyingEvent> ON_START_FLYING = EventFactory.createArrayBacked(StartFlyingEvent.class, callbacks -> (living) -> 

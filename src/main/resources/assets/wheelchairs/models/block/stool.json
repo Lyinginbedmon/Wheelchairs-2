@@ -1,0 +1,64 @@
+{
+	"textures": {
+		"wool": "block/white_wool",
+		"iron": "block/iron_block",
+		"particle": "#iron"
+	},
+	"elements": [
+		{
+			"name": "cushion",
+			"from": [4, 9, 4],
+			"to": [12, 13, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0, 1]},
+			"faces": {
+				"north": {"uv": [0, 0, 10, 4], "texture": "#wool", "tintindex": 0},
+				"east": {"uv": [0, 0, 10, 4], "texture": "#wool", "tintindex": 0},
+				"south": {"uv": [0, 0, 10, 4], "texture": "#wool", "tintindex": 0},
+				"west": {"uv": [0, 0, 10, 4], "texture": "#wool", "tintindex": 0},
+				"up": {"uv": [0, 0, 10, 10], "texture": "#wool", "tintindex": 0},
+				"down": {"uv": [0, 0, 10, 10], "texture": "#wool", "tintindex": 0}
+			}
+		},
+		{
+			"name": "backrest",
+			"from": [3.75, 12, 12],
+			"to": [12.25, 16, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0.25, 3, 1]},
+			"faces": {
+				"north": {"uv": [0, 0, 10, 4], "texture": "#wool", "tintindex": 0},
+				"east": {"uv": [0, 0, 1, 4], "texture": "#wool", "tintindex": 0},
+				"south": {"uv": [0, 0, 10, 4], "texture": "#wool", "tintindex": 0},
+				"west": {"uv": [0, 0, 1, 4], "texture": "#wool", "tintindex": 0},
+				"up": {"uv": [0, 0, 10, 1], "texture": "#wool", "tintindex": 0},
+				"down": {"uv": [0, 0, 10, 1], "texture": "#wool", "tintindex": 0}
+			}
+		},
+		{
+			"name": "cylinder",
+			"from": [7, 2.5, 7],
+			"to": [9, 9.5, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 2.5, 7]},
+			"faces": {
+				"north": {"uv": [0, 0, 2, 7], "texture": "#iron"},
+				"east": {"uv": [0, 0, 2, 7], "texture": "#iron"},
+				"south": {"uv": [0, 0, 2, 7], "texture": "#iron"},
+				"west": {"uv": [0, 0, 2, 7], "texture": "#iron"},
+				"up": {"uv": [0, 0, 2, 2], "texture": "#iron"},
+				"down": {"uv": [0, 0, 2, 2], "texture": "#iron"}
+			}
+		},
+		{
+			"from": [5, 1.5, 5],
+			"to": [11, 3.5, 11],
+			"rotation": {"angle": -45, "axis": "y", "origin": [8, 1.5, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 6, 2], "texture": "#iron"},
+				"east": {"uv": [0, 0, 6, 2], "texture": "#iron"},
+				"south": {"uv": [0, 0, 6, 2], "texture": "#iron"},
+				"west": {"uv": [0, 0, 6, 2], "texture": "#iron"},
+				"up": {"uv": [0, 0, 6, 6], "texture": "#iron"},
+				"down": {"uv": [0, 0, 6, 6], "texture": "#iron"}
+			}
+		}
+	]
+}

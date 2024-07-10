@@ -30,7 +30,7 @@ public class WHCUpgrades
 			.keyItem(Items.FURNACE_MINECART)
 			.applied(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, true))
 			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
-	public static final ChairUpgrade STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
+	public static final ChairUpgrade STORAGE = register(ChairUpgrade.Builder.of("storage").modelled().enablesScreen()
 			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST)))
 			.dropItem(Items.CHEST));
 	public static final ChairUpgrade FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
@@ -43,9 +43,9 @@ public class WHCUpgrades
 	public static final ChairUpgrade GLIDING = register(ChairUpgrade.Builder.of("gliding")
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
-	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer").modelled()
+	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer").modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));
-	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles").modelled()	// TODO Use IParentedEntity, incl. means for rider to unbind
+	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles").modelled().enablesScreen()	// FIXME Ensure wheels spin when moving
 			.keyItem(Items.IRON_BARS));
 	
 	private static ChairUpgrade register(ChairUpgrade.Builder builder)

@@ -11,6 +11,7 @@ import com.lying.wheelchairs.init.WHCModelParts;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
 import com.lying.wheelchairs.init.WHCSoundEvents;
 import com.lying.wheelchairs.network.OpenInventoryScreenPacket;
+import com.lying.wheelchairs.renderer.entity.EntityStoolRenderer;
 import com.lying.wheelchairs.renderer.entity.EntityWalkerRenderer;
 import com.lying.wheelchairs.renderer.entity.EntityWheelchairRenderer;
 import com.lying.wheelchairs.screen.ChairInventoryScreen;
@@ -49,6 +50,7 @@ public class WheelchairsClient implements ClientModInitializer
 		WHCModelParts.init();
 		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
 		EntityRendererRegistry.register(WHCEntityTypes.WALKER, EntityWalkerRenderer::new);
+		EntityRendererRegistry.register(WHCEntityTypes.STOOL, EntityStoolRenderer::new);
 		WHCKeybinds.keyOpenChair = WHCKeybinds.make("open_chair", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_C);
 		WHCKeybinds.keySeatbelt = WHCKeybinds.make("seatbelt", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_X);
 		

@@ -25,6 +25,7 @@ import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.util.Identifier;
 
+// TODO ImplementREI support for special recipe display
 public class WHCRecipeProvider extends FabricRecipeProvider
 {
 	public static final String GROUP_WHEELS = Reference.ModInfo.MOD_ID+":wheels";

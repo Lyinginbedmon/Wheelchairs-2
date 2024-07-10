@@ -5,6 +5,7 @@
 	"key.wheelchairs.seatbelt": "Toggle dismount locking",
 	"entity.wheelchairs.wheelchair": "Wheelchair",
 	"entity.wheelchairs.walker": "Walker",
+	"entity.wheelchairs.stool": "Wheeled Stool",
 	"item.wheelchairs.oak_wheelchair": "Oak Wheelchair",
 	"item.wheelchairs.spruce_wheelchair": "Spruce Wheelchair",
 	"item.wheelchairs.birch_wheelchair": "Birch Wheelchair",
@@ -61,6 +62,7 @@
 	"item.wheelchairs.mangrove_cane": "Mangrove Cane",
 	"item.wheelchairs.cherry_cane": "Cherry Cane",
 	"item.wheelchairs.bamboo_cane": "Bamboo Cane",
+	"item.wheelchairs.stool": "Wheeled Stool",
 	"item.wheelchairs.iron_handle": "Iron",
 	"item.wheelchairs.gold_handle": "Gold",
 	"item.wheelchairs.skull_handle": "Skull",
@@ -88,9 +90,11 @@
 	"upgrade.wheelchairs.placer": "Placer",
 	"gui.wheelchairs.wheelchair.wheel_left": " Left: %s",
 	"gui.wheelchairs.wheelchair.wheel_right": " Right: %s",
+	"gui.wheelchairs.stool.wheels": "Wheels: %s",
 	"gui.wheelchairs.upgrades": "Upgrades:",
 	"gui.wheelchairs.cane.handle": " Handle: %s",
 	"gui.wheelchairs.cane.sword": " Contains: %s",
 	"gui.wheelchairs.seatbelt_on": "Dismounting locked",
-	"gui.wheelchairs.seatbelt_off": "Dismounting unlocked"
+	"gui.wheelchairs.seatbelt_off": "Dismounting unlocked",
+	"gui.wheelchairs.unparent_chair": "Untie"
 }

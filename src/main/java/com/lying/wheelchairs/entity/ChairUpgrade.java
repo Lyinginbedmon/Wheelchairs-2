@@ -31,6 +31,7 @@ public class ChairUpgrade
 	private final Predicate<ItemStack> isKeyItem;
 	private final Item dropItem;
 	private final boolean hasModel;
+	private final boolean enablesScreen;
 	
 	private final Consumer<EntityWheelchair> onApplied, onRemoved;
 	private final Map<EntityAttribute, AttributeModifierCreator> attributeModifiers = Maps.newHashMap();
@@ -38,13 +39,14 @@ public class ChairUpgrade
 	private final Predicate<EntityWheelchair> isValid;
 	private final Supplier<List<ChairUpgrade>> incompatibleWith;
 	
-	protected ChairUpgrade(Identifier nameIn, boolean modelled, 
+	protected ChairUpgrade(Identifier nameIn, boolean modelled, boolean screenEnabler,
 			Predicate<ItemStack> keyItem, Item dropItem, Predicate<EntityWheelchair> valid, 
 			Supplier<List<ChairUpgrade>> incompatibleWith, 
 			Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed, Map<EntityAttribute, AttributeModifierCreator> modifiers)
 	{
 		this.name = nameIn;
 		this.hasModel = modelled;
+		this.enablesScreen = screenEnabler;
 		this.isKeyItem = keyItem;
 		this.dropItem = dropItem;
 		this.isValid = valid;
@@ -105,6 +107,8 @@ public class ChairUpgrade
 	
 	public boolean hasModel() { return hasModel; }
 	
+	public boolean enablesScreen() { return enablesScreen; }
+	
 	/** Builder class to restrict modifications to before registration */
 	public static class Builder
 	{
@@ -118,6 +122,8 @@ public class ChairUpgrade
 		
 		private Consumer<EntityWheelchair> onApplied = Consumers.nop(), onRemoved = Consumers.nop();
 		private final Map<EntityAttribute, AttributeModifierCreator> attributeModifiers = Maps.newHashMap();
+		
+		private boolean enablesScreen = false;
 		
 		protected Builder(Identifier nameIn) { this.name = nameIn; }
 		
@@ -188,9 +194,15 @@ public class ChairUpgrade
 			return this;
 		}
 		
+		public final Builder enablesScreen()
+		{
+			this.enablesScreen = true;
+			return this;
+		}
+		
 		public ChairUpgrade build()
 		{
-			return new ChairUpgrade(name, hasModel, isKeyItem, dropItem, isValid, incompatibleWith, onApplied, onRemoved, attributeModifiers);
+			return new ChairUpgrade(name, hasModel, enablesScreen, isKeyItem, dropItem, isValid, incompatibleWith, onApplied, onRemoved, attributeModifiers);
 		}
 		
 		private class UpgradeAttributeModifierCreator implements AttributeModifierCreator

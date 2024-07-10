@@ -69,17 +69,17 @@ public class ItemWalker extends Item implements IBonusBlockItem
 		{
 			ServerWorld serverWorld = (ServerWorld)world;
 			Consumer<EntityWalker> consumer = EntityType.copier(serverWorld, itemStack, context.getPlayer());
-			EntityWalker wheelchair = WHCEntityTypes.WALKER.create(serverWorld, itemStack.getNbt(), consumer, blockPos, SpawnReason.SPAWN_EGG, true, true);
-			if (wheelchair == null)
+			EntityWalker walker = WHCEntityTypes.WALKER.create(serverWorld, itemStack.getNbt(), consumer, blockPos, SpawnReason.SPAWN_EGG, true, true);
+			if (walker == null)
 				return ActionResult.FAIL;
 			
-			wheelchair.copyFromItem(itemStack);
+			walker.copyFromItem(itemStack);
 			
 			float f = (float)MathHelper.floor((MathHelper.wrapDegrees(context.getPlayerYaw() - 180.0f) + 22.5f) / 45.0f) * 45.0f;
-			wheelchair.refreshPositionAndAngles(wheelchair.getX(), wheelchair.getY(), wheelchair.getZ(), f, 0.0f);
-			serverWorld.spawnEntityAndPassengers(wheelchair);
-			world.playSound(null, wheelchair.getX(), wheelchair.getY(), wheelchair.getZ(), SoundEvents.ENTITY_ARMOR_STAND_PLACE, SoundCategory.BLOCKS, 0.75f, 0.8f);
-			wheelchair.emitGameEvent(GameEvent.ENTITY_PLACE, context.getPlayer());
+			walker.refreshPositionAndAngles(walker.getX(), walker.getY(), walker.getZ(), f, 0.0f);
+			serverWorld.spawnEntityAndPassengers(walker);
+			world.playSound(null, walker.getX(), walker.getY(), walker.getZ(), SoundEvents.ENTITY_ARMOR_STAND_PLACE, SoundCategory.BLOCKS, 0.75f, 0.8f);
+			walker.emitGameEvent(GameEvent.ENTITY_PLACE, context.getPlayer());
 		}
 		
 		itemStack.decrement(1);

@@ -1,5 +1,6 @@
 package com.lying.wheelchairs.screen;
 
+import com.lying.wheelchairs.entity.ChairUpgrade;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.init.WHCEntityTypes;
 import com.lying.wheelchairs.init.WHCScreenHandlerTypes;
@@ -100,7 +101,7 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 	
 	public boolean canUse(PlayerEntity player)
 	{
-		return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).hasInventory();
+		return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && ((EntityWheelchair)player.getVehicle()).getUpgrades().stream().anyMatch(ChairUpgrade::enablesScreen);
 	}
 
 }

@@ -98,6 +98,8 @@ public class ServerBus
 			
 			Chairspace chairs = Chairspace.getChairspace(server);
 			IParentedEntity.getParentedEntitiesOf(handler.getPlayer()).forEach(ent -> {
+				if(ent.hasPassengers())
+					return;
 				ent.clearParent();
 				chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LOGIN, Flag.PARENT);
 			});
@@ -192,7 +194,10 @@ public class ServerBus
 		});
 		
 		// Clear binding to any other walker when a player binds to a walker
-		ServerEvents.ON_WALKER_BIND.register((living, walker) -> 
-			living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), wal -> wal.isParent(living) && wal != walker).forEach(EntityWalker::clearParent));
+		ServerEvents.ON_ENTITY_PARENT.register((living, walker) -> 
+		{
+			if(walker.getType() == WHCEntityTypes.WALKER)
+				living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), wal -> wal.isParent(living) && wal != walker).forEach(EntityWalker::clearParent);
+		});
 	}
 }
