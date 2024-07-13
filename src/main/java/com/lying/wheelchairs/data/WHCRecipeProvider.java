@@ -2,6 +2,9 @@ package com.lying.wheelchairs.data;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import org.jetbrains.annotations.Nullable;
 
 import com.lying.wheelchairs.data.recipe.RecipeCaneJsonBuilder;
 import com.lying.wheelchairs.data.recipe.RecipeCaneSword;
@@ -20,9 +23,11 @@ import net.minecraft.data.server.recipe.RecipeExporter;
 import net.minecraft.data.server.recipe.RecipeProvider;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 
 // TODO ImplementREI support for special recipe display
@@ -45,15 +50,20 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		
 		WOOD_GUIDE.entrySet().forEach(entry -> 
 		{
-			offerWheelRecipe(exporter, entry.getValue().wheel, entry.getKey());
+			offerWoodWheelRecipe(exporter, entry.getValue().wheel, entry.getKey());
 			offerWheelchairRecipe(exporter, entry.getValue().wheelchair, entry.getKey());
 			offerWalkerRecipe(exporter, entry.getValue().walker, entry.getKey());
 			offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
 			offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
 			offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());
 		});
+		offerMetalWheelRecipe(exporter, WHCItems.WHEEL_COPPER, Metal.COPPER);
+		offerMetalWheelRecipe(exporter, WHCItems.WHEEL_IRON, Metal.IRON);
+		offerMetalWheelRecipe(exporter, WHCItems.WHEEL_GOLD, Metal.GOLD);
+		offerMetalWheelRecipe(exporter, WHCItems.WHEEL_NETHERITE, Metal.NETHERITE);
 		
 		offerHandleRecipe(exporter, WHCItems.HANDLE_BONE, Ingredient.ofItems(Items.BONE), "bone_handle");
+		offerHandleRecipe(exporter, WHCItems.HANDLE_COPPER, Ingredient.ofItems(Items.COPPER_INGOT), "copper_handle");
 		offerHandleRecipe(exporter, WHCItems.HANDLE_IRON, Ingredient.ofItems(Items.IRON_INGOT), "iron_handle");
 		offerHandleRecipe(exporter, WHCItems.HANDLE_GOLD, Ingredient.ofItems(Items.GOLD_INGOT), "gold_handle");
 		offerHandleRecipe(exporter, WHCItems.HANDLE_SKULL, Ingredient.ofItems(Items.SKELETON_SKULL), "skull_handle");
@@ -65,15 +75,34 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 			.input('b', Blocks.OBSERVER)
 			.criterion(FabricRecipeProvider.hasItem(Items.REDSTONE_TORCH), FabricRecipeProvider.conditionsFromItem(Items.REDSTONE_TORCH))
 			.criterion(FabricRecipeProvider.hasItem(Blocks.OBSERVER), FabricRecipeProvider.conditionsFromItem(Blocks.OBSERVER)).offerTo(exporter);
+		
+		ShapedRecipeJsonBuilder.create(RecipeCategory.MISC, WHCItems.STOOL)
+			.pattern(" s ").pattern(" i ").pattern("wbw")
+			.input('s', ItemTags.WOOL)
+			.input('i', Items.IRON_INGOT)
+			.input('b', Items.IRON_BARS)
+			.input('w', WHCItemTags.WHEEL)
+			.criterion(FabricRecipeProvider.hasItem(WHCItems.WHEEL_OAK), FabricRecipeProvider.conditionsFromTag(WHCItemTags.WHEEL))
+			.criterion(FabricRecipeProvider.hasItem(Items.IRON_BARS), FabricRecipeProvider.conditionsFromItem(Items.IRON_BARS)).offerTo(exporter);
 	}
 	
-	private static void offerWheelRecipe(RecipeExporter exporter, Item wheel, Wood wood)
+	private static void offerWoodWheelRecipe(RecipeExporter exporter, Item wheel, Wood wood)
+	{
+		offerWheelRecipe(exporter, wheel, wood.slab);
+	}
+	
+	private static void offerMetalWheelRecipe(RecipeExporter exporter, Item wheel, Metal metal)
+	{
+		offerWheelRecipe(exporter, wheel, metal.ingot);
+	}
+	
+	private static void offerWheelRecipe(RecipeExporter exporter, Item wheel, ItemConvertible slab)
 	{
 		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, wheel)
 			.pattern(" S ").pattern("SsS").pattern(" S ")
-			.input('S', wood.slab).input('s', Items.STICK)
+			.input('S', slab).input('s', Items.STICK)
 			.group(GROUP_WHEELS)
-			.criterion(FabricRecipeProvider.hasItem(wood.slab), FabricRecipeProvider.conditionsFromItem(wood.slab))
+			.criterion(FabricRecipeProvider.hasItem(slab), FabricRecipeProvider.conditionsFromItem(slab))
 			.criterion(FabricRecipeProvider.hasItem(Items.STICK), FabricRecipeProvider.conditionsFromItem(Items.STICK)).offerTo(exporter);
 	}
 	
@@ -195,6 +224,30 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 			this.slab = slabIn;
 			this.strippedLog = strippedLogIn;
 			this.button = buttonIn;
+		}
+	}
+	
+	public static enum Metal
+	{
+		COPPER(Items.COPPER_INGOT, Blocks.COPPER_BLOCK),
+		IRON(Items.IRON_INGOT, Blocks.IRON_BLOCK, Items.IRON_NUGGET),
+		GOLD(Items.GOLD_INGOT, Blocks.GOLD_BLOCK, Items.GOLD_NUGGET),
+		NETHERITE(Items.NETHERITE_INGOT, Blocks.NETHERITE_BLOCK);
+		
+		public final Item ingot;
+		public final Block block;
+		public final Optional<Item> nugget;
+		
+		private Metal(Item ingotIn, Block blockIn)
+		{
+			this(ingotIn, blockIn, null);
+		}
+		
+		private Metal(Item ingotIn, Block blockIn, @Nullable Item nuggetIn)
+		{
+			this.ingot = ingotIn;
+			this.block = blockIn;
+			this.nugget = nuggetIn == null ? Optional.empty() : Optional.of(nuggetIn);
 		}
 	}
 }

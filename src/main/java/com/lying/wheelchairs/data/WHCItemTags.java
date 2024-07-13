@@ -43,7 +43,11 @@ public class WHCItemTags extends ItemTagProvider
 				WHCItems.WHEEL_SPRUCE, 
 				WHCItems.WHEEL_WARPED,
 				WHCItems.WHEEL_CHERRY,
-				WHCItems.WHEEL_BAMBOO);
+				WHCItems.WHEEL_BAMBOO,
+				WHCItems.WHEEL_COPPER,
+				WHCItems.WHEEL_IRON,
+				WHCItems.WHEEL_GOLD,
+				WHCItems.WHEEL_NETHERITE);
 		getOrCreateTagBuilder(WHEELCHAIR).add(
 				WHCItems.WHEELCHAIR_ACACIA, 
 				WHCItems.WHEELCHAIR_BIRCH, 

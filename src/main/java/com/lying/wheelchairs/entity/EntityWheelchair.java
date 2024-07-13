@@ -605,7 +605,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	{
 		double modifier = 1D;
 		if(!isOnGround() && !hasUpgrade(WHCUpgrades.GLIDING))
-			if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > 0D)
+			if(hasUpgrade(WHCUpgrades.FLOATING) && (getFluidHeight(FluidTags.WATER) > 0D || (hasUpgrade(WHCUpgrades.NETHERITE) && getFluidHeight(FluidTags.LAVA) > 0D)))
 				modifier = 0.9D;
 			else
 				modifier = 0.7D;

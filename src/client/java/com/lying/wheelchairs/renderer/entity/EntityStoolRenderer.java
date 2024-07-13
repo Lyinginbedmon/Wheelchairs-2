@@ -1,6 +1,7 @@
 package com.lying.wheelchairs.renderer.entity;
 
 import com.lying.wheelchairs.entity.EntityStool;
+import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.reference.Reference;
 
 import net.minecraft.client.render.OverlayTexture;
@@ -16,7 +17,6 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
@@ -24,7 +24,7 @@ import net.minecraft.world.World;
 
 public class EntityStoolRenderer extends EntityRenderer<EntityStool>
 {
-	private static final ModelIdentifier MODEL = new ModelIdentifier(new Identifier(Reference.ModInfo.MOD_ID, "stool"), "");;
+	private static final ModelIdentifier MODEL = new ModelIdentifier(new Identifier(Reference.ModInfo.MOD_ID, "wheeled_stool"), "");;
 	private final ItemRenderer renderItem;
 	private final BlockRenderManager blockRenderManager;
 	
@@ -65,35 +65,48 @@ public class EntityStoolRenderer extends EntityRenderer<EntityStool>
 			matrices.pop();
 			
 			// Wheels
-//			renderWheels(matrices, vertexConsumers, light, entity.getLeftWheel(), entity.spinLeft, entity.getRightWheel(), entity.spinRight, entity.getEntityWorld(), entity.getId());
+			renderWheels(matrices, vertexConsumers, light, entity.spin, entity.casterWheelYaw(tickDelta), h, entity.getEntityWorld(), entity.getId());
 		matrices.pop();
 	}
 	
-	private void renderWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, ItemStack left, float leftSpin, ItemStack right, float rightSpin, World world, int seed)
+	private void renderWheels(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, float spin, float yaw, float frameYaw, World world, int seed)
 	{
-		// Right wheel
 		matrices.push();
-			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
-			matrices.translate(0.4D, -0.5D, 0D);
+			matrices.translate(0D, 0.1D, 0D);
+			
 			matrices.push();
-				matrices.scale(1F, 1F, 1F);
-				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90F));
-				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(10F));
-				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-rightSpin));
-				renderItem.renderItem(right, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.translate(0.275D, 0D, 0D);
+				renderWheel(matrices, renderTypeBuffer, light, spin, yaw, frameYaw, world, seed);
+			matrices.pop();
+			
+			matrices.push();
+				matrices.translate(-0.275D, 0D, 0D);
+				renderWheel(matrices, renderTypeBuffer, light, spin, yaw, frameYaw, world, seed);
+			matrices.pop();
+			
+			matrices.push();
+				matrices.translate(0D, 0D, 0.275D);
+				renderWheel(matrices, renderTypeBuffer, light, spin, yaw, frameYaw, world, seed);
+			matrices.pop();
+			
+			matrices.push();
+				matrices.translate(0D, 0D, -0.2750D);
+				renderWheel(matrices, renderTypeBuffer, light, spin, yaw, frameYaw, world, seed);
 			matrices.pop();
 		matrices.pop();
-		
-		// Left wheel
+	}
+	
+	private void renderWheel(MatrixStack matrices, VertexConsumerProvider renderTypeBuffer, int light, float spin, float yaw, float frameYaw, World world, int seed)
+	{
+		float scale = 0.2F;
+		float thickness = 3F;
 		matrices.push();
-			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
-			matrices.translate(-0.4D, -0.5D, 0D);
+			matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(frameYaw));
+			matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
+			matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-spin));
 			matrices.push();
-				matrices.scale(1F, 1F, 1F);
-				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90F));
-				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-10F));
-				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-leftSpin));
-				renderItem.renderItem(left, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
+				matrices.scale(scale, scale, scale * thickness);
+				renderItem.renderItem(WHCItems.WHEEL_IRON.getDefaultStack(), ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
 			matrices.pop();
 		matrices.pop();
 	}

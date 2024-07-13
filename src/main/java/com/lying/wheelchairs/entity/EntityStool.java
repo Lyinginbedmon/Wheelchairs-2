@@ -2,10 +2,12 @@ package com.lying.wheelchairs.entity;
 
 import java.util.OptionalInt;
 
+import org.joml.Vector2d;
 import org.joml.Vector3f;
 
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.item.ItemStool;
+import com.lying.wheelchairs.utility.WHCUtils;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
@@ -24,6 +26,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -31,25 +34,29 @@ public class EntityStool extends WheelchairsRideable implements Mount
 {
 	public static final int DEFAULT_COLOR = 1776411;
 	public static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityStool.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
-	public static final TrackedData<ItemStack> WHEELS = DataTracker.registerData(EntityStool.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	
+	public float spin = 0F;
+	private Vector2d prevCaster, caster;
 	
 	public EntityStool(EntityType<? extends LivingEntity> entityType, World world)
 	{
 		super(entityType, world);
 		this.setStepHeight(0.6f);
+		
+		double randX = (getRandom().nextDouble() - 0.5D) * 2D;
+		double randY = (getRandom().nextDouble() - 0.5D) * 2D;
+		prevCaster = caster = new Vector2d(randX, randY);
 	}
 	
 	public void initDataTracker()
 	{
 		super.initDataTracker();
 		getDataTracker().startTracking(COLOR, OptionalInt.empty());
-		getDataTracker().startTracking(WHEELS, new ItemStack(WHCItems.WHEEL_OAK));
 	}
 	
 	public void readCustomDataFromNbt(NbtCompound data)
 	{
 		super.readCustomDataFromNbt(data);
-		getDataTracker().set(WHEELS, ItemStack.fromNbt(data.getCompound("Wheels")));
 		if(data.contains("Color", NbtElement.INT_TYPE))
 			getDataTracker().set(COLOR, OptionalInt.of(data.getInt("Color")));
 	}
@@ -57,7 +64,6 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	public void writeCustomDataToNbt(NbtCompound data)
 	{
 		super.writeCustomDataToNbt(data);
-		data.put("Wheels", getWheels().writeNbt(new NbtCompound()));
 		if(hasColor())
 			data.putInt("Color", getColor());
 	}
@@ -66,7 +72,6 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	{
 		EntityStool stool = (EntityStool)chair;
 		ItemStack stack = WHCItems.STOOL.getDefaultStack().copy();
-		ItemStool.setWheels(stack, stool.getWheels());
 		if(stool.hasColor() && stack.getItem() instanceof DyeableItem)
 			((ItemStool)stack.getItem()).setColor(stack, stool.getColor());
 		
@@ -76,7 +81,6 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	public void copyFromItem(ItemStack stack)
 	{
 		getDataTracker().set(COLOR, OptionalInt.of(((DyeableItem)stack.getItem()).getColor(stack)));
-		getDataTracker().set(WHEELS, ItemStool.getWheels(stack));
 	}
 	
 	public LivingEntity getControllingPassenger()
@@ -123,5 +127,43 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	
 	public float getActualStepHeight() { return 0.6F; }
 	
-	public ItemStack getWheels() { return getDataTracker().get(WHEELS).copy(); }
+	protected void orientToRider(LivingEntity controllingPlayer, Vec3d movementInput)
+	{
+		if(movementInput.length() > 0D)
+		{
+			Vec2f orientation = getControlledRotation(controllingPlayer);
+			setRotation(orientation.y, orientation.x);
+		}
+		else
+			setRotation(controllingPlayer.bodyYaw, 0F);
+		
+		this.prevYaw = this.headYaw;
+		this.bodyYaw = this.headYaw = this.getYaw();
+	}
+	
+	public void travel(Vec3d movementInput)
+	{
+		super.travel(movementInput);
+		
+		Vector2d lateral = new Vector2d(movementInput.x, movementInput.z);
+		if(lateral.length() == 0D) return;
+		
+		double speed = WHCUtils.calculateSpin((float)(movementInput.getZ() * getMovementSpeed()), 5F / 16F);
+		this.spin = WHCUtils.wrapDegrees(this.spin + (float)speed);
+		
+		caster.get(prevCaster);
+		caster.add(lateral).normalize();
+	}
+	
+	public float casterWheelYaw(float tickDelta)
+	{
+		Vector2d origin = prevCaster.get(new Vector2d());
+		Vector2d current = caster.get(new Vector2d());
+		
+		Vector2d offset = current.sub(origin).mul(tickDelta);
+		origin.add(offset);
+		if(origin.y == 0D)
+			origin.y = 0.0000001D;
+		return (float)Math.toDegrees(Math.atan(origin.x / -origin.y));
+	}
 }

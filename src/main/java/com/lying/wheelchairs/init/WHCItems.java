@@ -64,6 +64,10 @@ public class WHCItems
 	public static final Item WHEEL_MANGROVE = wheel("mangrove");
 	public static final Item WHEEL_CHERRY = wheel("cherry");
 	public static final Item WHEEL_BAMBOO = wheel("bamboo");
+	public static final Item WHEEL_COPPER = wheel("copper");
+	public static final Item WHEEL_IRON = wheel("iron");
+	public static final Item WHEEL_GOLD = wheel("gold");
+	public static final Item WHEEL_NETHERITE = register("netherite_wheel", new Item(new FabricItemSettings().maxCount(2).fireproof()));
 	
 	public static final Item CRUTCH_OAK = crutch("oak");
 	public static final Item CRUTCH_SPRUCE = crutch("spruce");
@@ -88,7 +92,8 @@ public class WHCItems
 	public static final Item CANE_MANGROVE = cane("mangrove");
 	public static final Item CANE_CHERRY = cane("cherry");
 	public static final Item CANE_BAMBOO = cane("bamboo");
-	
+
+	public static final Item HANDLE_COPPER = handle("copper");
 	public static final Item HANDLE_IRON = handle("iron");
 	public static final Item HANDLE_GOLD = handle("gold");
 	public static final Item HANDLE_SKULL = handle("skull");
@@ -107,7 +112,7 @@ public class WHCItems
 	public static final Item HANDLE_BAMBOO = handle("bamboo");
 	
 	public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings().maxCount(1), WHCEntityTypes.WHEELCHAIR, 0));
-	public static final Item STOOL = register("stool", new ItemStool(new FabricItemSettings().maxCount(1)));
+	public static final Item STOOL = register("wheeled_stool", new ItemStool(new FabricItemSettings().maxCount(1)));
 	
 	/**
 	 * TODO Items for later versions
@@ -154,6 +159,10 @@ public class WHCItems
 			entries.add(WHEEL_MANGROVE);
 			entries.add(WHEEL_CHERRY);
 			entries.add(WHEEL_BAMBOO);
+			entries.add(WHEEL_COPPER);
+			entries.add(WHEEL_IRON);
+			entries.add(WHEEL_GOLD);
+			entries.add(WHEEL_NETHERITE);
 			
 			entries.add(CRUTCH_OAK);
 			entries.add(CRUTCH_SPRUCE);
@@ -180,7 +189,7 @@ public class WHCItems
 			entries.add(ItemCane.withHandle(CANE_BAMBOO, HANDLE_BAMBOO));
 			
 			entries.add(CONTROLLER);
-			entries.add(ItemStool.withWheels(STOOL, WHEEL_OAK));
+			entries.add(STOOL);
 		}).build();
 	
 	private static Item register(String nameIn, Item itemIn)

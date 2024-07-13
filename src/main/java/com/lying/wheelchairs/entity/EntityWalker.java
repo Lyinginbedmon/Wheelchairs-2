@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2d;
 
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.item.ItemWalker;
@@ -52,8 +53,8 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	private LivingEntity user = null;
 	
-	private float prevCasterYaw, casterYaw = 0F;
-	public float spinLeft, spinRight;
+	private Vector2d prevCaster, caster;
+	public float spinLeft = 0F, spinRight = 0F;
 	
 	protected SimpleInventory items;
 	
@@ -61,6 +62,10 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	{
 		super(entityType, world);
 		this.setStepHeight(0.5F);
+		
+		double randX = (getRandom().nextDouble() - 0.5D) * 2D;
+		double randY = (getRandom().nextDouble() - 0.5D) * 2D;
+		prevCaster = caster = new Vector2d(randX, randY);
 	}
 	
 	public void initDataTracker()
@@ -311,8 +316,31 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	public void tick()
 	{
 		super.tick();
-		if(!getWorld().isClient() && hasParent() && getParent() == null)
-			parentTo(null);
+		if(getWorld().isClient())
+			clientTick();
+		else
+			serverTick();
+	}
+	
+	private void clientTick()
+	{
+		Vector2d prevPos = new Vector2d(this.prevX, this.prevZ);
+		Vector2d delta = (new Vector2d(getX(), getZ())).sub(prevPos).negate();
+		if(delta.length() > 0D)
+		{
+			float spin = WHCUtils.calculateSpin((float)delta.length(), 5F / 16F);
+			this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + spin);
+			this.spinRight = WHCUtils.wrapDegrees(this.spinRight + spin);
+			
+			caster.get(prevCaster);
+			caster.add(delta).normalize();
+		}
+	}
+	
+	private void serverTick()
+	{
+		if(hasParent() && getParent() == null)
+			clearParent();
 	}
 	
 	public void tickParented(@NotNull LivingEntity parent, float yaw, float pitch)
@@ -324,42 +352,16 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			clearParent();
 	}
 	
-	public void setPosition(double x, double y, double z)
-	{
-		Vec3d prevPos = getPos().subtract(0, getPos().y, 0);
-		super.setPosition(x, y, z);
-		
-		Vec3d pos = getPos().subtract(0, getPos().y, 0);
-		Vec3d offset = pos.subtract(prevPos);
-		if(offset.length() > 0D && getWorld().isClient())
-		{
-			/*
-			 * Calculate offset from previous planar position to current planar position
-			 * Convert offset to local directional vector
-			 * Apply wheel movement as Z value of resulting vector
-			 */
-			Vec3d localised = WHCUtils.globalToLocal(offset, getYaw());
-			float spin = WHCUtils.calculateSpin((float)localised.z, 5F / 16F);
-			this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + spin);
-			this.spinRight = WHCUtils.wrapDegrees(this.spinRight + spin);
-			
-			offset = offset.normalize();
-			double nextCasterYaw = Math.atan(offset.x/-offset.z);
-			
-			this.prevCasterYaw = casterYaw;
-			this.casterYaw = (float)Math.toDegrees(nextCasterYaw);
-		}
-	}
-	
 	public float casterWheelYaw(float tickDelta)
 	{
-		float dif = this.casterYaw - this.prevCasterYaw;
-		if(dif > 180)
-			dif -= 180F;
-		else if(dif < -180F)
-			dif += 180F;
+		Vector2d origin = prevCaster.get(new Vector2d());
+		Vector2d current = caster.get(new Vector2d());
 		
-		return this.prevCasterYaw += dif * tickDelta;
+		Vector2d offset = current.sub(origin).mul(1F);
+		Vector2d casterVec = origin.add(offset);
+		if(casterVec.y == 0D)
+			casterVec.y = 0.0000001D;
+		return WHCUtils.wrapDegrees((float)Math.toDegrees(Math.atan(casterVec.x/-casterVec.y)));
 	}
 	
 	public boolean hasInventory() { return getDataTracker().get(HAS_INV).booleanValue(); }

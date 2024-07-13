@@ -21,6 +21,8 @@ public class WHCItemsClient
 	
 	public static void registerItemColors()
 	{
+		ColorProviderRegistry.ITEM.register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, WHCItems.STOOL);
+		
 		ColorProviderRegistry.ITEM.register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
 				WHCItems.WHEELCHAIR_ACACIA,
 				WHCItems.WHEELCHAIR_BIRCH,
