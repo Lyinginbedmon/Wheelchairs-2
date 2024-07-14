@@ -5,6 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.wheelchairs.init.WHCItems;
+import com.lying.wheelchairs.init.WHCSoundEvents;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,6 +13,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -62,7 +64,7 @@ public class ItemCane extends Item
 			else
 				user.getInventory().insertStack(cane);
 			
-			// FIXME Play sword drawing sound event
+			world.playSound(null, user.getX(), user.getY(), user.getZ(), WHCSoundEvents.SWORD_DRAW, SoundCategory.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
 			return TypedActionResult.success(sword);
 		}
 		return TypedActionResult.pass(heldStack);

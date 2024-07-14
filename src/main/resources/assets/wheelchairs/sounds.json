@@ -10,5 +10,11 @@
 		"sounds": [
 			"wheelchairs:seatbelt_off"
 		]
+	},
+	"cane_sword_draw": {
+		"subtitle": "sound.wheelchairs.cane_sword_draw",
+		"sounds": [
+			"wheelchairs:cane_sword_draw"
+		]
 	}
 }

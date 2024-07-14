@@ -102,5 +102,8 @@
 	"gui.wheelchairs.cane.sword": " Contains: %s",
 	"gui.wheelchairs.seatbelt_on": "Dismounting locked",
 	"gui.wheelchairs.seatbelt_off": "Dismounting unlocked",
-	"gui.wheelchairs.unparent_chair": "Untie"
+	"gui.wheelchairs.unparent_chair": "Untie",
+	"sound.wheelchairs.seatbelt_on": "Seatbelt fastened",
+	"sound.wheelchairs.seatbelt_off": "Seatbelt unfastened",
+	"sound.wheelchairs.cane_sword_draw": "Sword cane drawn"
 }
