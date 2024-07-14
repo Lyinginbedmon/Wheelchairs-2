@@ -21,11 +21,11 @@ public class ClientWorldMixin
 		{
 			LivingEntity parent = (LivingEntity)entity;
 			parent.getWorld().getEntitiesByClass(LivingEntity.class, parent.getBoundingBox().expand(6D), IParentedEntity.isChildOf(parent))
-				.forEach(child -> tickParented(parent, child));
+				.forEach(child -> tickParented(parent, (LivingEntity & IParentedEntity)child));
 		}
 	}
 	
-	private void tickParented(LivingEntity parent, LivingEntity child)
+	private <T extends LivingEntity & IParentedEntity> void tickParented(LivingEntity parent, T child)
 	{
 		if(parent.hasPassenger(child))
 			return;

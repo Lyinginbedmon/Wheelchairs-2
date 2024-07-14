@@ -14,7 +14,6 @@ import net.minecraft.server.world.ServerWorld;
 @Mixin(ServerWorld.class)
 public class ServerWorldMixin
 {
-	
 	@Inject(method = "tickEntity(Lnet/minecraft/entity/Entity;)V", at = @At("TAIL"))
 	private void whc$tickEntity(Entity entity, final CallbackInfo ci)
 	{
@@ -22,11 +21,11 @@ public class ServerWorldMixin
 		{
 			LivingEntity parent = (LivingEntity)entity;
 			parent.getWorld().getEntitiesByClass(LivingEntity.class, parent.getBoundingBox().expand(6D), IParentedEntity.isChildOf(parent))
-				.forEach(child -> tickParented(parent, child));
+				.forEach(child -> tickParented(parent, (LivingEntity & IParentedEntity)child));
 		}
 	}
 	
-	private void tickParented(LivingEntity parent, LivingEntity child)
+	private <T extends LivingEntity & IParentedEntity> void tickParented(LivingEntity parent, T child)
 	{
 		if(parent.hasPassenger(child))
 			return;

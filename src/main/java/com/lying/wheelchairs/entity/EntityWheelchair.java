@@ -157,8 +157,6 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 					this.items.setStack(j, ItemStack.fromNbt(nbt));
 			}
 		}
-		if(hasUpgrade(WHCUpgrades.HANDLES) && data.contains("User", NbtElement.INT_ARRAY_TYPE))
-			getDataTracker().set(USER_ID, Optional.of(data.getUuid("User")));
 	}
 	
 	public void writeCustomDataToNbt(NbtCompound data)
@@ -187,8 +185,6 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 			}
 			data.put("Items", items);
 		}
-		if(hasUpgrade(WHCUpgrades.HANDLES) && hasParent())
-			data.putUuid("User", getDataTracker().get(USER_ID).get());
 	}
 	
 	protected void setUpgrades(NbtList data)
@@ -605,7 +601,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	{
 		double modifier = 1D;
 		if(!isOnGround() && !hasUpgrade(WHCUpgrades.GLIDING))
-			if(hasUpgrade(WHCUpgrades.FLOATING) && (getFluidHeight(FluidTags.WATER) > 0D || (hasUpgrade(WHCUpgrades.NETHERITE) && getFluidHeight(FluidTags.LAVA) > 0D)))
+			if(shouldBobUp())
 				modifier = 0.9D;
 			else
 				modifier = 0.7D;
@@ -630,21 +626,32 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		
 		super.move(type, movementInput);
 		this.tickExhaustion(getX() - x, getZ() - z);
+		
+		if(getWorld().isClient() && !isFallFlying())
+		{
+			Vec3d local = WHCUtils.globalToLocal(movementInput, getYaw());
+			double speed = WHCUtils.calculateSpin((float)local.getZ(), 1F);
+			this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + (float)speed);
+			this.spinRight = WHCUtils.wrapDegrees(this.spinRight + (float)speed);
+		}
 	}
 	
 	public float getActualStepHeight() { return 1F; }
 	
 	public void travel(Vec3d movementInput)
 	{
-		if(hasUpgrade(WHCUpgrades.FLOATING) && getFluidHeight(FluidTags.WATER) > getSwimHeight())
+		if(shouldBobUp())
 			addVelocity(0D, 0.08D, 0D);
 		
 		super.travel(movementInput);
-		
-		if(isFallFlying()) return;
-		double speed = WHCUtils.calculateSpin((float)(movementInput.getZ() * getMovementSpeed()), 1F);
-		this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + (float)speed);
-		this.spinRight = WHCUtils.wrapDegrees(this.spinRight + (float)speed);
+	}
+	
+	protected boolean shouldBobUp()
+	{
+		double swimHeight = getSwimHeight();
+		return hasUpgrade(WHCUpgrades.FLOATING) &&
+				(getFluidHeight(FluidTags.WATER) > swimHeight || 
+				(hasUpgrade(WHCUpgrades.NETHERITE) && getFluidHeight(FluidTags.LAVA) > swimHeight));
 	}
 	
 	public void applyMovementEffects(BlockPos pos)

@@ -17,6 +17,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -100,9 +101,6 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			getDataTracker().set(RIGHT_WHEEL, ItemStack.fromNbt(wheels.getCompound("Right")));
 		}
 		
-		if(data.contains("User", NbtElement.INT_ARRAY_TYPE))
-			getDataTracker().set(USER_ID, Optional.of(data.getUuid("User")));
-		
 		setHasInventory(data.getBoolean("Chested"));
 		if(data.contains("Items", NbtElement.LIST_TYPE))
 		{
@@ -125,9 +123,6 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			wheels.put("Left", getLeftWheel().writeNbt(new NbtCompound()));
 			wheels.put("Right", getRightWheel().writeNbt(new NbtCompound()));
 		data.put("Wheels", wheels);
-		
-		if(hasParent())
-			data.putUuid("User", getDataTracker().get(USER_ID).get());
 		
 		data.putBoolean("Chested", hasInventory());
 		if(hasInventory())
@@ -316,24 +311,8 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	public void tick()
 	{
 		super.tick();
-		if(getWorld().isClient())
-			clientTick();
-		else
+		if(!getWorld().isClient())
 			serverTick();
-	}
-	
-	private void clientTick()
-	{
-		Vector2d prevPos = new Vector2d(this.prevX, this.prevZ);
-		Vector2d delta = (new Vector2d(getX(), getZ())).sub(prevPos).negate();
-		if(delta.length() == 0D) return;
-		
-		float spin = WHCUtils.calculateSpin((float)delta.length(), 5F / 16F);
-		this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + spin);
-		this.spinRight = WHCUtils.wrapDegrees(this.spinRight + spin);
-		
-		caster.get(prevCaster);
-		caster.add(delta.mul(0.5D)).normalize();
 	}
 	
 	private void serverTick()
@@ -349,6 +328,21 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		// Unbind from user if user is riding or holding two items
 		if(!canParentToChild(parent, this))
 			clearParent();
+	}
+	
+	public void move(MovementType movementType, Vec3d movement)
+	{
+		super.move(movementType, movement);
+		
+		Vector2d delta = new Vector2d(movement.x, movement.z);
+		if(delta.length() == 0D || !getWorld().isClient()) return;
+		
+		float spin = WHCUtils.calculateSpin((float)delta.length(), 5F / 16F);
+		this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + spin);
+		this.spinRight = WHCUtils.wrapDegrees(this.spinRight + spin);
+		
+		caster.get(prevCaster);
+		caster.add(delta.mul(0.5D)).normalize();
 	}
 	
 	public float casterWheelYaw(float tickDelta)

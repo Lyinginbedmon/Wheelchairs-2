@@ -45,7 +45,7 @@ public class WHCUpgrades
 			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
 	public static final ChairUpgrade PLACER = register(ChairUpgrade.Builder.of("placer").modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));
-	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles").modelled().enablesScreen()	// FIXME Ensure wheels spin when moving
+	public static final ChairUpgrade HANDLES = register(ChairUpgrade.Builder.of("handles").modelled().enablesScreen()
 			.keyItem(Items.IRON_BARS));
 	
 	private static ChairUpgrade register(ChairUpgrade.Builder builder)

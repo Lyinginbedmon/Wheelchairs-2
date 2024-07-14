@@ -14,6 +14,7 @@ import com.lying.wheelchairs.utility.ServerEvents;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -84,9 +85,9 @@ public interface IParentedEntity
 	}
 	
 	/** Updates the position and rotation of the child entity according to the position and rotation of the parent entity */
-	public static void updateParentingBond(LivingEntity child, LivingEntity parent)
+	public static <T extends LivingEntity & IParentedEntity> void updateParentingBond(T child, LivingEntity parent)
 	{
-		if(child == null || parent == null || parent == child || !(child instanceof IParentedEntity) || !((IParentedEntity)child).isParent(parent))
+		if(child == null || parent == null || parent == child || !child.isParent(parent))
 			return;
 		
 		float yaw = parent.getBodyYaw();
@@ -95,14 +96,20 @@ public interface IParentedEntity
 		child.setVelocity(Vec3d.ZERO);
 		child.tick();
 		
-		IParentedEntity parented = (IParentedEntity)child;
-		parented.tickParented(parent, yaw, pitch);
+		child.tickParented(parent, yaw, pitch);
 		
 		// Stop calculating if the parented tick has severed the parenting bond
-		if(!parented.hasParent())
+		if(!child.hasParent())
 			return;
 		
-		child.setPosition(parent.getPos().add(parented.getParentOffset(parent, yaw, pitch)));
+		Vec3d dest = parent.getPos().add(child.getParentOffset(parent, yaw, pitch));
+		if(child.getWorld().isClient())
+		{
+			Vec3d offset = dest.subtract(child.getPos());
+			child.move(MovementType.PLAYER, offset);
+		}
+		
+		child.setPosition(dest);
 	}
 	
 	public static <T extends LivingEntity & IParentedEntity> boolean bindToPlayer(PlayerEntity player, T walker)
