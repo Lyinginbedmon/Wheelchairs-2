@@ -111,8 +111,9 @@ public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
 			matrices.translate(xOffset, yOffset, zOffset);
 			matrices.push();
-				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw - frameYaw + 90F));
-				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rightSpin * (yaw > 180F ? 1 : -1)));
+				matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(frameYaw));
+				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
+				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-rightSpin));
 				matrices.push();
 					matrices.scale(scale, scale, scale * thickness);
 					renderItem.renderItem(right, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);
@@ -125,8 +126,9 @@ public class EntityWalkerRenderer extends EntityRenderer<EntityWalker>
 			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180F));
 			matrices.translate(-xOffset, yOffset, zOffset);
 			matrices.push();
-				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw - frameYaw + 90F));
-				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(leftSpin * (yaw > 180F ? 1 : -1)));
+				matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(frameYaw));
+				matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
+				matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-leftSpin));
 				matrices.push();
 					matrices.scale(scale, scale, scale * thickness);
 					renderItem.renderItem(left, ModelTransformationMode.FIXED, light, OverlayTexture.DEFAULT_UV, matrices, renderTypeBuffer, world, seed);

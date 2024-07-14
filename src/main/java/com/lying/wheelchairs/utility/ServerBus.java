@@ -93,15 +93,19 @@ public class ServerBus
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> 
 		{
 			ServerPlayerEntity player = handler.player;
-			if(player == null || player.getWorld() == null || player.getWorld().isClient())
+			if(player == null || player.getWorld() == null)
 				return;
 			
+			boolean isClient = player.getWorld().isClient();
 			Chairspace chairs = Chairspace.getChairspace(server);
 			IParentedEntity.getParentedEntitiesOf(handler.getPlayer()).forEach(ent -> {
+				ent.clearParent();
 				if(ent.hasPassengers())
 					return;
-				ent.clearParent();
-				chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LOGIN, Flag.PARENT);
+				else if(isClient)
+					ent.discard();
+				else
+					chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LOGIN, Flag.PARENT);
 			});
 		});
 		

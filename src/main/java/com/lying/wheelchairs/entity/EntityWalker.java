@@ -326,15 +326,14 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	{
 		Vector2d prevPos = new Vector2d(this.prevX, this.prevZ);
 		Vector2d delta = (new Vector2d(getX(), getZ())).sub(prevPos).negate();
-		if(delta.length() > 0D)
-		{
-			float spin = WHCUtils.calculateSpin((float)delta.length(), 5F / 16F);
-			this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + spin);
-			this.spinRight = WHCUtils.wrapDegrees(this.spinRight + spin);
-			
-			caster.get(prevCaster);
-			caster.add(delta).normalize();
-		}
+		if(delta.length() == 0D) return;
+		
+		float spin = WHCUtils.calculateSpin((float)delta.length(), 5F / 16F);
+		this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + spin);
+		this.spinRight = WHCUtils.wrapDegrees(this.spinRight + spin);
+		
+		caster.get(prevCaster);
+		caster.add(delta.mul(0.5D)).normalize();
 	}
 	
 	private void serverTick()
@@ -354,14 +353,11 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	public float casterWheelYaw(float tickDelta)
 	{
+		// Values cloned because Vector2d performs all operations on the value itself instead of returning new ones
 		Vector2d origin = prevCaster.get(new Vector2d());
 		Vector2d current = caster.get(new Vector2d());
-		
-		Vector2d offset = current.sub(origin).mul(1F);
-		Vector2d casterVec = origin.add(offset);
-		if(casterVec.y == 0D)
-			casterVec.y = 0.0000001D;
-		return WHCUtils.wrapDegrees((float)Math.toDegrees(Math.atan(casterVec.x/-casterVec.y)));
+		origin.add(current.sub(origin).mul(tickDelta));
+		return (float)Math.toDegrees(Math.atan2(origin.y, origin.x));
 	}
 	
 	public boolean hasInventory() { return getDataTracker().get(HAS_INV).booleanValue(); }

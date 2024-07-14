@@ -143,7 +143,7 @@ public class Chairspace extends PersistentState
 		
 		ent.discard();
 		this.markDirty();
-		Wheelchairs.LOGGER.info("Stored entity "+ent.getName().getString()+" in Chairspace with condition "+condition.registryName().toString());
+		Wheelchairs.LOGGER.info("Stored entity "+ent.getName().getString()+" in Chairspace with condition "+condition.registryName().toString()+" by "+ownerID.toString());
 	}
 	
 	/** Respawns all associated entities across all applicable conditions (if any) */

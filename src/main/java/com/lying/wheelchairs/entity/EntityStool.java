@@ -32,7 +32,7 @@ import net.minecraft.world.World;
 
 public class EntityStool extends WheelchairsRideable implements Mount
 {
-	public static final int DEFAULT_COLOR = 1776411;
+	public static final int DEFAULT_COLOR = ItemStool.DEFAULT_COLOR;
 	public static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityStool.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
 	
 	public float spin = 0F;
@@ -80,7 +80,8 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	
 	public void copyFromItem(ItemStack stack)
 	{
-		getDataTracker().set(COLOR, OptionalInt.of(((DyeableItem)stack.getItem()).getColor(stack)));
+		DyeableItem item = (DyeableItem)stack.getItem();
+		getDataTracker().set(COLOR, item.hasColor(stack) ? OptionalInt.of(item.getColor(stack)) : OptionalInt.empty());
 	}
 	
 	public LivingEntity getControllingPassenger()
@@ -148,22 +149,21 @@ public class EntityStool extends WheelchairsRideable implements Mount
 		Vector2d lateral = new Vector2d(movementInput.x, movementInput.z);
 		if(lateral.length() == 0D) return;
 		
-		double speed = WHCUtils.calculateSpin((float)(movementInput.getZ() * getMovementSpeed()), 5F / 16F);
+		double speed = WHCUtils.calculateSpin((float)(movementInput.length() * getMovementSpeed()), 5F / 16F);
 		this.spin = WHCUtils.wrapDegrees(this.spin + (float)speed);
 		
+		Vec3d global = WHCUtils.localToGlobal(movementInput, getYaw());
+		lateral = new Vector2d(global.x, global.z).mul(0.5D);
 		caster.get(prevCaster);
 		caster.add(lateral).normalize();
 	}
 	
 	public float casterWheelYaw(float tickDelta)
 	{
+		// Values cloned because Vector2d performs all operations on the value itself instead of returning new ones
 		Vector2d origin = prevCaster.get(new Vector2d());
 		Vector2d current = caster.get(new Vector2d());
-		
-		Vector2d offset = current.sub(origin).mul(tickDelta);
-		origin.add(offset);
-		if(origin.y == 0D)
-			origin.y = 0.0000001D;
-		return (float)Math.toDegrees(Math.atan(origin.x / -origin.y));
+		origin.add(current.sub(origin).mul(tickDelta));
+		return (float)Math.toDegrees(Math.atan2(origin.y, origin.x));
 	}
 }
