@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:handle",
+  "material": {
+    "item": "minecraft:gold_ingot"
+  },
+  "result": {
+    "item": "wheelchairs:gold_handle"
+  }
+}

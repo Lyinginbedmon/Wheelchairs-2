@@ -1,0 +1,21 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": {
+    "item": "minecraft:jungle_log"
+  },
+  "category": "transportation",
+  "cushion": {
+    "tag": "minecraft:wool"
+  },
+  "group": "wheelchairs",
+  "left_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "result": {
+    "item": "wheelchairs:jungle_wheelchair"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "show_notification": true
+}

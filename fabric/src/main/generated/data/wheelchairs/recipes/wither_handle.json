@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:wither_skeleton_skull"
+  },
+  "result": {
+    "item": "wheelchairs:wither_skull_handle"
+  },
+  "show_notification": false
+}

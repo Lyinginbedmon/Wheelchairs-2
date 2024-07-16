@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:acacia_button"
+  },
+  "result": {
+    "item": "wheelchairs:acacia_handle"
+  },
+  "show_notification": false
+}

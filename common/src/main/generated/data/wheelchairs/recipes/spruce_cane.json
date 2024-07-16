@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "item": "wheelchairs:spruce_cane"
+  },
+  "staff": {
+    "item": "minecraft:stripped_spruce_log"
+  }
+}

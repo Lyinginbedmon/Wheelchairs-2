@@ -2,6 +2,8 @@ package com.lying.fabric.client;
 
 import com.lying.client.WheelchairsClient;
 import com.lying.client.init.WHCModelParts;
+import com.lying.client.renderer.entity.EntityStoolRenderer;
+import com.lying.client.renderer.entity.EntityWalkerRenderer;
 import com.lying.client.renderer.entity.EntityWheelchairRenderer;
 import com.lying.init.WHCEntityTypes;
 
@@ -16,5 +18,7 @@ public final class WheelchairsFabricClient implements ClientModInitializer
 		WHCModelParts.init();
 		
 		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
+		EntityRendererRegistry.register(WHCEntityTypes.WALKER, EntityWalkerRenderer::new);
+		EntityRendererRegistry.register(WHCEntityTypes.STOOL, EntityStoolRenderer::new);
 	}
 }

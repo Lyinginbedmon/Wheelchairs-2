@@ -16,14 +16,11 @@ import com.lying.entity.EntityWheelchair;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.util.Identifier;
 
 public class WHCUpgrades
 {
-//	private static final Identifier REGISTRY_ID = new Identifier(Reference.ModInfo.MOD_ID, "chair_upgrade");
-//	public static final Registrar<ChairUpgrade> REGISTRY = RegistrarManager.get(Reference.ModInfo.MOD_ID).<ChairUpgrade>builder(REGISTRY_ID).build();
-//	public static final RegistryKey<? extends Registry<ChairUpgrade>> KEY = REGISTRY.key();
-	
 	// TODO Replace with custom object registry
 	private static final Map<Identifier, Supplier<ChairUpgrade>> UPGRADES = new HashMap<>();
 	
@@ -31,8 +28,9 @@ public class WHCUpgrades
 			.keyItem(Items.FURNACE_MINECART)
 			.applied(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, true))
 			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
-	public static final Supplier<ChairUpgrade> STORAGE = register(ChairUpgrade.Builder.of("storage").modelled()
-			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))));
+	public static final Supplier<ChairUpgrade> STORAGE = register(ChairUpgrade.Builder.of("storage").modelled().enablesScreen()
+			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST)))
+			.dropItem(Items.CHEST));
 	public static final Supplier<ChairUpgrade> FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
 			.keyItem(Items.PUMPKIN));
 	public static final Supplier<ChairUpgrade> NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
@@ -43,11 +41,10 @@ public class WHCUpgrades
 	public static final Supplier<ChairUpgrade> GLIDING = register(ChairUpgrade.Builder.of("gliding")
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED.get())));
-	
-	public static final Supplier<ChairUpgrade> HANDLES = register(ChairUpgrade.Builder.of("handles")	// TODO Reference zimmer frames, incl. means for rider to unbind
-			.keyItem(Items.IRON_BARS));
-	public static final Supplier<ChairUpgrade> PLACER = register(ChairUpgrade.Builder.of("placer")	// TODO Auto-placer upgrade for bridge/pillar building
+	public static final Supplier<ChairUpgrade> PLACER = register(ChairUpgrade.Builder.of("placer").modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));
+	public static final Supplier<ChairUpgrade> HANDLES = register(ChairUpgrade.Builder.of("handles").modelled().enablesScreen()
+			.keyItem(Items.IRON_BARS));
 	
 	private static Supplier<ChairUpgrade> register(ChairUpgrade.Builder builder)
 	{
@@ -63,13 +60,13 @@ public class WHCUpgrades
 			if(acc.hasModel())
 				WHCBlocks.registerFakeBlock("upgrade_"+acc.registryName().getPath());
 		});
-		Wheelchairs.LOGGER.info("Registered "+UPGRADES.size()+" upgrades");
+		Wheelchairs.LOGGER.info("Registered "+UPGRADES.size()+" wheelchair upgrades");
 	}
 	
 	@Nullable
 	public static ChairUpgrade get(Identifier nameIn)
 	{
-		return UPGRADES.get(nameIn).get();
+		return UPGRADES.getOrDefault(nameIn, () -> null).get();
 	}
 	
 	@Nullable
@@ -89,12 +86,19 @@ public class WHCUpgrades
 	public static List<ChairUpgrade> nbtToList(NbtList list)
 	{
 		List<ChairUpgrade> upgrades = Lists.newArrayList();
-		for(int i=0; i<list.size(); i++)
+		list.forEach(element -> 
 		{
-			ChairUpgrade upgrade = WHCUpgrades.get(new Identifier(list.getString(i)));
+			ChairUpgrade upgrade = WHCUpgrades.get(new Identifier(element.asString()));
 			if(upgrade != null)
 				upgrades.add(upgrade);
-		}
+		});
 		return upgrades;
+	}
+	
+	public static NbtList listToNbt(List<ChairUpgrade> upgrades)
+	{
+		NbtList list = new NbtList();
+		upgrades.forEach(upg -> list.add(NbtString.of(upg.registryName().toString())));
+		return list;
 	}
 }

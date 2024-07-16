@@ -1,0 +1,21 @@
+{
+  "type": "wheelchairs:walker",
+  "handle": {
+    "item": "minecraft:stick"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheels"
+  },
+  "platform": {
+    "item": "minecraft:acacia_planks"
+  },
+  "result": {
+    "item": "wheelchairs:acacia_walker"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheels"
+  },
+  "strut": {
+    "item": "minecraft:acacia_log"
+  }
+}

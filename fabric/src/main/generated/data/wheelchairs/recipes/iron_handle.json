@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:iron_ingot"
+  },
+  "result": {
+    "item": "wheelchairs:iron_handle"
+  },
+  "show_notification": false
+}

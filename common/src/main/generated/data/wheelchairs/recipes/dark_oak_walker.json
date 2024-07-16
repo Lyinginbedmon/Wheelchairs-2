@@ -1,0 +1,21 @@
+{
+  "type": "wheelchairs:walker",
+  "handle": {
+    "item": "minecraft:stick"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheels"
+  },
+  "platform": {
+    "item": "minecraft:dark_oak_planks"
+  },
+  "result": {
+    "item": "wheelchairs:dark_oak_walker"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheels"
+  },
+  "strut": {
+    "item": "minecraft:dark_oak_log"
+  }
+}

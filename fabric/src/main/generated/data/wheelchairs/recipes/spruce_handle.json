@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:spruce_button"
+  },
+  "result": {
+    "item": "wheelchairs:spruce_handle"
+  },
+  "show_notification": false
+}

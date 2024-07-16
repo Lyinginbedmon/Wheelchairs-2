@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:bone"
+  },
+  "result": {
+    "item": "wheelchairs:bone_handle"
+  },
+  "show_notification": false
+}

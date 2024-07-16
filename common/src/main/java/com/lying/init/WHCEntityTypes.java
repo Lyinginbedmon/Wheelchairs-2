@@ -1,6 +1,8 @@
 package com.lying.init;
 
 import com.google.common.base.Supplier;
+import com.lying.entity.EntityStool;
+import com.lying.entity.EntityWalker;
 import com.lying.entity.EntityWheelchair;
 import com.lying.reference.Reference;
 
@@ -19,14 +21,11 @@ public class WHCEntityTypes
 	public static final RegistrySupplier<EntityType<EntityWheelchair>> WHEELCHAIR = register("wheelchair", () ->
 			EntityType.Builder.create(EntityWheelchair::new, SpawnGroup.MISC).setDimensions(0.9F, 0.9F).build("wheelchair"));
     
-    /**
-     * TODO Entities for later versions
-     * Rollator-style walker/zimmer frame
-     * 	Bind to user similar to leashing or firework rocket
-     * 	Limited upgrades (storage
-     * 
-     * Wheeled stool (see: my kitchen :P )
-     */
+	public static final RegistrySupplier<EntityType<EntityWalker>> WALKER = register("walker", () ->
+			EntityType.Builder.create(EntityWalker::new, SpawnGroup.MISC).setDimensions(0.7F, 0.9F).build("walker"));
+	
+	public static final RegistrySupplier<EntityType<EntityStool>> STOOL = register("wheeled_stool", () ->
+			EntityType.Builder.create(EntityStool::new, SpawnGroup.MISC).setDimensions(0.7F, 0.9F).build("wheeled_stool"));
 	
 	private static <T extends Entity> RegistrySupplier<EntityType<T>> register(String name, Supplier<EntityType<T>> entry)
 	{

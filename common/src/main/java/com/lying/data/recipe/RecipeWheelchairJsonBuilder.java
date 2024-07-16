@@ -111,6 +111,5 @@ public class RecipeWheelchairJsonBuilder
 		public JsonObject toAdvancementJson() { return this.advancementBuilder.toJson(); }
 		
 		public Identifier getAdvancementId() { return this.advancementId; }
-		
 	}
 }

@@ -1,0 +1,9 @@
+{
+  "type": "wheelchairs:handle",
+  "material": {
+    "item": "minecraft:mangrove_button"
+  },
+  "result": {
+    "item": "wheelchairs:mangrove_handle"
+  }
+}

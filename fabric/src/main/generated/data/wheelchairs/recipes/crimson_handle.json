@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:crimson_button"
+  },
+  "result": {
+    "item": "wheelchairs:crimson_handle"
+  },
+  "show_notification": false
+}

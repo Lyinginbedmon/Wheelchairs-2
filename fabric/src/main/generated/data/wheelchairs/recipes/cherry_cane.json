@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:cane",
+  "category": "transportation",
+  "group": "canes",
+  "result": {
+    "item": "wheelchairs:cherry_cane"
+  },
+  "show_notification": true,
+  "staff": {
+    "item": "minecraft:stripped_cherry_log"
+  }
+}

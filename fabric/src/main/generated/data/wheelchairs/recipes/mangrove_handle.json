@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:mangrove_button"
+  },
+  "result": {
+    "item": "wheelchairs:mangrove_handle"
+  },
+  "show_notification": false
+}

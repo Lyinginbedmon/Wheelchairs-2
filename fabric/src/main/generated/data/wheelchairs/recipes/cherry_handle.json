@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:cherry_button"
+  },
+  "result": {
+    "item": "wheelchairs:cherry_handle"
+  },
+  "show_notification": false
+}

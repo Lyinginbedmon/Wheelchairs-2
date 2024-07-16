@@ -1,0 +1,21 @@
+{
+  "type": "wheelchairs:walker",
+  "handle": {
+    "item": "minecraft:stick"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheels"
+  },
+  "platform": {
+    "item": "minecraft:mangrove_planks"
+  },
+  "result": {
+    "item": "wheelchairs:mangrove_walker"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheels"
+  },
+  "strut": {
+    "item": "minecraft:mangrove_log"
+  }
+}

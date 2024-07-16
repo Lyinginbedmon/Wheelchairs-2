@@ -1,10 +1,12 @@
 package com.lying.client;
 
+import com.lying.Wheelchairs;
 import com.lying.client.config.ClientConfig;
 import com.lying.client.init.WHCItemsClient;
 import com.lying.client.init.WHCKeybinds;
 import com.lying.client.network.OpenInventoryScreenPacket;
 import com.lying.client.screen.ChairInventoryScreen;
+import com.lying.client.screen.WalkerInventoryScreen;
 import com.lying.client.utility.ClientBus;
 import com.lying.init.WHCBlocks;
 import com.lying.init.WHCScreenHandlerTypes;
@@ -32,6 +34,8 @@ public final class WheelchairsClient
 	{
 		config = new ClientConfig(mc.runDirectory.getAbsolutePath() + "/config/WheelchairsClient.cfg");
 		config.read();
+		Wheelchairs.LOGGER.info("Reading Wheelchairs client config:");
+		Wheelchairs.LOGGER.info(" * Seatbelt login setting: "+config.seatbeltAtBoot());
 		
 		ClientBus.registerEventCallbacks();
 		WHCItemsClient.registerItemColors();
@@ -40,7 +44,8 @@ public final class WheelchairsClient
 		WHCKeybinds.init();
 		registerEventCallbacks();
 		
-		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER.get(), ChairInventoryScreen::new);
+		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER.get(), ChairInventoryScreen::new);
+		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.WALKER_INVENTORY_HANDLER.get(), WalkerInventoryScreen::new);
 	}
 	
 	public static void registerEventCallbacks()
@@ -63,14 +68,14 @@ public final class WheelchairsClient
 		ClientTickEvent.CLIENT_POST.register(client -> 
 		{
 			ClientPlayerEntity player = mc.player;
-			if(player != null && player.hasVehicle())
+			if(player != null)
 			{
 				// Allows for opening wheelchair inventory
 				while(WHCKeybinds.keyOpenChair.wasPressed())
 					OpenInventoryScreenPacket.send();
 				
 				// Allows for toggling the current seatbelt setting ingame
-				if(WHCKeybinds.keySeatbelt.wasPressed() && !WheelchairsClient.wasSeatbeltPressed)
+				if(WHCKeybinds.keySeatbelt.wasPressed() && !WheelchairsClient.wasSeatbeltPressed && player.hasVehicle())
 				{
 					WheelchairsClient.SEATBELT_ON = !WheelchairsClient.SEATBELT_ON;
 					player.sendMessage(Text.translatable("gui.wheelchairs.seatbelt_"+(WheelchairsClient.SEATBELT_ON ? "on" : "off")));

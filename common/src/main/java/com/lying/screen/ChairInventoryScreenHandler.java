@@ -1,12 +1,16 @@
 package com.lying.screen;
 
+import com.lying.entity.ChairUpgrade;
 import com.lying.entity.EntityWheelchair;
 import com.lying.init.WHCEntityTypes;
 import com.lying.init.WHCScreenHandlerTypes;
+import com.lying.init.WHCUpgrades;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -14,16 +18,38 @@ import net.minecraft.screen.slot.Slot;
 public class ChairInventoryScreenHandler extends ScreenHandler
 {
 	private final Inventory inv;
+	public final boolean hasStorage;
+	public final boolean hasPlacer;
 	
-	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv)
+	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, final EntityWheelchair chair)
 	{
-		super(WHCScreenHandlerTypes.INVENTORY_SCREEN_HANDLER.get(), syncId);
-		this.inv = inv;
+		super(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER.get(), syncId);
+		boolean noChair = chair == null;
+		this.inv = noChair ? new SimpleInventory(16) : chair.getInventory();
 		
-		// Chair inventory slots
+		this.hasStorage = !noChair && chair.hasUpgrade(WHCUpgrades.STORAGE.get());
+		this.hasPlacer = !noChair && chair.hasUpgrade(WHCUpgrades.PLACER.get());
+		
+		// (Optional) Placer slot
+		this.addSlot(new Slot(inv, 0, 143, 36)
+			{
+				public boolean isEnabled() { return chair.hasUpgrade(WHCUpgrades.PLACER.get()); }
+				
+				public boolean canInsert(ItemStack stack)
+				{
+					return stack.getItem() instanceof BlockItem;
+				}
+				
+				
+			});
+		
+		// (Optional) Main storage slots
 		for(int k=0; k<3; ++k)
 			for(int l=0; l < 5; ++l)
-				this.addSlot(new Slot(inv, l + k * 5, 44 + l * 18, 18 + k * 18));
+				this.addSlot(new Slot(inv, 1 + l + k * 5, 44 + l * 18, 18 + k * 18)
+					{
+						public boolean isEnabled() { return chair.hasUpgrade(WHCUpgrades.STORAGE.get()); }
+					});
 		
 		// Player inventory slots
 		for(int k=0; k<3; ++k)
@@ -49,7 +75,7 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 				if(!insertItem(stackInSlot, chairInvSize, this.slots.size(), true))
 					return ItemStack.EMPTY;
 			}
-			else if(!insertItem(stackInSlot, 0, chairInvSize, false))
+			else if(!insertItem(stackInSlot, 1, chairInvSize, false))
 			{
 				int invStart = chairInvSize;
 				int hotbarStart = invStart + 27;
@@ -73,6 +99,9 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 		return stack;
 	}
 	
-	public boolean canUse(PlayerEntity player) { return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get() && ((EntityWheelchair)player.getVehicle()).hasInventory(); }
+	public boolean canUse(PlayerEntity player)
+	{
+		return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get() && ((EntityWheelchair)player.getVehicle()).getUpgrades().stream().anyMatch(ChairUpgrade::enablesScreen);
+	}
 
 }

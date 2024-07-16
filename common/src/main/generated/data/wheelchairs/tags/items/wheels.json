@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "wheelchairs:acacia_wheel",
+    "wheelchairs:birch_wheel",
+    "wheelchairs:crimson_wheel",
+    "wheelchairs:dark_oak_wheel",
+    "wheelchairs:jungle_wheel",
+    "wheelchairs:mangrove_wheel",
+    "wheelchairs:oak_wheel",
+    "wheelchairs:spruce_wheel",
+    "wheelchairs:warped_wheel",
+    "wheelchairs:cherry_wheel",
+    "wheelchairs:bamboo_wheel",
+    "wheelchairs:copper_wheel",
+    "wheelchairs:iron_wheel",
+    "wheelchairs:gold_wheel",
+    "wheelchairs:netherite_wheel"
+  ]
+}

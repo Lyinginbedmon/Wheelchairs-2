@@ -18,6 +18,7 @@ import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -25,7 +26,9 @@ public class ChairUpgrade
 {
 	private final Identifier name;
 	private final Predicate<ItemStack> isKeyItem;
+	private final Item dropItem;
 	private final boolean hasModel;
+	private final boolean enablesScreen;
 	
 	private final Consumer<EntityWheelchair> onApplied, onRemoved;
 	private final Map<EntityAttribute, EntityAttributeModifier> attributeModifiers = Maps.newHashMap();
@@ -33,14 +36,16 @@ public class ChairUpgrade
 	private final Predicate<EntityWheelchair> isValid;
 	private final Supplier<List<ChairUpgrade>> incompatibleWith;
 	
-	protected ChairUpgrade(Identifier nameIn, boolean modelled, 
-			Predicate<ItemStack> keyItem, Predicate<EntityWheelchair> valid, 
+	protected ChairUpgrade(Identifier nameIn, boolean modelled, boolean screenEnabler,
+			Predicate<ItemStack> keyItem, Item dropItem, Predicate<EntityWheelchair> valid, 
 			Supplier<List<ChairUpgrade>> incompatibleWith, 
 			Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed, Map<EntityAttribute, EntityAttributeModifier> modifiers)
 	{
 		this.name = nameIn;
 		this.hasModel = modelled;
+		this.enablesScreen = screenEnabler;
 		this.isKeyItem = keyItem;
+		this.dropItem = dropItem;
 		this.isValid = valid;
 		this.incompatibleWith = incompatibleWith;
 		this.onApplied = applied;
@@ -54,6 +59,8 @@ public class ChairUpgrade
 	public final Identifier registryName() { return name; }
 	
 	public Text translate() { return Text.translatable("upgrade."+name.getNamespace()+"."+name.getPath()); }
+	
+	public Item dropItem() { return dropItem; }
 	
 	public boolean matches(ItemStack stack) { return isKeyItem.apply(stack); }
 	
@@ -96,11 +103,14 @@ public class ChairUpgrade
 	
 	public boolean hasModel() { return hasModel; }
 	
+	public boolean enablesScreen() { return enablesScreen; }
+	
 	/** Builder class to restrict modifications to before registration */
 	public static class Builder
 	{
 		private final Identifier name;
 		private Predicate<ItemStack> isKeyItem = Predicates.alwaysFalse();
+		private Item dropItem = Items.STICK;
 		private Predicate<EntityWheelchair> isValid = Predicates.alwaysTrue();
 		private Supplier<List<ChairUpgrade>> incompatibleWith = () -> Lists.newArrayList();
 		
@@ -109,6 +119,8 @@ public class ChairUpgrade
 		private Consumer<EntityWheelchair> onApplied = (chair) -> {}, onRemoved = (chair) -> {};
 		private final Map<EntityAttribute, EntityAttributeModifier> attributeModifiers = Maps.newHashMap();
 		
+		private boolean enablesScreen = false;
+		
 		protected Builder(Identifier nameIn) { this.name = nameIn; }
 		
 		public static Builder of(String nameIn) { return new Builder(new Identifier(Reference.ModInfo.MOD_ID, nameIn)); }
@@ -116,7 +128,12 @@ public class ChairUpgrade
 		public final Identifier registryName() { return name; }
 		
 		/** Defines the item needed to apply this upgrade to a wheelchair */
-		public final Builder keyItem(Item itemIn) { keyItem((stack) -> stack.getItem() == itemIn); return this; }
+		public final Builder keyItem(Item itemIn)
+		{
+			dropItem = itemIn;
+			keyItem((stack) -> stack.getItem() == itemIn);
+			return this;
+		}
 		
 		/** Defines an {@link ItemStack} predicate to apply this upgrade to a wheelchair */
 		public final Builder keyItem(Predicate<ItemStack> itemIn)
@@ -129,6 +146,12 @@ public class ChairUpgrade
 		public final Builder isValid(Predicate<EntityWheelchair> validIn)
 		{
 			this.isValid = validIn;
+			return this;
+		}
+		
+		public final Builder dropItem(Item itemIn)
+		{
+			dropItem = itemIn;
 			return this;
 		}
 		
@@ -169,9 +192,15 @@ public class ChairUpgrade
 			return this;
 		}
 		
+		public final Builder enablesScreen()
+		{
+			this.enablesScreen = true;
+			return this;
+		}
+		
 		public ChairUpgrade build()
 		{
-			return new ChairUpgrade(name, hasModel, isKeyItem, isValid, incompatibleWith, onApplied, onRemoved, attributeModifiers);
+			return new ChairUpgrade(name, hasModel, enablesScreen, isKeyItem, dropItem, isValid, incompatibleWith, onApplied, onRemoved, attributeModifiers);
 		}
 	}
 }

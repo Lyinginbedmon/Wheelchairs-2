@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.lying.utility.ServerBus;
+import com.lying.utility.ServerEvents;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
@@ -28,6 +29,6 @@ public class ServerPlayerInteractionManagerMixin
 		if(player == null || player.getWorld() == null)
 			return;
 		
-		ServerBus.AFTER_PLAYER_CHANGE_GAME_MODE.invoker().afterChangeGameMode(player, gameMode);
+		ServerEvents.AFTER_PLAYER_CHANGE_GAME_MODE.invoker().afterChangeGameMode(player, gameMode);
 	}
 }

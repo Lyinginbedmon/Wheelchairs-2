@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:birch_button"
+  },
+  "result": {
+    "item": "wheelchairs:birch_handle"
+  },
+  "show_notification": false
+}

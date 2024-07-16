@@ -1,0 +1,21 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": {
+    "item": "minecraft:warped_stem"
+  },
+  "category": "transportation",
+  "cushion": {
+    "tag": "minecraft:wool"
+  },
+  "group": "wheelchairs",
+  "left_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "result": {
+    "item": "wheelchairs:warped_wheelchair"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "show_notification": true
+}

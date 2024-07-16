@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheels",
+  "key": {
+    "S": {
+      "item": "minecraft:crimson_slab"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " S ",
+    "SsS",
+    " S "
+  ],
+  "result": {
+    "item": "wheelchairs:crimson_wheel"
+  },
+  "show_notification": true
+}

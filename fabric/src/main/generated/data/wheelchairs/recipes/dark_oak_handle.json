@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:dark_oak_button"
+  },
+  "result": {
+    "item": "wheelchairs:dark_oak_handle"
+  },
+  "show_notification": false
+}

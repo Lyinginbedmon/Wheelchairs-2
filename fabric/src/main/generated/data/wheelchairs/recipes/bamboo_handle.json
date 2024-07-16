@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:bamboo_button"
+  },
+  "result": {
+    "item": "wheelchairs:bamboo_handle"
+  },
+  "show_notification": false
+}

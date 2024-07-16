@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "item": "minecraft:iron_bars"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "s": {
+      "tag": "minecraft:wool"
+    },
+    "w": {
+      "tag": "wheelchairs:wheels"
+    }
+  },
+  "pattern": [
+    " s ",
+    " i ",
+    "wbw"
+  ],
+  "result": {
+    "item": "wheelchairs:wheeled_stool"
+  }
+}

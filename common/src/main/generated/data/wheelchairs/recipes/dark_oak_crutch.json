@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:crutches",
+  "key": {
+    "P": {
+      "item": "minecraft:dark_oak_planks"
+    },
+    "W": {
+      "item": "minecraft:white_wool"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "sWs",
+    "s s",
+    " P "
+  ],
+  "result": {
+    "item": "wheelchairs:dark_oak_crutch"
+  }
+}

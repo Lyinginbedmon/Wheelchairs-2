@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "item": "minecraft:observer"
+    },
+    "j": {
+      "item": "minecraft:redstone_torch"
+    }
+  },
+  "pattern": [
+    "j",
+    "b"
+  ],
+  "result": {
+    "item": "wheelchairs:controller"
+  },
+  "show_notification": true
+}

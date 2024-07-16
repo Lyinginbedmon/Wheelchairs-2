@@ -2,14 +2,22 @@ package com.lying.init;
 
 import java.util.Iterator;
 
+import com.lying.enchant.HollowedEnchant;
+import com.lying.enchant.SlimEnchantment;
 import com.lying.reference.Reference;
 
+import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.Registrar;
 import dev.architectury.registry.registries.RegistrarManager;
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.Enchantment.Rarity;
+import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
 /**
@@ -22,7 +30,17 @@ public class WHCEnchantments
 	public static final Registrar<Enchantment> REGISTRY = RegistrarManager.get(Reference.ModInfo.MOD_ID).<Enchantment>builder(registryId).build();
 	public static final RegistryKey<? extends Registry<Enchantment>> KEY = REGISTRY.key();
 	
-	public static void register(Enchantment acc)
+	public static final DeferredRegister<Enchantment> ENTITY_TYPES = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ENCHANTMENT);
+	
+	public static final RegistrySupplier<Enchantment> HOLLOWED = register("hollowed", new HollowedEnchant(Rarity.RARE, EnchantmentTarget.WEAPON, new EquipmentSlot[] {EquipmentSlot.MAINHAND}));
+	public static final RegistrySupplier<Enchantment> SLIM = register("slim", new SlimEnchantment(Rarity.RARE));
+	
+	public static RegistrySupplier<Enchantment> register(String name, Enchantment acc)
+	{
+		return ENTITY_TYPES.register(new Identifier(Reference.ModInfo.MOD_ID, name), () -> acc);
+	}
+	
+	public static void markWheelchairCompatible(Enchantment acc)
 	{
 		REGISTRY.register(new Identifier(acc.getTranslationKey()), () -> acc);
 	}
@@ -46,9 +64,11 @@ public class WHCEnchantments
 	
 	public static void init()
 	{
-		register(Enchantments.DEPTH_STRIDER);
-		register(Enchantments.FROST_WALKER);
-		register(Enchantments.FIRE_PROTECTION);
-		register(Enchantments.RESPIRATION);
+		markWheelchairCompatible(Enchantments.DEPTH_STRIDER);
+		markWheelchairCompatible(Enchantments.FROST_WALKER);
+		markWheelchairCompatible(Enchantments.FIRE_PROTECTION);
+		markWheelchairCompatible(Enchantments.RESPIRATION);
+		
+		ENTITY_TYPES.register();
 	}
 }

@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:handle",
+  "category": "transportation",
+  "group": "handles",
+  "material": {
+    "item": "minecraft:jungle_button"
+  },
+  "result": {
+    "item": "wheelchairs:jungle_handle"
+  },
+  "show_notification": false
+}

@@ -18,6 +18,9 @@ public class WHCSoundEvents
 	private static final Identifier ID_SEATBELT_OFF = new Identifier(Reference.ModInfo.MOD_ID, "seatbelt_off");
 	public static final RegistrySupplier<SoundEvent> SEATBELT_OFF = register(ID_SEATBELT_OFF);
 	
+	private static final Identifier ID_SWORD_DRAW = new Identifier(Reference.ModInfo.MOD_ID, "cane_sword_draw");
+	public static final RegistrySupplier<SoundEvent> SWORD_DRAW = register(ID_SWORD_DRAW);
+	
 	private static RegistrySupplier<SoundEvent> register(Identifier name)
 	{
 		return SOUND_EVENTS.register(name, () -> SoundEvent.of(name));

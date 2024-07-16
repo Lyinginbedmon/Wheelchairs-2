@@ -1,0 +1,24 @@
+{
+  "type": "wheelchairs:walker",
+  "category": "transportation",
+  "group": "walkers",
+  "handle": {
+    "item": "minecraft:stick"
+  },
+  "left_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "platform": {
+    "item": "minecraft:birch_planks"
+  },
+  "result": {
+    "item": "wheelchairs:birch_walker"
+  },
+  "right_wheel": {
+    "tag": "wheelchairs:wheel"
+  },
+  "show_notification": true,
+  "strut": {
+    "item": "minecraft:birch_log"
+  }
+}
