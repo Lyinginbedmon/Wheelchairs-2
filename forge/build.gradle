@@ -10,8 +10,6 @@ architectury {
 def generatedResources = file("src/generated")
 
 loom {
-    accessWidenerPath = project(":common").loom.accessWidenerPath
-    
     forge {
         convertAccessWideners = true
         mixinConfig "wheelchairs.mixins.json"
