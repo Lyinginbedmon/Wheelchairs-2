@@ -1,14 +1,19 @@
 package com.lying.wheelchairs.utility;
 
+import java.util.UUID;
+
 import com.lying.wheelchairs.Wheelchairs;
 import com.lying.wheelchairs.data.WHCItemTags;
 import com.lying.wheelchairs.entity.EntityWalker;
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.entity.IParentedEntity;
 import com.lying.wheelchairs.init.WHCChairspaceConditions;
+import com.lying.wheelchairs.init.WHCComponents;
 import com.lying.wheelchairs.init.WHCEntityTypes;
+import com.lying.wheelchairs.item.ItemVest;
 import com.lying.wheelchairs.utility.Chairspace.Flag;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.Event;
@@ -16,6 +21,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -48,6 +54,12 @@ public class ServerBus
 						newInv.setStack(i, stack.copy());
 				}
 			}
+		});
+		
+		ServerEntityWorldChangeEvents.AFTER_ENTITY_CHANGE_WORLD.register((originalEntity, newEntity, origin, destination) -> 
+		{
+			if(ItemVest.isValidMobForVest(originalEntity))
+				WHCComponents.VEST_TRACKING.get(newEntity).copyFrom(WHCComponents.VEST_TRACKING.get(originalEntity));
 		});
 	}
 	
@@ -169,6 +181,28 @@ public class ServerBus
 			if(!living.getWorld().isClient())
 				Chairspace.getChairspace(living.getServer()).reactToEvent(ServerEvents.ON_STOP_FLYING, living);
 		});
+		
+		ServerLivingEntityEvents.ALLOW_DEATH.register((LivingEntity entity, DamageSource damageSource, float damageAmount) -> 
+		{
+			if(ItemVest.isValidMobForVest(entity) && !ItemVest.getVest(entity).isEmpty())
+			{
+				UUID ownerID = ItemVest.getVestedMobOwner(entity);
+				if(ownerID == null)
+					return true;
+				
+				entity.setHealth(1F);
+				Chairspace chairs = Chairspace.getChairspace(entity.getServer());
+				chairs.storeEntityInChairspace(entity, ownerID, WHCChairspaceConditions.ON_WAKE_UP);
+				return false;
+			}
+			return true;
+		});
+		
+		ServerEvents.ON_WAKE_UP.register(player -> 
+		{
+			if(!player.getWorld().isClient())
+				Chairspace.getChairspace(player.getServer()).reactToEvent(ServerEvents.ON_WAKE_UP, player);
+		});
 	}
 	
 	private static void registerMountEvents()
@@ -183,7 +217,7 @@ public class ServerBus
 				((EntityWheelchair)next).getUpgrades().forEach(upg -> upg.onStartRiding(living));
 			
 			// Clear all walker bindings whenever riding status changes
-			living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), wal -> wal.isParent(living)).forEach(EntityWalker::clearParent);
+			IParentedEntity.clearParentedEntities(living, null);
 		});
 		
 		// If a player leaves their wheelchair for a different non-wheelchair mount, and the wheelchair has no items, store it in their inventory
@@ -198,10 +232,6 @@ public class ServerBus
 		});
 		
 		// Clear binding to any other walker when a player binds to a walker
-		ServerEvents.ON_ENTITY_PARENT.register((living, walker) -> 
-		{
-			if(walker.getType() == WHCEntityTypes.WALKER)
-				living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER, living.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), wal -> wal.isParent(living) && wal != walker).forEach(EntityWalker::clearParent);
-		});
+		ServerEvents.ON_ENTITY_PARENT.register((living, walker) -> IParentedEntity.clearParentedEntities(living, walker));
 	}
 }

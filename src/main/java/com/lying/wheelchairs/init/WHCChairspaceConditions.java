@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
@@ -46,6 +47,8 @@ public class WHCChairspaceConditions
 	
 	/** Respawn when the user stops fall-flying */
 	public static final ChairspaceCondition ON_STOP_FLYING = register(ChairspaceCondition.Builder.of("on_stop_flying", ServerEvents.ON_STOP_FLYING));
+	
+	public static final ChairspaceCondition ON_WAKE_UP = register(ChairspaceCondition.Builder.of("on_wake_up", ServerEvents.ON_WAKE_UP).postEffect(ent -> ((LivingEntity)ent).setHealth(1F)));
 	
 	private static ChairspaceCondition register(ChairspaceCondition.Builder builder)
 	{

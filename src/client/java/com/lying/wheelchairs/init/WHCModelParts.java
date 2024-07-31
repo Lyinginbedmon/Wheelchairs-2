@@ -1,5 +1,6 @@
 package com.lying.wheelchairs.init;
 
+import com.lying.wheelchairs.model.WolfVestModel;
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.renderer.entity.model.WheelchairElytraModel;
 
@@ -11,6 +12,7 @@ import net.minecraft.util.Identifier;
 public class WHCModelParts
 {
 	public static final EntityModelLayer UPGRADE_ELYTRA	= ofName("wheelchair_elytra", "main");
+	public static final EntityModelLayer WOLF_VEST	= ofName("vest", "wolf");
 	
 	private static EntityModelLayer ofName(String main, String part)
 	{
@@ -20,6 +22,7 @@ public class WHCModelParts
 	public static void init()
 	{
 		register(WHCModelParts.UPGRADE_ELYTRA, WheelchairElytraModel::createBodyLayer);
+		register(WHCModelParts.WOLF_VEST, WolfVestModel::getTexturedModelData);
 	}
 	
 	private static void register(EntityModelLayer layer, TexturedModelDataProvider func)

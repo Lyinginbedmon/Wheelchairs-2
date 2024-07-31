@@ -347,7 +347,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		}
 		else if(!this.getWorld().isClient())
 		{
-			if(hasPassengers() && hasUpgrade(WHCUpgrades.HANDLES) && rebindCooldown() <= 0)
+			if(hasPassengers() && !hasPassenger(player) && hasUpgrade(WHCUpgrades.HANDLES) && rebindCooldown() <= 0)
 				return IParentedEntity.bindToPlayer(player, this) ? ActionResult.CONSUME : ActionResult.PASS;
 			else if(!hasPassengers())
 				return putPlayerInSaddle(player) ? ActionResult.CONSUME : ActionResult.PASS;

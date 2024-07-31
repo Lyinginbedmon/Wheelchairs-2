@@ -134,4 +134,10 @@ public interface IParentedEntity
 		
 		return false;
 	}
+	
+	public static void clearParentedEntities(LivingEntity parent, @Nullable LivingEntity ignore)
+	{
+		parent.getWorld().getEntitiesByClass(LivingEntity.class, parent.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), isChildOf(parent).and(entity -> entity != ignore))
+			.forEach(ent -> ((IParentedEntity)ent).clearParent());
+	}
 }

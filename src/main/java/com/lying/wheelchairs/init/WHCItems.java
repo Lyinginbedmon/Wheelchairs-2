@@ -10,6 +10,7 @@ import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.item.ItemCaneHandle;
 import com.lying.wheelchairs.item.ItemCrutch;
 import com.lying.wheelchairs.item.ItemStool;
+import com.lying.wheelchairs.item.ItemVest;
 import com.lying.wheelchairs.item.ItemWalker;
 import com.lying.wheelchairs.item.ItemWheelchair;
 import com.lying.wheelchairs.reference.Reference;
@@ -120,7 +121,13 @@ public class WHCItems
 	 * 
 	 * Service animal vests! (req. Cardinal Components)
 	 * 	NOTE Should store animal in Chairspace if it would drop below 1HP
+	 * 	* Wolves
+	 *  * Cats
+	 *  * Ocelots
+	 *  * Parrots
+	 *  * Pigs
 	 */
+	public static final Item VEST	= register("service_vest", new ItemVest(new FabricItemSettings().maxCount(1)));
 	
 	public static final ItemGroup WHEELCHAIR_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(WHEELCHAIR_OAK)).displayName(Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group")).entries((ctx,entries) -> 
 		{
@@ -190,6 +197,7 @@ public class WHCItems
 			
 			entries.add(CONTROLLER);
 			entries.add(STOOL);
+			entries.add(VEST);
 		}).build();
 	
 	private static Item register(String nameIn, Item itemIn)

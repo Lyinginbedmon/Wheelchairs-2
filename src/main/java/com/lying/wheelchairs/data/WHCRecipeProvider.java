@@ -34,7 +34,8 @@ import net.minecraft.util.Identifier;
 public class WHCRecipeProvider extends FabricRecipeProvider
 {
 	public static final String GROUP_WHEELS = Reference.ModInfo.MOD_ID+":wheels";
-	public static final String GROUP_CHAIRS = Reference.ModInfo.MOD_ID+":wheels";
+	public static final String GROUP_CHAIRS = Reference.ModInfo.MOD_ID+":wheelchairs";
+	public static final String GROUP_CANES = Reference.ModInfo.MOD_ID+":canes";
 	public static final String GROUP_CRUTCHES = Reference.ModInfo.MOD_ID+":crutches";
 	
 	private static final Map<Wood, WoodSet> WOOD_GUIDE = new HashMap<>();
