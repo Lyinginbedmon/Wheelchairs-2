@@ -14,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
@@ -51,6 +52,9 @@ public abstract class EntityMixin
 	
 	@Shadow
 	public EntityPose getPose() { return EntityPose.STANDING; }
+	
+	@Shadow
+	public DataTracker getDataTracker() { return null; }
 	
 	private boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
 	

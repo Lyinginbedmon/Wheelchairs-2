@@ -118,14 +118,6 @@ public class WHCItems
 	/**
 	 * TODO Items for later versions
 	 * AAC speech device? Would require a Lot of sound, UI, and texture work
-	 * 
-	 * Service animal vests! (req. Cardinal Components)
-	 * 	NOTE Should store animal in Chairspace if it would drop below 1HP
-	 * 	* Wolves
-	 *  * Cats
-	 *  * Ocelots
-	 *  * Parrots
-	 *  * Pigs
 	 */
 	public static final Item VEST	= register("service_vest", new ItemVest(new FabricItemSettings().maxCount(1)));
 	

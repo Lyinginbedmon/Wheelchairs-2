@@ -1,4 +1,4 @@
-package com.lying.wheelchairs.model;
+package com.lying.wheelchairs.renderer.entity.model;
 
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelData;

@@ -7,6 +7,7 @@ import java.util.function.Function;
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.wheelchairs.init.WHCComponents;
+import com.lying.wheelchairs.mixin.FoxEntityMixin;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -26,8 +27,8 @@ public class ItemVest extends Item implements DyeableItem
 	public static final Map<EntityType<?>, Function<Entity,UUID>> APPLICABLE_MOBS = Map.of(
 			EntityType.WOLF, tamedOwner,
 			EntityType.CAT, tamedOwner,
-			EntityType.OCELOT, tamedOwner,
-			EntityType.PARROT, tamedOwner);
+			EntityType.PARROT, tamedOwner,
+			EntityType.FOX, entity -> ((FoxEntityMixin)(Object)entity).getOwnerID().orElse(null));
 	
 	public ItemVest(Settings settings)
 	{
@@ -36,19 +37,22 @@ public class ItemVest extends Item implements DyeableItem
 	
 	public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand)
 	{
-		if(isValidMobForVest(entity))
-		{
-			ItemStack vest = getVest(entity);
-			if(!vest.isEmpty())
-				dropVest(entity);
-			
-			setVest(entity, stack.split(1));
-			user.sendMessage(Text.literal("Time to put on your jacket!"), true);
-			if(!user.isCreative())
-				stack.decrement(1);
-			return ActionResult.success(user.getWorld().isClient());
-		}
-		return ActionResult.PASS;
+		if(!isValidMobForVest(entity))
+			return ActionResult.PASS;
+		
+		UUID ownerID = getVestedMobOwner(entity);
+		if(ownerID == null || ownerID != user.getUuid())
+			return ActionResult.PASS;
+		
+		ItemStack vest = getVest(entity);
+		if(!vest.isEmpty())
+			dropVest(entity);
+		
+		setVest(entity, stack.split(1));
+		user.sendMessage(Text.translatable("gui.wheelchairs.service_vest_applied"), true);
+		if(!user.isCreative())
+			stack.decrement(1);
+		return ActionResult.success(user.getWorld().isClient());
 	}
 	
 	public static boolean isValidMobForVest(Entity entity)
