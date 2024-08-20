@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:canes",
+  "key": {
+    "b": {
+      "item": "minecraft:stripped_spruce_log"
+    },
+    "h": {
+      "item": "minecraft:spruce_button"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " h ",
+    " b ",
+    " s "
+  ],
+  "result": {
+    "item": "wheelchairs:spruce_cane"
+  }
+}

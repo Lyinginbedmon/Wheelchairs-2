@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:canes",
+  "key": {
+    "b": {
+      "item": "minecraft:stripped_warped_stem"
+    },
+    "h": {
+      "item": "minecraft:warped_button"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " h ",
+    " b ",
+    " s "
+  ],
+  "result": {
+    "item": "wheelchairs:warped_cane"
+  }
+}

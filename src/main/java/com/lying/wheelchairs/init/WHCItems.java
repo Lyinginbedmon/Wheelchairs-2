@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.lying.wheelchairs.entity.EntityWheelchair;
 import com.lying.wheelchairs.item.IBonusBlockItem;
+import com.lying.wheelchairs.item.ItemAACTablet;
 import com.lying.wheelchairs.item.ItemCane;
 import com.lying.wheelchairs.item.ItemCaneHandle;
 import com.lying.wheelchairs.item.ItemCrutch;
@@ -25,6 +26,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Rarity;
 
 public class WHCItems
 {
@@ -119,7 +121,9 @@ public class WHCItems
 	 * TODO Items for later versions
 	 * AAC speech device? Would require a Lot of sound, UI, and texture work
 	 */
+	
 	public static final Item VEST	= register("service_vest", new ItemVest(new FabricItemSettings().maxCount(1)));
+	public static final Item TABLET	= register("aac_tablet", new ItemAACTablet(new FabricItemSettings().maxCount(1).rarity(Rarity.RARE)));
 	
 	public static final ItemGroup WHEELCHAIR_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(WHEELCHAIR_OAK)).displayName(Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group")).entries((ctx,entries) -> 
 		{
@@ -190,6 +194,7 @@ public class WHCItems
 			entries.add(CONTROLLER);
 			entries.add(STOOL);
 			entries.add(VEST);
+			entries.add(TABLET);
 		}).build();
 	
 	private static Item register(String nameIn, Item itemIn)

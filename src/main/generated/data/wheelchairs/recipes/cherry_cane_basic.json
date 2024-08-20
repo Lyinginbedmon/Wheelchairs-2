@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:canes",
+  "key": {
+    "b": {
+      "item": "minecraft:stripped_cherry_log"
+    },
+    "h": {
+      "item": "minecraft:cherry_button"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " h ",
+    " b ",
+    " s "
+  ],
+  "result": {
+    "item": "wheelchairs:cherry_cane"
+  }
+}

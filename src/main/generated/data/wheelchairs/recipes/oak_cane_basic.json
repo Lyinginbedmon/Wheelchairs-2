@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:canes",
+  "key": {
+    "b": {
+      "item": "minecraft:stripped_oak_log"
+    },
+    "h": {
+      "item": "minecraft:oak_button"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " h ",
+    " b ",
+    " s "
+  ],
+  "result": {
+    "item": "wheelchairs:oak_cane"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheelchairs",
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "b": {
+      "item": "minecraft:acacia_log"
+    },
+    "w": {
+      "tag": "wheelchairs:wheels"
+    }
+  },
+  "pattern": [
+    " b ",
+    "wWw"
+  ],
+  "result": {
+    "item": "wheelchairs:acacia_wheelchair"
+  }
+}

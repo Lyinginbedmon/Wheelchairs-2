@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:canes",
+  "key": {
+    "b": {
+      "item": "minecraft:stripped_bamboo_block"
+    },
+    "h": {
+      "item": "minecraft:bamboo_button"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " h ",
+    " b ",
+    " s "
+  ],
+  "result": {
+    "item": "wheelchairs:bamboo_cane"
+  }
+}

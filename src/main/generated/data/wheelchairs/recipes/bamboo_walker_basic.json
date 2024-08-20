@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "l": {
+      "item": "minecraft:bamboo_block"
+    },
+    "p": {
+      "item": "minecraft:bamboo_planks"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    },
+    "w": {
+      "tag": "wheelchairs:wheels"
+    }
+  },
+  "pattern": [
+    "s s",
+    "lpl",
+    "w w"
+  ],
+  "result": {
+    "item": "wheelchairs:bamboo_walker"
+  }
+}

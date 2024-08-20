@@ -46,7 +46,7 @@ public class WHCSpecialRecipes
 	
 	public static void init()
 	{
-		RECIPE_SERIALIZERS.keySet().forEach(serializer -> Registry.register(Registries.RECIPE_SERIALIZER, RECIPE_SERIALIZERS.get(serializer), serializer));
 		RECIPE_TYPES.keySet().forEach(type -> Registry.register(Registries.RECIPE_TYPE, RECIPE_TYPES.get(type), type));
+		RECIPE_SERIALIZERS.keySet().forEach(serializer -> Registry.register(Registries.RECIPE_SERIALIZER, RECIPE_SERIALIZERS.get(serializer), serializer));
 	}
 }

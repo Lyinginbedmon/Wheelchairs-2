@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "l": {
+      "item": "minecraft:crimson_stem"
+    },
+    "p": {
+      "item": "minecraft:crimson_planks"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    },
+    "w": {
+      "tag": "wheelchairs:wheels"
+    }
+  },
+  "pattern": [
+    "s s",
+    "lpl",
+    "w w"
+  ],
+  "result": {
+    "item": "wheelchairs:crimson_walker"
+  }
+}

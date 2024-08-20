@@ -96,7 +96,7 @@ public class WHCItemTags extends ItemTagProvider
 				WHCItems.WALKER_OAK,
 				WHCItems.WALKER_SPRUCE,
 				WHCItems.WALKER_WARPED);
-		getOrCreateTagBuilder(PRESERVED).addTag(WHEELCHAIR).addTag(CRUTCH).addTag(CANE).addTag(WALKER);
+		getOrCreateTagBuilder(PRESERVED).addTag(WHEELCHAIR).addTag(CRUTCH).addTag(CANE).addTag(WALKER).add(WHCItems.TABLET);
 		
 		getOrCreateTagBuilder(FILTER_SWORD_CANE).add(
 				Items.DIAMOND_SWORD,

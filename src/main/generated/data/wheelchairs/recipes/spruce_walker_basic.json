@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "l": {
+      "item": "minecraft:spruce_log"
+    },
+    "p": {
+      "item": "minecraft:spruce_planks"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    },
+    "w": {
+      "tag": "wheelchairs:wheels"
+    }
+  },
+  "pattern": [
+    "s s",
+    "lpl",
+    "w w"
+  ],
+  "result": {
+    "item": "wheelchairs:spruce_walker"
+  }
+}
