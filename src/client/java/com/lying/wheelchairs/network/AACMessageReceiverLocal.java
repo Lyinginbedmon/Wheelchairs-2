@@ -1,6 +1,7 @@
 package com.lying.wheelchairs.network;
 
 import com.lying.wheelchairs.WheelchairsClient;
+import com.lying.wheelchairs.reference.Reference;
 import com.mojang.text2speech.Narrator;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.PlayChannelHandler;
@@ -11,7 +12,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.message.ChatVisibility;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 
 public class AACMessageReceiverLocal implements PlayChannelHandler
 {
@@ -23,7 +23,7 @@ public class AACMessageReceiverLocal implements PlayChannelHandler
 		
 		PlayerEntity player = mc.world.getPlayerByUuid(buf.readUuid());
 		MutableText playerName = player == null ? buf.readText().copy() : player.getDisplayName().copy();
-		final MutableText message = Text.translatable("aac.wheelchairs.message", playerName, value);
+		final MutableText message = Reference.ModInfo.translate("aac","message", playerName, value).copy();
 		
 		if(mc.options.getChatVisibility().getValue() != ChatVisibility.FULL)
 			return;
