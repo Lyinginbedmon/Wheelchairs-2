@@ -11,14 +11,18 @@ import com.lying.wheelchairs.reference.Reference;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 
 public class AACScreen extends Screen
 {
 	private static final MinecraftClient mc = MinecraftClient.getInstance();
+	public static final Identifier TEXTURE = new Identifier(Reference.ModInfo.MOD_ID, "textures/gui/speech_tablet.png");
 	
 	private static final int BUTTON_HEIGHT = 30, BUTTON_WIDTH = 80;
 	private static final int SPACING = 5;
@@ -50,7 +54,7 @@ public class AACScreen extends Screen
 		generateSetButtons();
 		generatePhraseButtonGrid();
 		
-		addDrawableChild(ButtonWidget.builder(Text.empty(), button -> setMode(messageMode == Mode.SINGLE ? Mode.COMPOUND : Mode.SINGLE)).dimensions(left, 220, 20, 20).build());
+		addDrawableChild(new ModeButtonWidget(left, 220, button -> setMode(messageMode == Mode.SINGLE ? Mode.COMPOUND : Mode.SINGLE), this));
 		addDrawableChild(sendButton = ButtonWidget.builder(Reference.ModInfo.translate("gui", "send_aac_message"), button -> send(messageToSend)).dimensions(right - 35, 220, 35, 20).build());
 		
 		setMode(Mode.SINGLE);
@@ -97,7 +101,8 @@ public class AACScreen extends Screen
 	private void updateButtons()
 	{
 		// Send button used by compound messages
-		sendButton.active = sendButton.visible = messageMode == Mode.COMPOUND;
+		sendButton.visible = messageMode == Mode.COMPOUND;
+		sendButton.active = messageToSend != null;
 		
 		// Set buttons
 		for(int i=0; i<setButtons.length; i++)
@@ -107,14 +112,16 @@ public class AACScreen extends Screen
 		PhraseSet set = PHRASE_SETS[currentSet];
 		for(int i=0; i<phraseButtons.length; i++)
 		{
+			AACButton phrase = phraseButtons[i];
+			phrase.active = i < set.size();
 			if(i >= set.size())
 			{
-				phraseButtons[i].clear();
+				phrase.clear();
 				continue;
 			}
 			
 			Pair<Text, Supplier<MutableText>> entry = set.get(i);
-			phraseButtons[i].setPhrase(entry.getLeft(), entry.getRight());
+			phrase.setPhrase(entry.getLeft(), entry.getRight());
 		}
 		
 		setFocused(null);
@@ -145,6 +152,7 @@ public class AACScreen extends Screen
 					messageToSend.append(" ").append(text);
 				break;
 		}
+		sendButton.active = messageToSend != null;
 	}
 	
 	public void send(@Nullable MutableText message)
@@ -157,13 +165,24 @@ public class AACScreen extends Screen
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
 		super.render(context, mouseX, mouseY, delta);
+		renderForeground(context, mouseX, mouseY, delta);
+	}
+	
+	public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta)
+	{
+		super.renderBackground(context, mouseX, mouseY, delta);
+		int i = (this.width - 430) / 2;
+		context.drawTexture(TEXTURE, i, 10, 0, 0, 0, 430, 235, 512, 512);
+	}
+	
+	private void renderForeground(DrawContext context, int mouseX, int mouseY, float delta)
+	{
 		context.drawText(this.textRenderer, this.title, (this.width - this.textRenderer.getWidth(this.title)) / 2, 15, 0x404040, false);
 		
 		if(messageToSend != null)
 		{
-			ButtonWidget button = phraseButtons[phraseButtons.length - 1];
 			final MutableText message = Text.translatable("aac.wheelchairs.message", mc.player.getDisplayName(), messageToSend);
-			context.drawText(this.textRenderer, message, (this.width - this.textRenderer.getWidth(message)) / 2, button.getBottom() + 9, 0x404040, false);
+			context.drawText(this.textRenderer, message, (this.width - this.textRenderer.getWidth(message)) / 2, 226, 0xFFFFFF, false);
 		}
 	}
 	
@@ -219,10 +238,36 @@ public class AACScreen extends Screen
 		public Pair<Text,Supplier<MutableText>> get(int index) { return phrases.get(index); }
 	}
 	
+	private class ModeButtonWidget extends ButtonWidget
+	{
+		private final AACScreen parentScreen;
+		
+		public ModeButtonWidget(int x, int y, PressAction onPress, AACScreen parent)
+		{
+			super(x, y, 20, 20, ScreenTexts.EMPTY, onPress, DEFAULT_NARRATION_SUPPLIER);
+			this.parentScreen = parent;
+			setTooltip(Tooltip.of(parentScreen.messageMode.translate()));
+		}
+		
+		public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta)
+		{
+			context.drawTexture(TEXTURE, getX(), getY(), 0, 0, 235 + (isHovered() ? 20 : 0), 20, 20, 512, 512);
+			context.drawTexture(TEXTURE, getX(), getY(), 0, 20, 235 + (parentScreen.messageMode.ordinal() * 20), 20, 20, 512, 512);
+		}
+		
+		public void onPress()
+		{
+			super.onPress();
+			setTooltip(Tooltip.of(parentScreen.messageMode.translate()));
+		}
+	}
+	
 	private static enum Mode
 	{
 		SINGLE,
 		COMPOUND;
+		
+		public Text translate() { return Reference.ModInfo.translate("aac_mode", name().toLowerCase()); }
 	}
 	
 	private static MutableText translate(String name)

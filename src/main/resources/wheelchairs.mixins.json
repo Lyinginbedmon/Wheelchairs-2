@@ -3,11 +3,13 @@
 	"package": "com.lying.wheelchairs.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
+		"AccessorEntity",
 		"AccessorFoxEntity",
 		"ServerPlayerInteractionManagerMixin",
 		"EnchantmentMixin",
 		"EnchantmentHelperMixin",
 		"EntityMixin",
+		"MobEntityMixin",
 		"FoxEntityMixin",
 		"ItemEntityMixin",
 		"PlayerEntityMixin",

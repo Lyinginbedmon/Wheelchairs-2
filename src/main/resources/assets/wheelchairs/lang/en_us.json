@@ -87,7 +87,7 @@
 	"item.wheelchairs.cherry_handle": "Cherry",
 	"item.wheelchairs.bamboo_handle": "Bamboo",
 	"item.wheelchairs.service_vest": "Service Vest",
-	"item.wheelchairs.aac_tablet": "Speech Tablet",
+	"item.wheelchairs.speech_tablet": "Speech Tablet",
 	// Enchantments
 	"enchantment.wheelchairs.hollowed": "Hollowed",
 	"enchantment.wheelchairs.slim": "Slim",
@@ -114,6 +114,8 @@
 	"gui.wheelchairs.send_aac_message": "Send",
 	// Speech Tablet translations
 	"aac.wheelchairs.message": "%s: %s",
+	"aac_mode.wheelchairs.single": "Single phrase",
+	"aac_mode.wheelchairs.compound": "Compound message",
 	
 	"aac.wheelchairs.set_basic": "Basic",
 	"aac.wheelchairs.hello": "Hello!",

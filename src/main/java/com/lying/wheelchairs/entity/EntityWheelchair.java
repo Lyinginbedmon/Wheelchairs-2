@@ -15,6 +15,7 @@ import com.lying.wheelchairs.init.WHCBlocks;
 import com.lying.wheelchairs.init.WHCItems;
 import com.lying.wheelchairs.init.WHCUpgrades;
 import com.lying.wheelchairs.item.ItemWheelchair;
+import com.lying.wheelchairs.mixin.AccessorEntity;
 import com.lying.wheelchairs.reference.Reference;
 import com.lying.wheelchairs.utility.ServerEvents;
 import com.lying.wheelchairs.utility.WHCUtils;
@@ -622,7 +623,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		
 		// Adjust movement input to prevent dangerous collision for any passenger
 		for(Entity rider : getPassengerList())
-			movementInput = rider.adjustMovementForCollisions(movementInput);
+			movementInput = ((AccessorEntity)rider).adjustToPreventCollision(movementInput);
 		
 		super.move(type, movementInput);
 		this.tickExhaustion(getX() - x, getZ() - z);

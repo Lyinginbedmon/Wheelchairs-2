@@ -85,6 +85,23 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 			.input('w', WHCItemTags.WHEEL)
 			.criterion(FabricRecipeProvider.hasItem(WHCItems.WHEEL_OAK), FabricRecipeProvider.conditionsFromTag(WHCItemTags.WHEEL))
 			.criterion(FabricRecipeProvider.hasItem(Items.IRON_BARS), FabricRecipeProvider.conditionsFromItem(Items.IRON_BARS)).offerTo(exporter);
+		
+		ShapedRecipeJsonBuilder.create(RecipeCategory.MISC, WHCItems.VEST)
+			.pattern(" l ").pattern("lil").pattern(" s ")
+			.input('l', Items.LEATHER)
+			.input('s', Items.STRING)
+			.input('i', Items.GOLD_INGOT)
+			.criterion(FabricRecipeProvider.hasItem(Items.LEATHER), FabricRecipeProvider.conditionsFromItem(Items.LEATHER))
+			.criterion(FabricRecipeProvider.hasItem(Items.STRING), FabricRecipeProvider.conditionsFromItem(Items.STRING)).offerTo(exporter);
+		
+		ShapedRecipeJsonBuilder.create(RecipeCategory.MISC, WHCItems.TABLET)
+			.pattern("bb").pattern("ns")
+			.input('n', Blocks.NOTE_BLOCK)
+			.input('b', Blocks.STONE_BUTTON)
+			.input('s', Blocks.SMOOTH_STONE_SLAB)
+			.criterion(FabricRecipeProvider.hasItem(Blocks.NOTE_BLOCK), FabricRecipeProvider.conditionsFromItem(Blocks.NOTE_BLOCK))
+			.criterion(FabricRecipeProvider.hasItem(Blocks.STONE_BUTTON), FabricRecipeProvider.conditionsFromItem(Blocks.STONE_BUTTON))
+			.criterion(FabricRecipeProvider.hasItem(Blocks.SMOOTH_STONE_SLAB), FabricRecipeProvider.conditionsFromItem(Blocks.SMOOTH_STONE_SLAB)).offerTo(exporter);
 	}
 	
 	private static void offerWoodWheelRecipe(RecipeExporter exporter, Item wheel, Wood wood)

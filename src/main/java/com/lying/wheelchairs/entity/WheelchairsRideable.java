@@ -3,6 +3,8 @@ package com.lying.wheelchairs.entity;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import com.lying.wheelchairs.mixin.AccessorEntity;
+
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
@@ -289,7 +291,7 @@ public abstract class WheelchairsRideable extends LivingEntity
 		
 		// Adjust movement input to prevent dangerous collision for any passenger
 		for(Entity rider : getPassengerList())
-			movementInput = rider.adjustMovementForCollisions(movementInput);
+			movementInput = ((AccessorEntity)rider).adjustToPreventCollision(movementInput);
 		
 		super.move(type, movementInput);
 		this.tickExhaustion(getX() - x, getZ() - z);

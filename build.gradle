@@ -37,8 +37,6 @@ loom {
 		}
 	}
 	
-	accessWidenerPath = file("src/main/resources/wheelchairs.accesswidener")
-	
 	runs {
 		client {
 			vmArgs("-Dmixin.debug.export=true")

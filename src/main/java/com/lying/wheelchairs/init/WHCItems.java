@@ -117,13 +117,8 @@ public class WHCItems
 	public static final Item CONTROLLER = register("controller", new OnAStickItem<EntityWheelchair>(new FabricItemSettings().maxCount(1), WHCEntityTypes.WHEELCHAIR, 0));
 	public static final Item STOOL = register("wheeled_stool", new ItemStool(new FabricItemSettings().maxCount(1)));
 	
-	/**
-	 * TODO Items for later versions
-	 * AAC speech device? Would require a Lot of sound, UI, and texture work
-	 */
-	
 	public static final Item VEST	= register("service_vest", new ItemVest(new FabricItemSettings().maxCount(1)));
-	public static final Item TABLET	= register("aac_tablet", new ItemAACTablet(new FabricItemSettings().maxCount(1).rarity(Rarity.RARE)));
+	public static final Item TABLET	= register("speech_tablet", new ItemAACTablet(new FabricItemSettings().maxCount(1).rarity(Rarity.RARE)));
 	
 	public static final ItemGroup WHEELCHAIR_GROUP = FabricItemGroup.builder().icon(() -> new ItemStack(WHEELCHAIR_OAK)).displayName(Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group")).entries((ctx,entries) -> 
 		{
