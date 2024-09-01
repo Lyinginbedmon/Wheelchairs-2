@@ -24,7 +24,7 @@ import net.minecraft.util.Hand;
 public class ItemVest extends Item implements DyeableItem
 {
 	private static final Function<Entity, UUID> tamedOwner = entity -> ((TameableEntity)entity).getOwnerUuid();
-	public static final Map<EntityType<?>, Function<Entity,UUID>> APPLICABLE_MOBS = Map.of(
+	public static final Map<EntityType<? extends LivingEntity>, Function<Entity,UUID>> APPLICABLE_MOBS = Map.of(
 			EntityType.WOLF, tamedOwner,
 			EntityType.CAT, tamedOwner,
 			EntityType.PARROT, tamedOwner,

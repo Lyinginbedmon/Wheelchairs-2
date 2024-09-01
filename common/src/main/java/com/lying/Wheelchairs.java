@@ -26,7 +26,6 @@ import com.lying.utility.ServerBus;
 import com.lying.utility.XPlatHandler;
 
 import dev.architectury.networking.NetworkManager;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
@@ -38,14 +37,7 @@ public class Wheelchairs
 	
 	public static BiConsumer<PlayerEntity, ItemStack> openAACScreen = (player, stack) -> {};
 	
-	public static XPlatHandler HANDLER = new XPlatHandler() 
-	{
-		public boolean hasVest(LivingEntity entity) { return false; }
-		
-		public ItemStack getVest(LivingEntity entity) { return ItemStack.EMPTY; }
-		
-		public void setVest(LivingEntity entity, ItemStack stack) { }
-	};
+	public static XPlatHandler HANDLER = new XPlatHandler() { };
 	
 	public static void commonInit()
 	{

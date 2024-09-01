@@ -9,6 +9,7 @@ import com.lying.init.WHCEntityTypes;
 
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 
 public final class WheelchairsFabricClient implements ClientModInitializer
 {
@@ -20,5 +21,9 @@ public final class WheelchairsFabricClient implements ClientModInitializer
 		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
 		EntityRendererRegistry.register(WHCEntityTypes.WALKER, EntityWalkerRenderer::new);
 		EntityRendererRegistry.register(WHCEntityTypes.STOOL, EntityStoolRenderer::new);
+		
+		LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
+				(entityType, entityRenderer, registrationHelper, context) -> 
+					WheelchairsClient.appendVestFeature(entityType, entityRenderer, context, feature -> registrationHelper.register(feature)));
 	}
 }

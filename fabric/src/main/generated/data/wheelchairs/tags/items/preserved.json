@@ -4,6 +4,7 @@
     "#wheelchairs:wheelchair",
     "#wheelchairs:crutch",
     "#wheelchairs:cane",
-    "#wheelchairs:walker"
+    "#wheelchairs:walker",
+    "wheelchairs:speech_tablet"
   ]
 }

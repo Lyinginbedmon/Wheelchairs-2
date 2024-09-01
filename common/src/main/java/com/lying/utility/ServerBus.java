@@ -21,6 +21,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -182,6 +183,9 @@ public class ServerBus
 		
 		EntityEvent.LIVING_DEATH.register((LivingEntity entity, DamageSource damageSource) -> 
 		{
+			DamageSources types = entity.getWorld().getDamageSources();
+			if(damageSource == types.genericKill()) return EventResult.pass();
+			
 			if(ItemVest.isValidMobForVest(entity) && !ItemVest.getVest(entity).isEmpty())
 			{
 				UUID ownerID = ItemVest.getVestedMobOwner(entity);

@@ -1,11 +1,17 @@
 package com.lying.client;
 
+import java.util.function.Consumer;
+
 import com.lying.Wheelchairs;
 import com.lying.client.config.ClientConfig;
 import com.lying.client.init.WHCItemsClient;
 import com.lying.client.init.WHCKeybinds;
 import com.lying.client.network.AACMessageReceiverLocal;
 import com.lying.client.network.OpenInventoryScreenPacket;
+import com.lying.client.renderer.entity.feature.CatVestLayer;
+import com.lying.client.renderer.entity.feature.FoxVestLayer;
+import com.lying.client.renderer.entity.feature.ParrotVestLayer;
+import com.lying.client.renderer.entity.feature.WolfVestLayer;
 import com.lying.client.screen.AACScreen;
 import com.lying.client.screen.ChairInventoryScreen;
 import com.lying.client.screen.WalkerInventoryScreen;
@@ -24,6 +30,21 @@ import dev.architectury.registry.menu.MenuRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.feature.FeatureRenderer;
+import net.minecraft.client.render.entity.feature.FeatureRendererContext;
+import net.minecraft.client.render.entity.model.CatEntityModel;
+import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.model.FoxEntityModel;
+import net.minecraft.client.render.entity.model.ParrotEntityModel;
+import net.minecraft.client.render.entity.model.WolfEntityModel;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.CatEntity;
+import net.minecraft.entity.passive.FoxEntity;
+import net.minecraft.entity.passive.ParrotEntity;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.text.Text;
 
 public final class WheelchairsClient
@@ -98,5 +119,21 @@ public final class WheelchairsClient
 					WheelchairsClient.wasSeatbeltPressed = false;
 			}
 		});
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static  <T extends LivingEntity, C extends EntityModel<T>> void appendVestFeature(
+			EntityType<? extends LivingEntity> entityType, 
+			LivingEntityRenderer<T, C> entityRenderer, 
+			EntityRendererFactory.Context context, Consumer<FeatureRenderer<T, C>> consumer)
+	{
+		if(entityType == EntityType.WOLF)
+			consumer.accept((FeatureRenderer<T, C>) new WolfVestLayer((FeatureRendererContext<WolfEntity, WolfEntityModel<WolfEntity>>)entityRenderer));
+		else if(entityType == EntityType.CAT)
+			consumer.accept((FeatureRenderer<T, C>)new CatVestLayer((FeatureRendererContext<CatEntity, CatEntityModel<CatEntity>>)entityRenderer));
+		else if(entityType == EntityType.PARROT)
+			consumer.accept((FeatureRenderer<T, C>)new ParrotVestLayer((FeatureRendererContext<ParrotEntity, ParrotEntityModel>)entityRenderer));
+		else if(entityType == EntityType.FOX)
+			consumer.accept((FeatureRenderer<T, C>)new FoxVestLayer((FeatureRendererContext<FoxEntity, FoxEntityModel<FoxEntity>>)entityRenderer));
 	}
 }

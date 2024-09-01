@@ -8,6 +8,7 @@
 		"EnchantmentHelperMixin",
 		"EnchantmentMixin",
 		"EntityMixin",
+		"MobEntityMixin",
 		"FoxEntityMixin",
 		"ItemEntityMixin",
 		"PlayerInventoryMixin",

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "i": {
+      "item": "minecraft:gold_ingot"
+    },
+    "l": {
+      "item": "minecraft:leather"
+    },
+    "s": {
+      "item": "minecraft:string"
+    }
+  },
+  "pattern": [
+    " l ",
+    "lil",
+    " s "
+  ],
+  "result": {
+    "item": "wheelchairs:service_vest"
+  },
+  "show_notification": true
+}

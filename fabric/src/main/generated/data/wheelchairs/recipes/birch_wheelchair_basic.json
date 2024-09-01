@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheelchairs",
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "b": {
+      "item": "minecraft:birch_log"
+    },
+    "w": {
+      "tag": "wheelchairs:wheel"
+    }
+  },
+  "pattern": [
+    " b ",
+    "wWw"
+  ],
+  "result": {
+    "item": "wheelchairs:birch_wheelchair"
+  },
+  "show_notification": true
+}

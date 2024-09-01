@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheelchairs",
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "b": {
+      "item": "minecraft:mangrove_log"
+    },
+    "w": {
+      "tag": "wheelchairs:wheel"
+    }
+  },
+  "pattern": [
+    " b ",
+    "wWw"
+  ],
+  "result": {
+    "item": "wheelchairs:mangrove_wheelchair"
+  },
+  "show_notification": true
+}
