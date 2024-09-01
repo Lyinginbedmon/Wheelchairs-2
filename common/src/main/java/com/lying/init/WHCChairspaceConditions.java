@@ -13,6 +13,7 @@ import com.lying.utility.ServerEvents;
 
 import dev.architectury.event.Event;
 import dev.architectury.event.events.common.PlayerEvent;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Identifier;
 
 /**
@@ -40,6 +41,8 @@ public class WHCChairspaceConditions
 	
 	/** Respawn when the user stops fall-flying */
 	public static final Supplier<ChairspaceCondition> ON_STOP_FLYING = register(ChairspaceCondition.Builder.of("on_stop_flying", ServerEvents.ON_STOP_FLYING));
+	
+	public static final Supplier<ChairspaceCondition> ON_WAKE_UP = register(ChairspaceCondition.Builder.of("on_wake_up", ServerEvents.ON_WAKE_UP).postEffect(ent -> ((LivingEntity)ent).setHealth(1F)));
 	
 	private static Supplier<ChairspaceCondition> register(ChairspaceCondition.Builder builder)
 	{

@@ -44,7 +44,7 @@ public class RecipeHandle implements Recipe<Inventory>
 		this.material = staff;
 	}
 	
-	public Identifier getId() { return ID; }
+	public Identifier getId() { return Registries.ITEM.getId(result.getItem()); }
 	
 	public RecipeType<RecipeHandle> getType() { return WHCSpecialRecipes.HANDLE_TYPE.get(); }
 	

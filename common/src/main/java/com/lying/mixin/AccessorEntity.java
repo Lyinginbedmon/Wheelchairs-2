@@ -7,8 +7,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
 
 @Mixin(Entity.class)
-public interface IEntityInvoker
+public interface AccessorEntity
 {
 	@Invoker("adjustMovementForCollisions")
-	public Vec3d adjustForCollisions(Vec3d movement);
+	public Vec3d adjustToPreventCollision(Vec3d movement);
 }

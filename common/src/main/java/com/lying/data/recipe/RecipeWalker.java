@@ -63,7 +63,7 @@ public class RecipeWalker implements CraftingRecipe
 		recipeGrid.put(new Vector2i(2,2), wheelR);
 	}
 	
-	public Identifier getId() { return ID; }
+	public Identifier getId() { return Registries.ITEM.getId(result.getItem()); }
 	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	

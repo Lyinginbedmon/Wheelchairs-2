@@ -12,6 +12,7 @@ import com.lying.utility.ServerBus;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.world.World;
 
 /**
@@ -36,6 +37,9 @@ public abstract class EntityMixin
 	
 	@Shadow
 	public EntityType<?> getType() { return null; }
+	
+	@Shadow
+	public DataTracker getDataTracker() { return null; }
 	
 	private boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
 	

@@ -1,5 +1,7 @@
 package com.lying.utility;
 
+import java.util.UUID;
+
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.Wheelchairs;
@@ -9,6 +11,7 @@ import com.lying.entity.EntityWheelchair;
 import com.lying.entity.IParentedEntity;
 import com.lying.init.WHCChairspaceConditions;
 import com.lying.init.WHCEntityTypes;
+import com.lying.item.ItemVest;
 import com.lying.utility.Chairspace.Flag;
 
 import dev.architectury.event.EventResult;
@@ -175,6 +178,28 @@ public class ServerBus
 		{
 			if(!living.getWorld().isClient())
 				Chairspace.getChairspace(living.getServer()).reactToEvent(ServerEvents.ON_STOP_FLYING, living);
+		});
+		
+		EntityEvent.LIVING_DEATH.register((LivingEntity entity, DamageSource damageSource) -> 
+		{
+			if(ItemVest.isValidMobForVest(entity) && !ItemVest.getVest(entity).isEmpty())
+			{
+				UUID ownerID = ItemVest.getVestedMobOwner(entity);
+				if(ownerID == null)
+					return EventResult.pass();
+				
+				entity.setHealth(1F);
+				Chairspace chairs = Chairspace.getChairspace(entity.getServer());
+				chairs.storeEntityInChairspace(entity, ownerID, WHCChairspaceConditions.ON_WAKE_UP.get());
+				return EventResult.interruptFalse();
+			}
+			return EventResult.pass();
+		});
+		
+		ServerEvents.ON_WAKE_UP.register(player -> 
+		{
+			if(!player.getWorld().isClient())
+				Chairspace.getChairspace(player.getServer()).reactToEvent(ServerEvents.ON_WAKE_UP, player);
 		});
 	}
 	

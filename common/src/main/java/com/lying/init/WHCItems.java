@@ -3,10 +3,12 @@ package com.lying.init;
 import java.util.function.Supplier;
 
 import com.lying.entity.EntityWheelchair;
+import com.lying.item.ItemAACTablet;
 import com.lying.item.ItemCane;
 import com.lying.item.ItemCaneHandle;
 import com.lying.item.ItemCrutch;
 import com.lying.item.ItemStool;
+import com.lying.item.ItemVest;
 import com.lying.item.ItemWalker;
 import com.lying.item.ItemWheelchair;
 import com.lying.reference.Reference;
@@ -21,6 +23,7 @@ import net.minecraft.item.OnAStickItem;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Rarity;
 
 public class WHCItems
 {
@@ -59,14 +62,6 @@ public class WHCItems
 	public static final RegistrySupplier<Item> WHEEL_IRON = wheel("iron");
 	public static final RegistrySupplier<Item> WHEEL_GOLD = wheel("gold");
 	public static final RegistrySupplier<Item> WHEEL_NETHERITE = register("netherite_wheel", () -> new Item(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(2).fireproof()));
-	
-	/**
-	 * TODO Items for later versions
-	 * AAC speech device? Would require a Lot of sound, UI, and texture work
-	 * 
-	 * Service animal vests! (req. Cardinal Components)
-	 * 	NOTE Should store animal in Chairspace if it would die
-	 */
 	
 	public static final RegistrySupplier<Item> CRUTCH_OAK = crutch("oak");
 	public static final RegistrySupplier<Item> CRUTCH_SPRUCE = crutch("spruce");
@@ -124,6 +119,9 @@ public class WHCItems
 	
 	public static final RegistrySupplier<Item> CONTROLLER = register("controller", () -> new OnAStickItem<EntityWheelchair>(new Item.Settings().arch$tab(WHEELCHAIR_TAB), WHCEntityTypes.WHEELCHAIR.get(), 0));
 	public static final RegistrySupplier<Item> STOOL	= registerWithFake("wheeled_stool", () -> new ItemStool(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+	
+	public static final RegistrySupplier<Item> VEST	= register("service_vest", () -> new ItemVest(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+	public static final RegistrySupplier<Item> TABLET	= register("speech_tablet", () -> new ItemAACTablet(new Item.Settings().maxCount(1).arch$tab(WHEELCHAIR_TAB).rarity(Rarity.RARE)));
 	
 	private static RegistrySupplier<Item> register(String nameIn, Supplier<Item> itemIn)
 	{

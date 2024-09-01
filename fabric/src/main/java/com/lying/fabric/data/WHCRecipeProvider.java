@@ -135,7 +135,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 			.group(GROUP_CRUTCHES)
 			.criterion(FabricRecipeProvider.hasItem(Items.STICK), FabricRecipeProvider.conditionsFromItem(Items.STICK))
 			.criterion(FabricRecipeProvider.hasItem(Items.WHITE_WOOL), FabricRecipeProvider.conditionsFromItem(Items.WHITE_WOOL))
-			.criterion(FabricRecipeProvider.hasItem(wood.planks), FabricRecipeProvider.conditionsFromItem(wood.planks)).offerTo(exporter);
+			.criterion(FabricRecipeProvider.hasItem(wood.planks), FabricRecipeProvider.conditionsFromItem(wood.planks)).offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, wood.name().toLowerCase()+"_crutch"));
 	}
 	
 	private static void offerWalkerRecipe(Consumer<RecipeJsonProvider> exporter, Item chair, Wood wood)

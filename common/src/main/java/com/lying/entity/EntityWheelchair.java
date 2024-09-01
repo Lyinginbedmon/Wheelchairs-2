@@ -15,6 +15,7 @@ import com.lying.init.WHCBlocks;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCUpgrades;
 import com.lying.item.ItemWheelchair;
+import com.lying.mixin.AccessorEntity;
 import com.lying.reference.Reference;
 import com.lying.utility.ServerEvents;
 import com.lying.utility.WHCUtils;
@@ -621,7 +622,15 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	public void move(MovementType type, Vec3d movementInput)
 	{
+		double x = getX();
+		double z = getZ();
+		
+		// Adjust movement input to prevent dangerous collision for any passenger
+		for(Entity rider : getPassengerList())
+			movementInput = ((AccessorEntity)rider).adjustToPreventCollision(movementInput);
+		
 		super.move(type, movementInput);
+		this.tickExhaustion(getX() - x, getZ() - z);
 		
 		if(getWorld().isClient() && !isFallFlying())
 		{

@@ -85,4 +85,12 @@ public class ServerEvents
 	{
 		void onStopFlying(LivingEntity living);
 	}
+	
+	public static final Event<WakeUpEvent> ON_WAKE_UP = EventFactory.createLoop(WakeUpEvent.class);
+	
+	@FunctionalInterface
+	public interface WakeUpEvent
+	{
+		void onWakeUp(LivingEntity living);
+	}
 }

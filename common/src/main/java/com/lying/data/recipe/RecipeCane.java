@@ -52,7 +52,7 @@ public class RecipeCane implements CraftingRecipe
 		this.handleMatcher = RecipeManager.createCachedMatchGetter(WHCSpecialRecipes.HANDLE_TYPE.get());
 	}
 	
-	public Identifier getId() { return ID; }
+	public Identifier getId() { return Registries.ITEM.getId(result.getItem()); }
 	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	
