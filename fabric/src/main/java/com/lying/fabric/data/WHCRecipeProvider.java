@@ -138,13 +138,13 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));
 		
 		// Secondary basic recipe
-		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, chair).group(GROUP_CHAIRS)
-			.pattern(" b ")
-			.pattern("wWw")
-			.input('b', backing)
-			.input('w', WHCItemTags.WHEEL)
-			.input('W', ItemTags.WOOL)
-			.criterion("has_backing", RecipeProvider.conditionsFromItem(backing.getMatchingStacks()[0].getItem())).offerTo(exporter, name+"_basic");
+//		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, chair).group(GROUP_CHAIRS)
+//			.pattern(" b ")
+//			.pattern("wWw")
+//			.input('b', backing)
+//			.input('w', WHCItemTags.WHEEL)
+//			.input('W', ItemTags.WOOL)
+//			.criterion("has_backing", RecipeProvider.conditionsFromItem(backing.getMatchingStacks()[0].getItem())).offerTo(exporter, name+"_basic");
 	}
 	
 	private static void offerCaneRecipe(Consumer<RecipeJsonProvider> exporter, Item cane, Wood wood)
@@ -159,14 +159,14 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));
 		
 		// Secondary basic recipe
-		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, cane).group(GROUP_CANES)
-			.pattern(" h ")
-			.pattern(" b ")
-			.pattern(" s ")
-			.input('h', wood.button)
-			.input('b', backing)
-			.input('s', Items.STICK)
-			.criterion("has_backing", RecipeProvider.conditionsFromItem(backing.getMatchingStacks()[0].getItem())).offerTo(exporter, name+"_basic");
+//		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, cane).group(GROUP_CANES)
+//			.pattern(" h ")
+//			.pattern(" b ")
+//			.pattern(" s ")
+//			.input('h', wood.button)
+//			.input('b', backing)
+//			.input('s', Items.STICK)
+//			.criterion("has_backing", RecipeProvider.conditionsFromItem(backing.getMatchingStacks()[0].getItem())).offerTo(exporter, name+"_basic");
 	}
 	
 	private static void offerCrutchRecipe(Consumer<RecipeJsonProvider> exporter, Item crutch, Wood wood)
@@ -195,16 +195,16 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		builder.offerTo(exporter, new Identifier(Reference.ModInfo.MOD_ID, name));
 		
 		// Secondary basic recipe
-		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, walker)
-			.pattern("s s")
-			.pattern("lpl")
-			.pattern("w w")
-			.input('s', Items.STICK)
-			.input('l', strut)
-			.input('p', platform)
-			.input('w', WHCItemTags.WHEEL)
-			.criterion("has_strut", RecipeProvider.conditionsFromItem(strut.getMatchingStacks()[0].getItem()))
-			.criterion("has_platform", RecipeProvider.conditionsFromItem(platform.getMatchingStacks()[0].getItem())).offerTo(exporter, name+"_basic");
+//		ShapedRecipeJsonBuilder.create(RecipeCategory.TRANSPORTATION, walker)
+//			.pattern("s s")
+//			.pattern("lpl")
+//			.pattern("w w")
+//			.input('s', Items.STICK)
+//			.input('l', strut)
+//			.input('p', platform)
+//			.input('w', WHCItemTags.WHEEL)
+//			.criterion("has_strut", RecipeProvider.conditionsFromItem(strut.getMatchingStacks()[0].getItem()))
+//			.criterion("has_platform", RecipeProvider.conditionsFromItem(platform.getMatchingStacks()[0].getItem())).offerTo(exporter, name+"_basic");
 	}
 	
 	private static void offerHandleRecipe(Consumer<RecipeJsonProvider> exporter, Item handle, Wood wood)

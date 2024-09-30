@@ -1,5 +1,6 @@
 package com.lying.client.init;
 
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import com.lying.client.renderer.entity.model.CatVestModel;
@@ -9,7 +10,6 @@ import com.lying.client.renderer.entity.model.WheelchairElytraModel;
 import com.lying.client.renderer.entity.model.WolfVestModel;
 import com.lying.reference.Reference;
 
-import dev.architectury.registry.client.level.entity.EntityModelLayerRegistry;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
@@ -28,17 +28,12 @@ public class WHCModelParts
 		return new EntityModelLayer(new Identifier(Reference.ModInfo.MOD_ID, main), part);
 	}
 	
-	public static void init()
+	public static void init(BiConsumer<EntityModelLayer, Supplier<TexturedModelData>> consumer)
 	{
-		register(WHCModelParts.UPGRADE_ELYTRA, WheelchairElytraModel::createBodyLayer);
-		register(WHCModelParts.WOLF_VEST, WolfVestModel::getTexturedModelData);
-		register(WHCModelParts.CAT_VEST, () -> TexturedModelData.of(CatVestModel.getModelData(Dilation.NONE), 64, 32));
-		register(WHCModelParts.PARROT_VEST, ParrotVestModel::getTexturedModelData);
-		register(WHCModelParts.FOX_VEST, FoxVestModel::getTexturedModelData);
-	}
-	
-	private static void register(EntityModelLayer layer, Supplier<TexturedModelData> func)
-	{
-		EntityModelLayerRegistry.register(layer, func);
+		consumer.accept(WHCModelParts.UPGRADE_ELYTRA, WheelchairElytraModel::createBodyLayer);
+		consumer.accept(WHCModelParts.WOLF_VEST, WolfVestModel::getTexturedModelData);
+		consumer.accept(WHCModelParts.CAT_VEST, () -> TexturedModelData.of(CatVestModel.getModelData(Dilation.NONE), 64, 32));
+		consumer.accept(WHCModelParts.PARROT_VEST, ParrotVestModel::getTexturedModelData);
+		consumer.accept(WHCModelParts.FOX_VEST, FoxVestModel::getTexturedModelData);
 	}
 }

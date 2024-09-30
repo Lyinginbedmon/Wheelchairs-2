@@ -1,5 +1,6 @@
 package com.lying.init;
 
+import com.lying.Wheelchairs;
 import com.lying.reference.Reference;
 
 import dev.architectury.registry.registries.DeferredRegister;
@@ -29,5 +30,6 @@ public class WHCSoundEvents
 	public static void init()
 	{
 		SOUND_EVENTS.register();
+		Wheelchairs.LOGGER.info(" # Registered sound events");
 	}
 }

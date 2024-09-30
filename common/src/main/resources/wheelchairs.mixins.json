@@ -1,8 +1,9 @@
 {
 	"required": true,
 	"package": "com.lying.mixin",
+	"minVersion": "0.8",
 	"compatibilityLevel": "JAVA_17",
-	"mixins": [
+	"mixins": [ 
 		"AccessorEntity",
 		"AccessorFoxEntity",
 		"EnchantmentHelperMixin",
@@ -16,9 +17,9 @@
 		"ServerPlayerInteractionManagerMixin",
 		"ServerPlayNetworkHandlerMixin",
 		"WorldMixin",
-		"ServerWorldMixin"
+		"ServerWorldMixin" 
 	],
-	"client": [
+	"client": [ 
 		"EntityModelMixin",
 		"BipedEntityModelMixin",
 		"WorldMixin",
@@ -28,7 +29,7 @@
 		"InGameHudMixin",
 		"ItemRendererMixin",
 		"ModelLoaderMixin",
-		"PlayerEntityMixinClient"
+		"PlayerEntityMixinClient" 
 	],
 	"injectors": {
 		"defaultRequire": 1

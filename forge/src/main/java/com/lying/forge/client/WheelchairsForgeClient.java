@@ -2,12 +2,19 @@ package com.lying.forge.client;
 
 import com.lying.Wheelchairs;
 import com.lying.client.WheelchairsClient;
+import com.lying.client.init.WHCModelParts;
 import com.lying.client.renderer.entity.EntityStoolRenderer;
 import com.lying.client.renderer.entity.EntityWalkerRenderer;
 import com.lying.client.renderer.entity.EntityWheelchairRenderer;
 import com.lying.init.WHCEntityTypes;
+import com.lying.item.ItemVest;
 import com.lying.reference.Reference;
 
+import net.minecraft.client.render.entity.EntityRendererFactory.Context;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent.AddLayers;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -38,14 +45,20 @@ public class WheelchairsForgeClient
 		event.registerEntityRenderer(WHCEntityTypes.STOOL.get(), EntityStoolRenderer::new);
 	}
 	
+	@SubscribeEvent
+	public static void registerModelParts(EntityRenderersEvent.RegisterLayerDefinitions event)
+	{
+		WHCModelParts.init((layer, func) -> event.registerLayerDefinition(layer, func));
+	}
+	
 	public void appendVestsEvent(final AddLayers event)
 	{
 		// FIXME Resolve vest feature appending for Forge
-//		Context context = event.getContext();
-//		for(EntityType<? extends LivingEntity> type : ItemVest.APPLICABLE_MOBS.keySet())
-//		{
-//			LivingEntityRenderer<?, ? extends EntityModel<?>> renderer = event.getRenderer(type);
+		Context context = event.getContext();
+		for(EntityType<? extends LivingEntity> type : ItemVest.APPLICABLE_MOBS.keySet())
+		{
+			LivingEntityRenderer<?, ? extends EntityModel<?>> renderer = event.getRenderer(type);
 //			WheelchairsClient.appendVestFeature(type, renderer, context, (feature) -> renderer.addFeature(feature));
-//		}
+		}
 	}
 }

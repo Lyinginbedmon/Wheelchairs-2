@@ -2,6 +2,7 @@ package com.lying.init;
 
 import java.util.function.Supplier;
 
+import com.lying.Wheelchairs;
 import com.lying.data.recipe.RecipeCane;
 import com.lying.data.recipe.RecipeCaneSword;
 import com.lying.data.recipe.RecipeHandle;
@@ -45,5 +46,6 @@ public class WHCSpecialRecipes
 	{
 		SERIALIZERS.register();
 		TYPES.register();
+		Wheelchairs.LOGGER.info(" # Registered special recipes");
 	}
 }

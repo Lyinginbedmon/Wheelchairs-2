@@ -2,6 +2,7 @@ package com.lying.init;
 
 import java.util.function.Supplier;
 
+import com.lying.Wheelchairs;
 import com.lying.block.BlockFrostedLava;
 import com.lying.reference.Reference;
 
@@ -36,6 +37,7 @@ public class WHCBlocks
 	public static void init()
 	{
 		BLOCKS.register();
+		Wheelchairs.LOGGER.info(" # Registered blocks");
 	}
 	
 	private static Boolean never(BlockState state, BlockView world, BlockPos pos, EntityType<?> type) { return false; }

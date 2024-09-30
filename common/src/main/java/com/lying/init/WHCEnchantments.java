@@ -2,6 +2,7 @@ package com.lying.init;
 
 import java.util.Iterator;
 
+import com.lying.Wheelchairs;
 import com.lying.enchant.HollowedEnchant;
 import com.lying.enchant.SlimEnchantment;
 import com.lying.reference.Reference;
@@ -30,14 +31,14 @@ public class WHCEnchantments
 	public static final Registrar<Enchantment> REGISTRY = RegistrarManager.get(Reference.ModInfo.MOD_ID).<Enchantment>builder(registryId).build();
 	public static final RegistryKey<? extends Registry<Enchantment>> KEY = REGISTRY.key();
 	
-	public static final DeferredRegister<Enchantment> ENTITY_TYPES = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ENCHANTMENT);
+	public static final DeferredRegister<Enchantment> ENCHANTMENTS = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ENCHANTMENT);
 	
 	public static final RegistrySupplier<Enchantment> HOLLOWED = register("hollowed", new HollowedEnchant(Rarity.RARE, EnchantmentTarget.WEAPON, new EquipmentSlot[] {EquipmentSlot.MAINHAND}));
 	public static final RegistrySupplier<Enchantment> SLIM = register("slim", new SlimEnchantment(Rarity.RARE));
 	
 	public static RegistrySupplier<Enchantment> register(String name, Enchantment acc)
 	{
-		return ENTITY_TYPES.register(new Identifier(Reference.ModInfo.MOD_ID, name), () -> acc);
+		return ENCHANTMENTS.register(new Identifier(Reference.ModInfo.MOD_ID, name), () -> acc);
 	}
 	
 	public static void markWheelchairCompatible(Enchantment acc)
@@ -69,6 +70,7 @@ public class WHCEnchantments
 		markWheelchairCompatible(Enchantments.FIRE_PROTECTION);
 		markWheelchairCompatible(Enchantments.RESPIRATION);
 		
-		ENTITY_TYPES.register();
+		ENCHANTMENTS.register();
+		Wheelchairs.LOGGER.info(" # Registered enchantments");
 	}
 }

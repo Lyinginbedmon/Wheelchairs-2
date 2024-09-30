@@ -38,7 +38,7 @@ public final class WheelchairsForge
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		eventBus.addListener(this::registerEntityAttributes);
 		eventBus.addListener(this::registerVestCapability);
-		eventBus.addListener(VestCapability::onLivingTick);
+//		eventBus.addListener(VestCapability::onLivingTick);
 		
 		Wheelchairs.HANDLER = new XPlatHandler()
 		{
@@ -55,7 +55,7 @@ public final class WheelchairsForge
 			public void setVest(LivingEntity entity, ItemStack stack)
 			{
 				if(ItemVest.isValidMobForVest(entity))
-					entity.getCapability(VEST_DATA).resolve().get().setVest(stack);
+					entity.getCapability(VEST_DATA).resolve().ifPresent(vest -> vest.setVest(stack));
 			}
 		};
 	}

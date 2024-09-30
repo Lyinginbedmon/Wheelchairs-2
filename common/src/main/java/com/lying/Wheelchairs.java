@@ -48,6 +48,7 @@ public class Wheelchairs
 		LOGGER.info(" * Handsy walkers setting: "+config.handsyWalkers());
 		
 		ServerBus.registerEventCallbacks();
+		Wheelchairs.LOGGER.info("# Beginning Wheelchairs registration #");
 		WHCEntityTypes.init();
 		WHCItems.init();
 		WHCUpgrades.init();
@@ -57,6 +58,7 @@ public class Wheelchairs
 		WHCChairspaceConditions.init();
 		WHCScreenHandlerTypes.init();
 		WHCSoundEvents.init();
+		Wheelchairs.LOGGER.info("# Registration completed #");
 		
 		NetworkManager.registerReceiver(NetworkManager.Side.C2S, WHCPacketHandler.OPEN_INVENTORY_ID, new OpenInventoryScreenReceiver());
 		NetworkManager.registerReceiver(NetworkManager.Side.C2S, WHCPacketHandler.FLYING_START_ID, new StartFlyingReceiver());

@@ -1,6 +1,7 @@
 package com.lying.init;
 
 import com.google.common.base.Supplier;
+import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
 import com.lying.entity.EntityWalker;
 import com.lying.entity.EntityWheelchair;
@@ -35,5 +36,6 @@ public class WHCEntityTypes
 	public static void init()
 	{
 		ENTITY_TYPES.register();
+		Wheelchairs.LOGGER.info(" # Registered entity types");
 	}
 }

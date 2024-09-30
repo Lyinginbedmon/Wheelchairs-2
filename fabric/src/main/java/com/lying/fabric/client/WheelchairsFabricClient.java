@@ -7,6 +7,7 @@ import com.lying.client.renderer.entity.EntityWalkerRenderer;
 import com.lying.client.renderer.entity.EntityWheelchairRenderer;
 import com.lying.init.WHCEntityTypes;
 
+import dev.architectury.registry.client.level.entity.EntityModelLayerRegistry;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
@@ -16,7 +17,7 @@ public final class WheelchairsFabricClient implements ClientModInitializer
 	public void onInitializeClient()
 	{
 		WheelchairsClient.clientInit();
-		WHCModelParts.init();
+		WHCModelParts.init((layer, func) -> EntityModelLayerRegistry.register(layer, func));
 		
 		EntityRendererRegistry.register(WHCEntityTypes.WHEELCHAIR, EntityWheelchairRenderer::new);
 		EntityRendererRegistry.register(WHCEntityTypes.WALKER, EntityWalkerRenderer::new);

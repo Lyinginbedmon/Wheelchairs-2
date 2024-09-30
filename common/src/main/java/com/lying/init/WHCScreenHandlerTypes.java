@@ -1,5 +1,6 @@
 package com.lying.init;
 
+import com.lying.Wheelchairs;
 import com.lying.entity.EntityWheelchair;
 import com.lying.reference.Reference;
 import com.lying.screen.ChairInventoryScreenHandler;
@@ -31,5 +32,6 @@ public class WHCScreenHandlerTypes
 	public static void init()
 	{
 		SCREEN_HANDLERS.register();
+		Wheelchairs.LOGGER.info(" # Registered screen handler types");
 	}
 }

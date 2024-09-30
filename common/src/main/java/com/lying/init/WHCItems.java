@@ -2,10 +2,12 @@ package com.lying.init;
 
 import java.util.function.Supplier;
 
+import com.lying.Wheelchairs;
 import com.lying.entity.EntityWheelchair;
 import com.lying.item.ItemAACTablet;
 import com.lying.item.ItemCane;
 import com.lying.item.ItemCaneHandle;
+import com.lying.item.ItemController;
 import com.lying.item.ItemCrutch;
 import com.lying.item.ItemStool;
 import com.lying.item.ItemVest;
@@ -19,7 +21,6 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.OnAStickItem;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -117,7 +118,7 @@ public class WHCItems
 	public static final RegistrySupplier<Item> HANDLE_CHERRY = handle("cherry");
 	public static final RegistrySupplier<Item> HANDLE_BAMBOO = handle("bamboo");
 	
-	public static final RegistrySupplier<Item> CONTROLLER = register("controller", () -> new OnAStickItem<EntityWheelchair>(new Item.Settings().arch$tab(WHEELCHAIR_TAB), WHCEntityTypes.WHEELCHAIR.get(), 0));
+	public static final RegistrySupplier<Item> CONTROLLER = register("controller", () -> new ItemController<EntityWheelchair>(new Item.Settings().arch$tab(WHEELCHAIR_TAB), WHCEntityTypes.WHEELCHAIR, 0));
 	public static final RegistrySupplier<Item> STOOL	= registerWithFake("wheeled_stool", () -> new ItemStool(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	
 	public static final RegistrySupplier<Item> VEST	= register("service_vest", () -> new ItemVest(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
@@ -140,6 +141,7 @@ public class WHCItems
 		
 		ITEMS.register();
 		TABS.register();
+		Wheelchairs.LOGGER.info(" # Registered items");
 	}
 	
 	private static RegistrySupplier<Item> wheelchair(String name)
