@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 
 import com.lying.Wheelchairs;
 import com.lying.client.config.ClientConfig;
-import com.lying.client.init.WHCItemsClient;
 import com.lying.client.init.WHCKeybinds;
 import com.lying.client.network.AACMessageReceiverLocal;
 import com.lying.client.network.OpenInventoryScreenPacket;
@@ -68,7 +67,6 @@ public final class WheelchairsClient
 		AACLibrary.init();
 		
 		ClientBus.registerEventCallbacks();
-		WHCItemsClient.registerItemColors();
 		RenderTypeRegistry.register(RenderLayer.getCutout(), WHCBlocks.FROSTED_LAVA.get());
 		
 		WHCKeybinds.init();
