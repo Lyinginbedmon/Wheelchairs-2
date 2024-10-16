@@ -562,13 +562,6 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		return isOnGround() || this.fallDistance < this.getStepHeight() && !this.getWorld().isSpaceEmpty(this, this.getBoundingBox().offset(0, this.fallDistance - this.getStepHeight(), 0));
 	}
 	
-	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
-	{
-		super.updatePassengerPosition(passenger, positionUpdater);
-		if(passenger instanceof LivingEntity)
-			clampPassengerYaw(passenger);
-	}
-	
 	protected void clampPassengerYaw(Entity passenger)
 	{
 		passenger.setBodyYaw(this.getYaw());
@@ -715,7 +708,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
 	{
-		return new Vector3f(0F, dimensions.height * 0.85F * scaleFactor, 0F);
+		return new Vector3f(0F, dimensions.height * 0.75F * scaleFactor, 0F);
 	}
 	
 	public boolean hasStatusEffect(StatusEffect effect)

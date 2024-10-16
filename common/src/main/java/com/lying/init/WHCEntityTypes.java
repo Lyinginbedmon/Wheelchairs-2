@@ -20,7 +20,7 @@ public class WHCEntityTypes
 	public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ENTITY_TYPE);
 	
 	public static final RegistrySupplier<EntityType<EntityWheelchair>> WHEELCHAIR = register("wheelchair", () ->
-			EntityType.Builder.create(EntityWheelchair::new, SpawnGroup.MISC).setDimensions(0.9F, 0.9F).build("wheelchair"));
+			EntityType.Builder.create(EntityWheelchair::new, SpawnGroup.MISC).setDimensions(0.7F, 0.9F).build("wheelchair"));
     
 	public static final RegistrySupplier<EntityType<EntityWalker>> WALKER = register("walker", () ->
 			EntityType.Builder.create(EntityWalker::new, SpawnGroup.MISC).setDimensions(0.7F, 0.9F).build("walker"));

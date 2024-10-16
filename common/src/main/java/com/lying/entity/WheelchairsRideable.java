@@ -159,11 +159,6 @@ public abstract class WheelchairsRideable extends LivingEntity
 	
 	public int getPlayerPassengers() { return (int)getPassengerList().stream().filter(Entity::isPlayer).count(); }
 	
-	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
-	{
-		return new Vector3f(0f, dimensions.height, 0f);
-	}
-	
 	protected Entity recreateInDimension(ServerWorld destination)
 	{
 		NbtCompound chairData = new NbtCompound();
@@ -242,12 +237,23 @@ public abstract class WheelchairsRideable extends LivingEntity
 		return null;
 	}
 	
-	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
+	protected void updatePassengerPosition(Entity passenger, PositionUpdater positionUpdater)
 	{
-		super.updatePassengerPosition(passenger, positionUpdater);
+		if(!hasPassenger(passenger)) return;
+		
+		Vec3d vec3d = getPassengerRidingPos(passenger);
+		positionUpdater.accept(passenger, vec3d.x, vec3d.y, vec3d.z);
+		
 		if(passenger instanceof LivingEntity)
 			clampPassengerYaw(passenger);
 	}
+	
+	public Vec3d getPassengerRidingPos(Entity passenger)
+	{
+		return new Vec3d(getPassengerAttachmentPos(passenger, getDimensions(getPose()), 1F).rotateY(-getYaw() * ((float)Math.PI / 180))).add(this.getPos());
+	}
+	
+	protected abstract Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor);
 	
 	public void onPassengerLookAround(Entity passenger)
 	{
