@@ -31,6 +31,7 @@ public class WHCItems
 	public static final DeferredRegister<ItemGroup> TABS = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ITEM_GROUP);
 	
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ITEM);
+	private static int tally = 0;
 	
 	public static final RegistrySupplier<ItemGroup> WHEELCHAIR_TAB = TABS.register(Reference.ModInfo.MOD_ID, () -> CreativeTabRegistry.create(
 			Text.translatable("itemGroup."+Reference.ModInfo.MOD_ID+".item_group"), 
@@ -126,13 +127,14 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> register(String nameIn, Supplier<Item> itemIn)
 	{
+		++tally;
 		return ITEMS.register(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
 	}
 	
 	private static RegistrySupplier<Item> registerWithFake(String nameIn, Supplier<Item> itemIn)
 	{
 		WHCBlocks.registerFakeBlock(nameIn);
-		return ITEMS.register(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
+		return register(nameIn, itemIn);
 	}
 	
 	public static void init()
@@ -141,7 +143,7 @@ public class WHCItems
 		
 		ITEMS.register();
 		TABS.register();
-		Wheelchairs.LOGGER.info(" # Registered items");
+		Wheelchairs.LOGGER.info(" # Registered "+tally+" items");
 	}
 	
 	private static RegistrySupplier<Item> wheelchair(String name)

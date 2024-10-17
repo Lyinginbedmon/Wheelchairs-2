@@ -10,7 +10,7 @@ import com.lying.client.WheelchairsClient;
 import net.minecraft.entity.player.PlayerEntity;
 
 @Mixin(PlayerEntity.class)
-public class PlayerEntityMixinClient
+public class PlayerEntityMixinClient extends EntityMixin
 {
 	@Inject(method = "shouldDismount()Z", at = @At("TAIL"), cancellable = true)
 	public void whc$shouldDismount(final CallbackInfoReturnable<Boolean> ci)

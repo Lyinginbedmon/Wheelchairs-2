@@ -142,7 +142,7 @@ public abstract class WheelchairsRideable extends LivingEntity
 			
 			if(player != null)
 			{
-				Vector3f seatOffset = new Vector3f(0F, (float)getMountedHeightOffset(), 0F);
+				Vector3f seatOffset = new Vector3f(0F, (float)getMountedHeightOffset(player), 0F);
 				Vec3d offsetPos = entity.getPos().add(seatOffset.x, seatOffset.y, seatOffset.z);
 				player.teleport(destination, offsetPos.x, offsetPos.y, offsetPos.z, entity.getYaw(), entity.getPitch());
 				player.startRiding(entity);
@@ -155,6 +155,10 @@ public abstract class WheelchairsRideable extends LivingEntity
 		profiler.pop();
 		return entity;
 	}
+	
+	public abstract double getMountedHeightOffset(Entity passenger);
+	
+	public double getMountedHeightOffset() { return hasControllingPassenger() ? getMountedHeightOffset(getControllingPassenger()) : super.getMountedHeightOffset(); }
 	
 	public int getPlayerPassengers() { return (int)getPassengerList().stream().filter(Entity::isPlayer).count(); }
 	

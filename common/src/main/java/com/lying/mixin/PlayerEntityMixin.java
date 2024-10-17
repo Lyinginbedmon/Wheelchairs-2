@@ -20,7 +20,7 @@ public class PlayerEntityMixin extends EntityMixin
 	public void whc$getBlockBreakingSpeed(BlockState block, final CallbackInfoReturnable<Float> ci)
 	{
 		// Reverts a 1/5 mining speed debuff for not being on solid ground as long as your wheelchair is
-		if(hasVehicle() && getVehicle().getType() == WHCEntityTypes.WHEELCHAIR && getVehicle().isOnGround())
+		if(hasVehicle() && getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get() && getVehicle().isOnGround())
 			ci.setReturnValue(ci.getReturnValue() * 5F);
 	}
 	

@@ -1,13 +1,13 @@
 package com.lying.client.init;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.lwjgl.glfw.GLFW;
 
 import com.google.common.collect.Lists;
 import com.lying.reference.Reference;
 
-import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 
@@ -30,8 +30,8 @@ public class WHCKeybinds
 		return binding;
 	}
 	
-	public static void init()
+	public static void init(Consumer<KeyBinding> consumer)
 	{
-		KEYS.forEach(KeyMappingRegistry::register);
+		KEYS.forEach(consumer);
 	}
 }

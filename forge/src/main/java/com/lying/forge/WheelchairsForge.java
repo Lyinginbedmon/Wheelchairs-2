@@ -32,7 +32,7 @@ public final class WheelchairsForge
 	public WheelchairsForge()
 	{
 		EventBuses.registerModEventBus(Reference.ModInfo.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
-		Wheelchairs.LOGGER.info("Common init");
+		Wheelchairs.LOGGER.info("# Common init");
 		Wheelchairs.commonInit();
 		
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -62,7 +62,7 @@ public final class WheelchairsForge
 	
 	public void registerEntityAttributes(final EntityAttributeCreationEvent event)
 	{
-		Wheelchairs.LOGGER.info("Entity attribute creation");
+		Wheelchairs.LOGGER.info(" # Registered entity attributes");
 		event.put(WHCEntityTypes.WHEELCHAIR.get(), EntityWheelchair.createMountAttributes().build());
 		event.put(WHCEntityTypes.WALKER.get(), EntityWalker.createWalkerAttributes().build());
 		event.put(WHCEntityTypes.STOOL.get(), EntityStool.createMountAttributes().build());

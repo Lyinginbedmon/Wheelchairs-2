@@ -706,9 +706,9 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		return EnchantmentHelper.getLevel(ench, getDataTracker().get(CHAIR));
 	}
 	
-    public double getMountedHeightOffset()
+    public double getMountedHeightOffset(Entity passenger)
     {
-        return (double)getHeight() * 0.55;
+        return (double)getHeight() * (passenger.isInSneakingPose() ? 0.75 : 0.55);
     }
 	
 	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)

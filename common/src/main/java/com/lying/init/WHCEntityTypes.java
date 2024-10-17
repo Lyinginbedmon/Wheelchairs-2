@@ -18,6 +18,7 @@ import net.minecraft.util.Identifier;
 public class WHCEntityTypes
 {
 	public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ENTITY_TYPE);
+	private static int tally = 0;
 	
 	public static final RegistrySupplier<EntityType<EntityWheelchair>> WHEELCHAIR = register("wheelchair", () ->
 			EntityType.Builder.create(EntityWheelchair::new, SpawnGroup.MISC).setDimensions(0.7F, 0.9F).build("wheelchair"));
@@ -30,12 +31,13 @@ public class WHCEntityTypes
 	
 	private static <T extends Entity> RegistrySupplier<EntityType<T>> register(String name, Supplier<EntityType<T>> entry)
 	{
+		++tally;
 		return ENTITY_TYPES.register(new Identifier(Reference.ModInfo.MOD_ID, name), entry);
 	}
 	
 	public static void init()
 	{
 		ENTITY_TYPES.register();
-		Wheelchairs.LOGGER.info(" # Registered entity types");
+		Wheelchairs.LOGGER.info(" # Registered "+tally+" entity types");
 	}
 }

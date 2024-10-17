@@ -21,16 +21,16 @@
 		"ServerWorldMixin" 
 	],
 	"client": [ 
+		"InGameHudMixin",
+		"FireworkRocketItemMixinClient",
+		"PlayerEntityMixinClient" ,
 		"EntityModelMixin",
 		"BipedEntityModelMixin",
-		"WorldMixin",
-		"ClientWorldMixin",
-		"FireworkRocketItemMixinClient",
-		"HeldItemRendererMixin",
-		"InGameHudMixin",
 		"ItemRendererMixin",
-		"ModelLoaderMixin",
-		"PlayerEntityMixinClient" 
+		"HeldItemRendererMixin",
+		"ClientWorldMixin",
+		"WorldMixin",
+		"ModelLoaderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

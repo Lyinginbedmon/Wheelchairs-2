@@ -166,4 +166,9 @@ public class EntityStool extends WheelchairsRideable implements Mount
 		origin.add(current.sub(origin).mul(tickDelta));
 		return (float)Math.toDegrees(Math.atan2(origin.y, origin.x));
 	}
+	
+    public double getMountedHeightOffset(Entity passenger)
+    {
+        return (double)getHeight() * (passenger.isInSneakingPose() ? 0.75 : 0.55);
+    }
 }

@@ -32,12 +32,14 @@ public class WHCEnchantments
 	public static final RegistryKey<? extends Registry<Enchantment>> KEY = REGISTRY.key();
 	
 	public static final DeferredRegister<Enchantment> ENCHANTMENTS = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ENCHANTMENT);
+	private static int tally = 0;
 	
 	public static final RegistrySupplier<Enchantment> HOLLOWED = register("hollowed", new HollowedEnchant(Rarity.RARE, EnchantmentTarget.WEAPON, new EquipmentSlot[] {EquipmentSlot.MAINHAND}));
 	public static final RegistrySupplier<Enchantment> SLIM = register("slim", new SlimEnchantment(Rarity.RARE));
 	
 	public static RegistrySupplier<Enchantment> register(String name, Enchantment acc)
 	{
+		++tally;
 		return ENCHANTMENTS.register(new Identifier(Reference.ModInfo.MOD_ID, name), () -> acc);
 	}
 	
@@ -71,6 +73,6 @@ public class WHCEnchantments
 		markWheelchairCompatible(Enchantments.RESPIRATION);
 		
 		ENCHANTMENTS.register();
-		Wheelchairs.LOGGER.info(" # Registered enchantments");
+		Wheelchairs.LOGGER.info(" # Registered "+tally+" enchantments");
 	}
 }

@@ -2,12 +2,14 @@ package com.lying.fabric.client;
 
 import com.lying.client.WheelchairsClient;
 import com.lying.client.init.WHCItemsClient;
+import com.lying.client.init.WHCKeybinds;
 import com.lying.client.init.WHCModelParts;
 import com.lying.client.renderer.entity.EntityStoolRenderer;
 import com.lying.client.renderer.entity.EntityWalkerRenderer;
 import com.lying.client.renderer.entity.EntityWheelchairRenderer;
 import com.lying.init.WHCEntityTypes;
 
+import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import dev.architectury.registry.client.level.entity.EntityModelLayerRegistry;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 import dev.architectury.registry.client.rendering.ColorHandlerRegistry;
@@ -19,6 +21,7 @@ public final class WheelchairsFabricClient implements ClientModInitializer
 	public void onInitializeClient()
 	{
 		WheelchairsClient.clientInit();
+		WHCKeybinds.init(KeyMappingRegistry::register);
 		WHCItemsClient.registerItemColors(ColorHandlerRegistry::registerItemColors);
 		WHCModelParts.init((layer, func) -> EntityModelLayerRegistry.register(layer, func));
 		

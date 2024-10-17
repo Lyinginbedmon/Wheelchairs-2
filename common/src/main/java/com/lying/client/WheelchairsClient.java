@@ -69,7 +69,6 @@ public final class WheelchairsClient
 		ClientBus.registerEventCallbacks();
 		RenderTypeRegistry.register(RenderLayer.getCutout(), WHCBlocks.FROSTED_LAVA.get());
 		
-		WHCKeybinds.init();
 		registerEventCallbacks();
 		
 		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER.get(), ChairInventoryScreen::new);

@@ -60,7 +60,7 @@ public class WHCUpgrades
 			if(acc.hasModel())
 				WHCBlocks.registerFakeBlock("upgrade_"+acc.registryName().getPath());
 		});
-		Wheelchairs.LOGGER.info("Registered "+UPGRADES.size()+" wheelchair upgrades");
+		Wheelchairs.LOGGER.info(" # Registered "+UPGRADES.size()+" wheelchair upgrades");
 	}
 	
 	@Nullable
