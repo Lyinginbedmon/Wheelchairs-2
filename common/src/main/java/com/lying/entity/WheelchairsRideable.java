@@ -8,7 +8,6 @@ import com.lying.mixin.AccessorEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -143,7 +142,7 @@ public abstract class WheelchairsRideable extends LivingEntity
 			
 			if(player != null)
 			{
-				Vector3f seatOffset = getPassengerAttachmentPos(player, entity.getDimensions(EntityPose.STANDING), 1F);
+				Vector3f seatOffset = new Vector3f(0F, (float)getMountedHeightOffset(), 0F);
 				Vec3d offsetPos = entity.getPos().add(seatOffset.x, seatOffset.y, seatOffset.z);
 				player.teleport(destination, offsetPos.x, offsetPos.y, offsetPos.z, entity.getYaw(), entity.getPitch());
 				player.startRiding(entity);
@@ -239,21 +238,10 @@ public abstract class WheelchairsRideable extends LivingEntity
 	
 	protected void updatePassengerPosition(Entity passenger, PositionUpdater positionUpdater)
 	{
-		if(!hasPassenger(passenger)) return;
-		
-		Vec3d vec3d = getPassengerRidingPos(passenger);
-		positionUpdater.accept(passenger, vec3d.x, vec3d.y, vec3d.z);
-		
+		super.updatePassengerPosition(passenger, positionUpdater);
 		if(passenger instanceof LivingEntity)
 			clampPassengerYaw(passenger);
 	}
-	
-	public Vec3d getPassengerRidingPos(Entity passenger)
-	{
-		return new Vec3d(getPassengerAttachmentPos(passenger, getDimensions(getPose()), 1F).rotateY(-getYaw() * ((float)Math.PI / 180))).add(this.getPos());
-	}
-	
-	protected abstract Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor);
 	
 	public void onPassengerLookAround(Entity passenger)
 	{
