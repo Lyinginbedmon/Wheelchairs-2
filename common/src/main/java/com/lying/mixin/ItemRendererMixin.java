@@ -29,9 +29,6 @@ public class ItemRendererMixin
 	public BakedModel whc$renderItem(BakedModel model2, ItemStack stack, ModelTransformationMode renderMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, BakedModel model)
 	{
 		ModelIdentifier replacement = WHCItemsClient.getExtraModelIfAny(stack.getItem(), renderMode);
-		if(replacement != null)
-			return this.models.getModelManager().getModel(replacement);
-		else
-			return model;
+		return replacement == null ? model : this.models.getModelManager().getModel(replacement);
 	}
 }

@@ -3,6 +3,7 @@ package com.lying.client.init;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -14,12 +15,12 @@ import com.lying.init.WHCItems;
 import com.lying.mixin.ItemRendererMixin;
 import com.lying.mixin.ModelLoaderMixin;
 
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.client.color.item.ItemColorProvider;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
 @SuppressWarnings("unchecked")
@@ -69,16 +70,14 @@ public class WHCItemsClient
 		COLORS.entrySet().forEach(entry -> consumer.accept(entry.getKey(), entry.getValue()));
 	}
 	
-	private static void addExtraCrutchModel(Item item)
+	private static void addExtraCrutchModel(RegistrySupplier<Item> item)
 	{
-		Identifier itemID = Registries.ITEM.getId(item);
-		EXTRA_MODELS.add(new ExtraModelHandler(item, new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+"_in_hand", "inventory"), WHCItemsClient::onPerson));
+		EXTRA_MODELS.add(new ExtraModelHandler(item, "_in_hand", WHCItemsClient::onPerson));
 	}
 	
-	private static void addExtraCaneModel(Item item)
+	private static void addExtraCaneModel(RegistrySupplier<Item> item)
 	{
-		Identifier itemID = Registries.ITEM.getId(item);
-		EXTRA_MODELS.add(new ExtraModelHandler(item, new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+"_in_gui", "inventory"), WHCItemsClient::inGUI));
+		EXTRA_MODELS.add(new ExtraModelHandler(item, "_in_gui", WHCItemsClient::inGUI));
 	}
 	
 	private static boolean onPerson(ModelTransformationMode mode)
@@ -99,9 +98,7 @@ public class WHCItemsClient
 	
 	public static List<ModelIdentifier> getExtraModelsToRegister()
 	{
-		List<ModelIdentifier> models = Lists.newArrayList();
-			EXTRA_MODELS.forEach(handler -> { if(handler.needsRegistration()) models.add(handler.model()); });
-		return models;
+		return EXTRA_MODELS.stream().filter(ExtraModelHandler::needsRegistration).map(ExtraModelHandler::model).toList();
 	}
 	
 	@Nullable
@@ -119,55 +116,65 @@ public class WHCItemsClient
 	 */
 	public static class ExtraModelHandler
 	{
-		private final Item item;
+		private final RegistrySupplier<Item> item;
 		private final Predicate<ModelTransformationMode> qualifier;
-		private final ModelIdentifier model;
+		private final String suffix; 
+		private Optional<ModelIdentifier> model = Optional.empty();
 		private final boolean shouldRegister;
 		
-		public ExtraModelHandler(Item itemIn, ModelIdentifier modelIn, Predicate<ModelTransformationMode> qualifierIn)
+		public ExtraModelHandler(RegistrySupplier<Item> itemIn, String suffixIn, Predicate<ModelTransformationMode> qualifierIn)
 		{
-			this(itemIn, modelIn, qualifierIn, true);
+			this(itemIn, suffixIn, qualifierIn, true);
 		}
 		
-		public ExtraModelHandler(Item itemIn, ModelIdentifier modelIn, Predicate<ModelTransformationMode> qualifierIn, boolean shouldRegisterIn)
+		public ExtraModelHandler(RegistrySupplier<Item> itemIn, String suffixIn, Predicate<ModelTransformationMode> qualifierIn, boolean shouldRegisterIn)
 		{
 			item = itemIn;
 			qualifier = qualifierIn;
-			model = modelIn;
+			suffix = suffixIn;
 			shouldRegister = shouldRegisterIn;
 		}
 		
 		public boolean needsRegistration() { return this.shouldRegister; }
 		
-		public boolean shouldApply(Item itemIn, ModelTransformationMode mode) { return itemIn == item && qualifier.apply(mode); }
+		public boolean shouldApply(Item itemIn, ModelTransformationMode mode) { return itemIn == item.get() && qualifier.apply(mode); }
 		
-		public ModelIdentifier model() { return model; }
+		public ModelIdentifier model()
+		{
+			if(model.isPresent())
+				return model.get();
+			
+			Identifier itemID = item.getId();
+			ModelIdentifier id = new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+suffix, "inventory");
+			model = Optional.of(id);
+			return id;
+		}
 	}
 	
 	static
 	{
-		addExtraCrutchModel(WHCItems.CRUTCH_ACACIA.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_BAMBOO.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_BIRCH.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_CHERRY.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_CRIMSON.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_DARK_OAK.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_JUNGLE.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_MANGROVE.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_OAK.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_SPRUCE.get());
-		addExtraCrutchModel(WHCItems.CRUTCH_WARPED.get());
+		addExtraCrutchModel(WHCItems.CRUTCH_ACACIA);
+		addExtraCrutchModel(WHCItems.CRUTCH_BAMBOO);
+		addExtraCrutchModel(WHCItems.CRUTCH_BIRCH);
+		addExtraCrutchModel(WHCItems.CRUTCH_CHERRY);
+		addExtraCrutchModel(WHCItems.CRUTCH_CRIMSON);
+		addExtraCrutchModel(WHCItems.CRUTCH_DARK_OAK);
+		addExtraCrutchModel(WHCItems.CRUTCH_JUNGLE);
+		addExtraCrutchModel(WHCItems.CRUTCH_MANGROVE);
+		addExtraCrutchModel(WHCItems.CRUTCH_OAK);
+		addExtraCrutchModel(WHCItems.CRUTCH_SPRUCE);
+		addExtraCrutchModel(WHCItems.CRUTCH_WARPED);
 		
-		addExtraCaneModel(WHCItems.CANE_ACACIA.get());
-		addExtraCaneModel(WHCItems.CANE_BAMBOO.get());
-		addExtraCaneModel(WHCItems.CANE_BIRCH.get());
-		addExtraCaneModel(WHCItems.CANE_CHERRY.get());
-		addExtraCaneModel(WHCItems.CANE_CRIMSON.get());
-		addExtraCaneModel(WHCItems.CANE_DARK_OAK.get());
-		addExtraCaneModel(WHCItems.CANE_JUNGLE.get());
-		addExtraCaneModel(WHCItems.CANE_MANGROVE.get());
-		addExtraCaneModel(WHCItems.CANE_OAK.get());
-		addExtraCaneModel(WHCItems.CANE_SPRUCE.get());
-		addExtraCaneModel(WHCItems.CANE_WARPED.get());
+		addExtraCaneModel(WHCItems.CANE_ACACIA);
+		addExtraCaneModel(WHCItems.CANE_BAMBOO);
+		addExtraCaneModel(WHCItems.CANE_BIRCH);
+		addExtraCaneModel(WHCItems.CANE_CHERRY);
+		addExtraCaneModel(WHCItems.CANE_CRIMSON);
+		addExtraCaneModel(WHCItems.CANE_DARK_OAK);
+		addExtraCaneModel(WHCItems.CANE_JUNGLE);
+		addExtraCaneModel(WHCItems.CANE_MANGROVE);
+		addExtraCaneModel(WHCItems.CANE_OAK);
+		addExtraCaneModel(WHCItems.CANE_SPRUCE);
+		addExtraCaneModel(WHCItems.CANE_WARPED);
 	}
 }

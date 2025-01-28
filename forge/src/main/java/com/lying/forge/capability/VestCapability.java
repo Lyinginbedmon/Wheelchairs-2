@@ -45,7 +45,7 @@ public class VestCapability extends VestData implements ICapabilitySerializable<
 	
 	public static void onLivingTick(final LivingTickEvent event)
 	{
-		if(!ItemVest.isValidMobForVest(event.getEntity())) return;
-		event.getEntity().getCapability(WheelchairsForge.VEST_DATA).resolve().get().tick();
+		if(ItemVest.isValidMobForVest(event.getEntity()))
+			event.getEntity().getCapability(WheelchairsForge.VEST_DATA).resolve().ifPresent(v -> v.tick());
 	}
 }

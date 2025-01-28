@@ -1,7 +1,5 @@
 package com.lying.client;
 
-import java.util.function.Consumer;
-
 import com.lying.Wheelchairs;
 import com.lying.client.config.ClientConfig;
 import com.lying.client.init.WHCKeybinds;
@@ -29,10 +27,8 @@ import dev.architectury.registry.menu.MenuRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.CatEntityModel;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.FoxEntityModel;
@@ -119,18 +115,16 @@ public final class WheelchairsClient
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static  <T extends LivingEntity, C extends EntityModel<T>> void appendVestFeature(
-			EntityType<? extends LivingEntity> entityType, 
-			LivingEntityRenderer<T, C> entityRenderer, 
-			EntityRendererFactory.Context context, Consumer<FeatureRenderer<T, C>> consumer)
+	public static <T extends LivingEntity, C extends EntityModel<T>> FeatureRenderer<T, C> getVestFeatureForType(EntityType<T> entityType, LivingEntityRenderer<T, C> renderer)
 	{
 		if(entityType == EntityType.WOLF)
-			consumer.accept((FeatureRenderer<T, C>) new WolfVestLayer((FeatureRendererContext<WolfEntity, WolfEntityModel<WolfEntity>>)entityRenderer));
+			return (FeatureRenderer<T, C>) new WolfVestLayer((LivingEntityRenderer<WolfEntity, WolfEntityModel<WolfEntity>>)renderer);
 		else if(entityType == EntityType.CAT)
-			consumer.accept((FeatureRenderer<T, C>)new CatVestLayer((FeatureRendererContext<CatEntity, CatEntityModel<CatEntity>>)entityRenderer));
+			return (FeatureRenderer<T, C>) new CatVestLayer((LivingEntityRenderer<CatEntity, CatEntityModel<CatEntity>>)renderer);
 		else if(entityType == EntityType.PARROT)
-			consumer.accept((FeatureRenderer<T, C>)new ParrotVestLayer((FeatureRendererContext<ParrotEntity, ParrotEntityModel>)entityRenderer));
+			return (FeatureRenderer<T, C>) new ParrotVestLayer((LivingEntityRenderer<ParrotEntity, ParrotEntityModel>)renderer);
 		else if(entityType == EntityType.FOX)
-			consumer.accept((FeatureRenderer<T, C>)new FoxVestLayer((FeatureRendererContext<FoxEntity, FoxEntityModel<FoxEntity>>)entityRenderer));
+			return (FeatureRenderer<T, C>) new FoxVestLayer((LivingEntityRenderer<FoxEntity, FoxEntityModel<FoxEntity>>)renderer);
+		return null;
 	}
 }

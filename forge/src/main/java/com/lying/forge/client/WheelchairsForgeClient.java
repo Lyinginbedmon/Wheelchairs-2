@@ -11,14 +11,9 @@ import com.lying.client.renderer.entity.EntityStoolRenderer;
 import com.lying.client.renderer.entity.EntityWalkerRenderer;
 import com.lying.client.renderer.entity.EntityWheelchairRenderer;
 import com.lying.init.WHCEntityTypes;
-import com.lying.item.ItemVest;
 import com.lying.reference.Reference;
 
-import net.minecraft.client.render.entity.EntityRendererFactory.Context;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -79,12 +74,9 @@ public class WheelchairsForgeClient
 	public static void appendVestsEvent(final EntityRenderersEvent.AddLayers event)
 	{
 		Wheelchairs.LOGGER.info(" # [CLIENT] Appending entity service vest layers");
-		// FIXME Resolve vest feature appending for Forge
-		Context context = event.getContext();
-		for(EntityType<? extends LivingEntity> type : ItemVest.APPLICABLE_MOBS.keySet())
-		{
-			LivingEntityRenderer<?, ? extends EntityModel<?>> renderer = event.getRenderer(type);
-//			WheelchairsClient.appendVestFeature(type, renderer, context, (feature) -> renderer.addFeature(feature));
-		}
+		event.getRenderer(EntityType.WOLF).addFeature(WheelchairsClient.getVestFeatureForType(EntityType.WOLF, event.getRenderer(EntityType.WOLF)));
+		event.getRenderer(EntityType.CAT).addFeature(WheelchairsClient.getVestFeatureForType(EntityType.CAT, event.getRenderer(EntityType.CAT)));
+		event.getRenderer(EntityType.PARROT).addFeature(WheelchairsClient.getVestFeatureForType(EntityType.PARROT, event.getRenderer(EntityType.PARROT)));
+		event.getRenderer(EntityType.FOX).addFeature(WheelchairsClient.getVestFeatureForType(EntityType.FOX, event.getRenderer(EntityType.FOX)));
 	}
 }

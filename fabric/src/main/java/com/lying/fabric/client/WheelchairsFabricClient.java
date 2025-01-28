@@ -15,6 +15,11 @@ import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 import dev.architectury.registry.client.rendering.ColorHandlerRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.minecraft.client.render.entity.CatEntityRenderer;
+import net.minecraft.client.render.entity.FoxEntityRenderer;
+import net.minecraft.client.render.entity.ParrotEntityRenderer;
+import net.minecraft.client.render.entity.WolfEntityRenderer;
+import net.minecraft.entity.EntityType;
 
 public final class WheelchairsFabricClient implements ClientModInitializer
 {
@@ -31,6 +36,15 @@ public final class WheelchairsFabricClient implements ClientModInitializer
 		
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
 				(entityType, entityRenderer, registrationHelper, context) -> 
-					WheelchairsClient.appendVestFeature(entityType, entityRenderer, context, feature -> registrationHelper.register(feature)));
+				{
+					if(entityType == EntityType.WOLF)
+						registrationHelper.register(WheelchairsClient.getVestFeatureForType(EntityType.WOLF, (WolfEntityRenderer)entityRenderer));
+					else if(entityType == EntityType.CAT)
+						registrationHelper.register(WheelchairsClient.getVestFeatureForType(EntityType.CAT, (CatEntityRenderer)entityRenderer));
+					else if(entityType == EntityType.PARROT)
+						registrationHelper.register(WheelchairsClient.getVestFeatureForType(EntityType.PARROT, (ParrotEntityRenderer)entityRenderer));
+					else if(entityType == EntityType.FOX)
+						registrationHelper.register(WheelchairsClient.getVestFeatureForType(EntityType.FOX, (FoxEntityRenderer)entityRenderer));
+				});
 	}
 }

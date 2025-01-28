@@ -1,5 +1,7 @@
 package com.lying.forge;
 
+import java.util.Optional;
+
 import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
 import com.lying.entity.EntityWalker;
@@ -14,6 +16,7 @@ import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
@@ -38,24 +41,31 @@ public final class WheelchairsForge
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		eventBus.addListener(this::registerEntityAttributes);
 		eventBus.addListener(this::registerVestCapability);
-//		eventBus.addListener(VestCapability::onLivingTick);
+		MinecraftForge.EVENT_BUS.addListener(VestCapability::onLivingTick);
+		MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, WheelchairsForge::attachVestCapability);
 		
 		Wheelchairs.HANDLER = new XPlatHandler()
 		{
+			private static Optional<VestCapability> getVestCap(LivingEntity entity)
+			{
+				return ItemVest.isValidMobForVest(entity) ? entity.getCapability(VEST_DATA).resolve() : Optional.empty();
+			}
+			
 			public boolean hasVest(LivingEntity entity)
 			{
-				return ItemVest.isValidMobForVest(entity) && entity.getCapability(VEST_DATA).resolve().get().hasVest();
+				Optional<VestCapability> opt = getVestCap(entity);
+				return opt.isPresent() && opt.get().hasVest();
 			}
 			
 			public ItemStack getVest(LivingEntity entity)
 			{
-				return !ItemVest.isValidMobForVest(entity) ? ItemStack.EMPTY : entity.getCapability(VEST_DATA).resolve().get().get();
+				Optional<VestCapability> opt = getVestCap(entity);
+				return opt.isPresent() ? opt.get().get() : ItemStack.EMPTY;
 			}
 			
 			public void setVest(LivingEntity entity, ItemStack stack)
 			{
-				if(ItemVest.isValidMobForVest(entity))
-					entity.getCapability(VEST_DATA).resolve().ifPresent(vest -> vest.setVest(stack));
+				getVestCap(entity).ifPresent(cap -> cap.setVest(stack));
 			}
 		};
 	}
@@ -70,12 +80,14 @@ public final class WheelchairsForge
 	
 	public void registerVestCapability(final RegisterCapabilitiesEvent event)
 	{
+		Wheelchairs.LOGGER.info(" # Registered vest capability");
 		event.register(VestCapability.class);
 	}
 	
-	public void attachVestCapability(AttachCapabilitiesEvent<Entity> event)
+	public static void attachVestCapability(final AttachCapabilitiesEvent<Entity> event)
 	{
-		if(ItemVest.isValidMobForVest(event.getObject()))
+		Entity e = event.getObject();
+		if(e instanceof LivingEntity && ItemVest.isValidMobForVest((LivingEntity)e))
 			event.addCapability(VestCapability.IDENTIFIER, new VestCapability((LivingEntity)event.getObject()));
 	}
 }
