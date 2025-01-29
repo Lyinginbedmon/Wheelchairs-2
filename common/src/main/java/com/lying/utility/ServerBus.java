@@ -184,9 +184,9 @@ public class ServerBus
 		EntityEvent.LIVING_DEATH.register((LivingEntity entity, DamageSource damageSource) -> 
 		{
 			DamageSources types = entity.getWorld().getDamageSources();
-			if(damageSource == types.genericKill()) return EventResult.pass();
+			if(damageSource == types.genericKill() || entity.getWorld().isClient()) return EventResult.pass();
 			
-			if(ItemVest.isValidMobForVest(entity) && !ItemVest.getVest(entity).isEmpty())
+			if(ItemVest.isMobWithVest(entity))
 			{
 				UUID ownerID = ItemVest.getVestedMobOwner(entity);
 				if(ownerID == null)

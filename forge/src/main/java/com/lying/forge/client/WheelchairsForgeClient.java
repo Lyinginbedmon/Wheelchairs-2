@@ -10,9 +10,11 @@ import com.lying.client.init.WHCModelParts;
 import com.lying.client.renderer.entity.EntityStoolRenderer;
 import com.lying.client.renderer.entity.EntityWalkerRenderer;
 import com.lying.client.renderer.entity.EntityWheelchairRenderer;
+import com.lying.forge.WheelchairsForge;
 import com.lying.init.WHCEntityTypes;
 import com.lying.reference.Reference;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,13 +28,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 @Mod.EventBusSubscriber(modid = Reference.ModInfo.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class WheelchairsForgeClient
 {
-	// FIXME Ensure that keybindings are registered and functional on Forge
-	
     @SubscribeEvent
     public static void setupClient(final FMLClientSetupEvent event)
     {
 		Wheelchairs.LOGGER.info(" # [CLIENT] Init");
     	WheelchairsClient.clientInit();
+    	WheelchairsForge.getLocalPlayer = () -> MinecraftClient.getInstance().player;
     }
 	
     @SubscribeEvent

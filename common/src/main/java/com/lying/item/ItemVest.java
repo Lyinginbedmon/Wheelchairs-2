@@ -60,6 +60,11 @@ public class ItemVest extends Item implements DyeableItem
 		return APPLICABLE_MOBS.containsKey(entity.getType());
 	}
 	
+	public static boolean isMobWithVest(Entity entity)
+	{
+		return isValidMobForVest(entity) && !getVest((LivingEntity)entity).isEmpty();
+	}
+	
 	@Nullable
 	public static UUID getVestedMobOwner(Entity entity)
 	{

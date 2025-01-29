@@ -1,12 +1,14 @@
 package com.lying.forge;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
 import com.lying.entity.EntityWalker;
 import com.lying.entity.EntityWheelchair;
 import com.lying.forge.capability.VestCapability;
+import com.lying.forge.network.PacketHandler;
 import com.lying.init.WHCEntityTypes;
 import com.lying.item.ItemVest;
 import com.lying.reference.Reference;
@@ -15,6 +17,7 @@ import com.lying.utility.XPlatHandler;
 import dev.architectury.platform.forge.EventBuses;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
@@ -32,11 +35,14 @@ public final class WheelchairsForge
 {
 	public static final Capability<VestCapability> VEST_DATA	= CapabilityManager.get(new CapabilityToken<>() { });
 	
+	public static Supplier<PlayerEntity> getLocalPlayer = () -> null;
+	
 	public WheelchairsForge()
 	{
 		EventBuses.registerModEventBus(Reference.ModInfo.MOD_ID, FMLJavaModLoadingContext.get().getModEventBus());
 		Wheelchairs.LOGGER.info("# Common init");
 		Wheelchairs.commonInit();
+		PacketHandler.init();
 		
 		final IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		eventBus.addListener(this::registerEntityAttributes);
@@ -66,6 +72,8 @@ public final class WheelchairsForge
 			public void setVest(LivingEntity entity, ItemStack stack)
 			{
 				getVestCap(entity).ifPresent(cap -> cap.setVest(stack));
+				if(!entity.getWorld().isClient())
+					MinecraftForge.EVENT_BUS.post(new VestChangeEvent(entity, stack));
 			}
 		};
 	}
