@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.google.common.collect.Lists;
 import com.lying.utility.ChairspaceCondition;
 import com.lying.utility.ServerEvents;
 
@@ -58,8 +57,6 @@ public class WHCChairspaceConditions
 	/** Returns a collection of all registered conditions listening to the given event */
 	public static Collection<ChairspaceCondition> getApplicable(Event<?> eventIn)
 	{
-		Collection<ChairspaceCondition> conditions = Lists.newArrayList();
-		CONDITIONS.values().stream().forEach(condition -> { if(condition.get().isListeningTo(eventIn)) conditions.add(condition.get()); });
-		return conditions;
+		return CONDITIONS.values().stream().filter(c -> c.get().isListeningTo(eventIn)).map(c -> c.get()).toList();
 	}
 }

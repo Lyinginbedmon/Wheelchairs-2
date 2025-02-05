@@ -14,7 +14,7 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
 
 @Mixin(PlayerEntity.class)
-public class PlayerEntityMixin extends EntityMixin
+public class PlayerEntityMixin extends LivingEntityMixin
 {
 	@Inject(method = "getBlockBreakingSpeed(Lnet/minecraft/block/BlockState;)F", at = @At("RETURN"), cancellable = true)
 	public void whc$getBlockBreakingSpeed(BlockState block, final CallbackInfoReturnable<Float> ci)

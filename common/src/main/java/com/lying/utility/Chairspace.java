@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.lying.Wheelchairs;
 import com.lying.entity.IParentedEntity;
 import com.lying.init.WHCChairspaceConditions;
+import com.lying.reference.Reference;
 
 import dev.architectury.event.Event;
 import net.minecraft.entity.Entity;
@@ -38,12 +39,13 @@ import net.minecraft.world.World;
  */
 public class Chairspace extends PersistentState
 {
-	public static final String ID = "chairspace";
+	public static final String ID = Reference.ModInfo.MOD_ID + "chairspace";
 	
-	private Map<UUID, Map<ChairspaceCondition, List<RespawnData>>> storage = new HashMap<>();
+	private Map<UUID, Map<Identifier, List<RespawnData>>> storage = new HashMap<>();
 	
 	public static Chairspace getChairspace(MinecraftServer server)
 	{
+		if(server == null) return new Chairspace();
 		ServerWorld world = server.getWorld(World.OVERWORLD);
 		PersistentStateManager manager = world.getPersistentStateManager();
 		Chairspace chairs = manager.getOrCreate(Chairspace::createFromNbt, Chairspace::new, ID);
@@ -69,7 +71,7 @@ public class Chairspace extends PersistentState
 				if(list.isEmpty()) return;
 				
 				NbtCompound entry = new NbtCompound();
-				entry.putString("Condition", condition.registryName().toString());
+				entry.putString("Condition", condition.toString());
 				
 				NbtList entries = new NbtList();
 				list.forEach(respawn -> entries.add(respawn.writeToNbt()));
@@ -90,19 +92,18 @@ public class Chairspace extends PersistentState
 		NbtList set = nbt.getList("Data", NbtElement.COMPOUND_TYPE);
 		
 		chairs.storage.clear();
-		Map<UUID, Map<ChairspaceCondition, List<RespawnData>>> dataSet = new HashMap<>();
+		Map<UUID, Map<Identifier, List<RespawnData>>> dataSet = new HashMap<>();
 		for(int i=0; i<set.size(); i++)
 		{
 			NbtCompound compound = set.getCompound(i);
 			UUID id = compound.getUuid("ID");
 			
-			Map<ChairspaceCondition, List<RespawnData>> dataEntry = new HashMap<>();
+			Map<Identifier, List<RespawnData>> dataEntry = new HashMap<>();
 			NbtList mapData = compound.getList("Data", NbtElement.COMPOUND_TYPE);
 			for(int j=0; j<mapData.size(); j++)
 			{
 				NbtCompound entry = mapData.getCompound(j);
-				ChairspaceCondition dataCondition = WHCChairspaceConditions.get(new Identifier(entry.getString("Condition")));
-				if(dataCondition == null) continue;
+				Identifier dataCondition = new Identifier(entry.getString("Condition"));
 				
 				NbtList entries = entry.getList("Entries", NbtElement.COMPOUND_TYPE);
 				if(entries.isEmpty()) continue;
@@ -130,10 +131,10 @@ public class Chairspace extends PersistentState
 		NbtCompound data = new NbtCompound();
 		ent.saveNbt(data);
 		
-		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
+		Map<Identifier, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
 		List<RespawnData> listForCondition = ownerMap.getOrDefault(condition, Lists.newArrayList());
 		listForCondition.add(RespawnData.of(ent, flags));
-		ownerMap.put(condition, listForCondition);
+		ownerMap.put(condition.registryName(), listForCondition);
 		storage.put(ownerID, ownerMap);
 		
 		ent.discard();
@@ -144,27 +145,25 @@ public class Chairspace extends PersistentState
 	/** Respawns all associated entities across all applicable conditions (if any) */
 	public void reactToEvent(Event<?> eventIn, Entity owner)
 	{
-		UUID uuid = owner.getUuid();
-		WHCChairspaceConditions.getApplicable(eventIn).forEach(condition -> respawnForCondition(uuid, owner, condition));
+		WHCChairspaceConditions.getApplicable(eventIn).forEach(condition -> respawnForCondition(owner.getUuid(), owner, condition));
 	}
 	
 	/** Respawns all associated entities stored under the given condition */
 	public void respawnForCondition(UUID ownerID, Entity owner, ChairspaceCondition condition)
 	{
 		// Do not fire if there is not an owner to spawn on, a world to spawn in, or the world is client-side
-		if(owner == null || owner.getWorld() == null || owner.isSpectator() || owner.getWorld().isClient() || !hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner))
+		if(owner == null || owner.isSpectator() || owner.getWorld() == null || owner.getWorld().isClient())
+			return;
+		else if(!hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner))
 			return;
 		
-		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
-		if(!ownerMap.containsKey(condition)) return;
-		
-		List<RespawnData> entities = ownerMap.getOrDefault(condition, Lists.newArrayList());
-		if(entities.isEmpty()) return;
-		
+		Map<Identifier, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
 		ServerWorld world = (ServerWorld)owner.getWorld();
-		entities.forEach(entry -> condition.applyPostEffects(entry.respawn(owner, world)));
+		ownerMap.entrySet().stream()
+			.filter(e -> e.getKey().equals(condition.registryName())).map(e -> e.getValue())
+			.forEach(set -> set.forEach(entry -> condition.applyPostEffects(entry.respawn(owner, world))));
 		
-		ownerMap.remove(condition);
+		ownerMap.remove(condition.registryName());
 		storage.put(ownerID, ownerMap);
 		this.markDirty();
 	}
@@ -220,6 +219,7 @@ public class Chairspace extends PersistentState
 		@Nullable
 		public Entity respawn(Entity owner, ServerWorld world)
 		{
+			
 			Entity storedEntity = EntityType.loadEntityWithPassengers(entityData, world, entity -> {
 				entity.refreshPositionAndAngles(owner.getX(), owner.getY(), owner.getZ(), owner.getYaw(), owner.getPitch());
 	            return entity;
@@ -227,7 +227,7 @@ public class Chairspace extends PersistentState
 			
 			if(storedEntity != null)
 			{
-				Wheelchairs.LOGGER.info("Restored entity "+storedEntity.getName().getString()+" from Chairspace with owner "+owner.getName().getString());
+				Wheelchairs.LOGGER.info("Restored entity {} from Chairspace with owner {}", storedEntity.getName().getString(), owner.getName().getString());
 				world.spawnEntity(storedEntity);
 				
 				if(flags.contains(Flag.MOUNT) && !owner.hasVehicle())
@@ -243,6 +243,8 @@ public class Chairspace extends PersistentState
 					child.parentTo(parent);
 				}
 			}
+			else
+				Wheelchairs.LOGGER.error("Failed to restore entity from Chairspace for owner {} {}", owner.getName().getString(), entityData.toString());
 			return storedEntity;
 		}
 	}
