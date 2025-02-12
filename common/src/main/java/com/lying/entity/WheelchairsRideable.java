@@ -1,11 +1,15 @@
 package com.lying.entity;
 
+import java.util.Optional;
+
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import com.lying.Wheelchairs;
 import com.lying.mixin.AccessorEntity;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
@@ -36,8 +40,10 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.world.BlockLocating;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
+import net.minecraft.world.border.WorldBorder;
 
 public abstract class WheelchairsRideable extends LivingEntity
 {
@@ -103,6 +109,9 @@ public abstract class WheelchairsRideable extends LivingEntity
 	
 	public boolean isSaddled() { return true; }
 	
+	/** Usually only called by InGameHud, we set this to FALSE to prevent the hunger bar being hidden */
+	public boolean isLiving() { return false; }
+	
 	public int getDefaultPortalCooldown() { return 10; }
 	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
@@ -154,6 +163,18 @@ public abstract class WheelchairsRideable extends LivingEntity
 		destination.resetIdleTimeout();
 		profiler.pop();
 		return entity;
+	}
+	
+	protected Optional<BlockLocating.Rectangle> getPortalRect(ServerWorld destWorld, BlockPos destPos, boolean destIsNether, WorldBorder worldBorder)
+	{
+		Optional<BlockLocating.Rectangle> optional = super.getPortalRect(destWorld, destPos, destIsNether, worldBorder);
+		if(optional.isPresent())
+			return optional;
+		Direction.Axis axis = getWorld().getBlockState(this.lastNetherPortalPosition).getOrEmpty(NetherPortalBlock.AXIS).orElse(Direction.Axis.X);
+		optional = destWorld.getPortalForcer().createPortal(destPos, axis);
+		if(!optional.isPresent())
+			Wheelchairs.LOGGER.error("Unable to create a portal, likely target is outside of the worldborder {}", destPos.toString());
+		return optional;
 	}
 	
 	public abstract double getMountedHeightOffset(Entity passenger);

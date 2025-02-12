@@ -22,7 +22,6 @@
 		"ServerWorldMixin" 
 	],
 	"client": [ 
-		"InGameHudMixin",
 		"FireworkRocketItemMixinClient",
 		"PlayerEntityMixinClient" ,
 		"EntityModelMixin",
