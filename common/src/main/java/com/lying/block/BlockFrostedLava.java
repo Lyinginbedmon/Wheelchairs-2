@@ -40,7 +40,7 @@ public class BlockFrostedLava extends Block
 	
 	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random)
 	{
-		if((random.nextInt(3) == 0 || this.canMelt(world, pos, 4)) && world.getLightLevel(pos) > 11 - state.get(AGE) - state.getOpacity(world, pos) && this.increaseAge(state, world, pos))
+		if((random.nextInt(3) == 0 || this.canMelt(world, pos, 4)) && world.getLightLevel(pos) > 11 - state.get(AGE) - state.getOpacity() && this.increaseAge(state, world, pos))
 		{
 			BlockPos.Mutable mutable = new BlockPos.Mutable();
 			for(Direction direction : Direction.values())
@@ -85,7 +85,7 @@ public class BlockFrostedLava extends Block
 	protected void melt(BlockState state, World world, BlockPos pos)
 	{
 		world.setBlockState(pos, getMeltedState());
-		world.updateNeighbor(pos, getMeltedState().getBlock(), pos);
+		world.updateNeighbor(pos, getMeltedState().getBlock(), null);
 	}
 	
 	public void afterBreak(World world, PlayerEntity player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool)

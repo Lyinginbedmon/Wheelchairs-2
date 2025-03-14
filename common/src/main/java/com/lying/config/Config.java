@@ -77,7 +77,7 @@ public abstract class Config
 	{
 		try
 		{
-			writer.write(name+"="+(value ? "1" : "0")+'\n');
+			writer.write(name+"="+(value ? "true" : "false")+'\n');
 		}
 		catch(Exception e) { }
 	}
@@ -86,7 +86,7 @@ public abstract class Config
 	{
 		try
 		{
-			return Integer.parseInt(name) > 0;
+			return name.equalsIgnoreCase("true");
 		}
 		catch(NumberFormatException e) { return val; }
 	}

@@ -10,18 +10,19 @@ import com.lying.item.ItemCane;
 import com.lying.reference.Reference;
 
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
+import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
 public class RecipeCaneSword extends SpecialCraftingRecipe
 {
-	public static final Identifier ID = new Identifier(Reference.ModInfo.MOD_ID, "cane_sword");
+	public static final Identifier ID = Reference.ModInfo.prefix("cane_sword");
 	
 	private static final Predicate<ItemStack> IS_HOLLOW_CANE = stack -> 
 	{
@@ -31,22 +32,22 @@ public class RecipeCaneSword extends SpecialCraftingRecipe
 		if(!ItemCane.getSword(stack).isEmpty())
 			return false;
 		
-		if(EnchantmentHelper.getLevel(WHCEnchantments.HOLLOWED.get(), stack) <= 0)
+		if(EnchantmentHelper.getLevel(WHCEnchantments.HOLLOWED, stack) <= 0)
 			return false;
 		return true;
 	};
 	
 	public RecipeCaneSword()
 	{
-		super(ID, CraftingRecipeCategory.MISC);
+		super(CraftingRecipeCategory.MISC);
 	}
 	
-	public boolean matches(RecipeInputInventory inv, World world)
+	public boolean matches(CraftingRecipeInput inv, World world)
 	{
 		ItemStack cane = ItemStack.EMPTY, sword = ItemStack.EMPTY;
 		for(int slot=0; slot<inv.size(); slot++)
 		{
-			ItemStack stackInSlot = inv.getStack(slot);
+			ItemStack stackInSlot = inv.getStackInSlot(slot);
 			if(stackInSlot.isEmpty()) continue;
 			
 			if(IS_HOLLOW_CANE.test(stackInSlot))
@@ -70,13 +71,13 @@ public class RecipeCaneSword extends SpecialCraftingRecipe
 		return !(cane.isEmpty() || sword.isEmpty());
 	}
 	
-	public ItemStack craft(RecipeInputInventory inv, DynamicRegistryManager var2)
+	public ItemStack craft(CraftingRecipeInput inv, RegistryWrapper.WrapperLookup var2)
 	{
 		ItemStack cane = ItemStack.EMPTY, sword = ItemStack.EMPTY;
 		
 		for(int slot=0; slot<inv.size(); slot++)
 		{
-			ItemStack stackInSlot = inv.getStack(slot);
+			ItemStack stackInSlot = inv.getStackInSlot(slot);
 			if(stackInSlot.isEmpty()) continue;
 			
 			if(IS_HOLLOW_CANE.test(stackInSlot))
@@ -115,5 +116,5 @@ public class RecipeCaneSword extends SpecialCraftingRecipe
 		return Wheelchairs.config.swordCaneFilter().test(stack);
 	}
 	
-	public RecipeSerializer<?> getSerializer() { return WHCSpecialRecipes.CANE_SWORD_SERIALIZER.get(); }
+	public RecipeSerializer<? extends SpecialCraftingRecipe> getSerializer() { return WHCSpecialRecipes.CANE_SWORD_SERIALIZER.get(); }
 }

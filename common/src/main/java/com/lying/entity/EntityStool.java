@@ -3,24 +3,25 @@ package com.lying.entity;
 import java.util.OptionalInt;
 
 import org.joml.Vector2d;
-import org.joml.Vector3f;
 
 import com.lying.init.WHCItems;
 import com.lying.item.ItemStool;
 import com.lying.utility.WHCUtils;
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Mount;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -41,17 +42,21 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	public EntityStool(EntityType<? extends LivingEntity> entityType, World world)
 	{
 		super(entityType, world);
-		this.setStepHeight(0.6f);
 		
 		double randX = (getRandom().nextDouble() - 0.5D) * 2D;
 		double randY = (getRandom().nextDouble() - 0.5D) * 2D;
 		prevCaster = caster = new Vector2d(randX, randY);
 	}
 	
-	public void initDataTracker()
+	public void initDataTracker(DataTracker.Builder builder)
 	{
-		super.initDataTracker();
-		getDataTracker().startTracking(COLOR, OptionalInt.empty());
+		super.initDataTracker(builder);
+		builder.add(COLOR, OptionalInt.empty());
+	}
+	
+	public static DefaultAttributeContainer.Builder createStoolAttributes()
+	{
+		return createMountAttributes().add(EntityAttributes.STEP_HEIGHT, 0.6F);
 	}
 	
 	public void readCustomDataFromNbt(NbtCompound data)
@@ -72,16 +77,15 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	{
 		EntityStool stool = (EntityStool)chair;
 		ItemStack stack = WHCItems.STOOL.get().getDefaultStack().copy();
-		if(stool.hasColor() && stack.getItem() instanceof DyeableItem)
-			((ItemStool)stack.getItem()).setColor(stack, stool.getColor());
+		if(stool.hasColor() && stack.contains(DataComponentTypes.DYED_COLOR))
+			stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(stool.getColor(), true));
 		
 		return stack;
 	}
 	
 	public void copyFromItem(ItemStack stack)
 	{
-		DyeableItem item = (DyeableItem)stack.getItem();
-		getDataTracker().set(COLOR, item.hasColor(stack) ? OptionalInt.of(item.getColor(stack)) : OptionalInt.empty());
+		getDataTracker().set(COLOR, stack.contains(DataComponentTypes.DYED_COLOR) ? OptionalInt.of(DyedColorComponent.getColor(stack, -1)) : OptionalInt.empty());
 	}
 	
 	public LivingEntity getControllingPassenger()
@@ -91,7 +95,7 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	
 	protected float getSaddledSpeed(PlayerEntity controllingPlayer)
 	{
-		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
+		return (float)controllingPlayer.getAttributeValue(EntityAttributes.MOVEMENT_SPEED);
 	}
 	
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
@@ -99,9 +103,9 @@ public class EntityStool extends WheelchairsRideable implements Mount
 		return new Vec3d(controllingPlayer.sidewaysSpeed, 0, controllingPlayer.forwardSpeed);
 	}
 	
-	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
+	protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
 	{
-		return new Vector3f(0F, dimensions.height * 0.85F * scaleFactor, 0F);
+		return new Vec3d(0F, dimensions.height() * 0.85F * scaleFactor, 0F);
 	}
 	
 	protected void clampPassengerYaw(Entity passenger)
@@ -166,9 +170,4 @@ public class EntityStool extends WheelchairsRideable implements Mount
 		origin.add(current.sub(origin).mul(tickDelta));
 		return (float)Math.toDegrees(Math.atan2(origin.y, origin.x));
 	}
-	
-    public double getMountedHeightOffset(Entity passenger)
-    {
-        return (double)getHeight() * (passenger.isInSneakingPose() ? 0.75 : 0.55);
-    }
 }

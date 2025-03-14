@@ -1,10 +1,8 @@
 package com.lying.item;
 
-import java.util.function.Consumer;
-
-import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -23,9 +21,9 @@ import net.minecraft.world.event.GameEvent;
 
 public abstract class EntityPlacerItem<T extends Entity> extends Item
 {
-	protected final RegistrySupplier<EntityType<T>> entityType;
+	private final EntityType<T> entityType;
 	
-	protected EntityPlacerItem(RegistrySupplier<EntityType<T>> typeIn, Settings settings)
+	protected EntityPlacerItem(EntityType<T> typeIn, Settings settings)
 	{
 		super(settings);
 		entityType = typeIn;
@@ -41,15 +39,14 @@ public abstract class EntityPlacerItem<T extends Entity> extends Item
 		BlockPos blockPos = itemPlacementContext.getBlockPos();
 		ItemStack itemStack = context.getStack();
 		Vec3d vec3d = Vec3d.ofBottomCenter(blockPos);
-		Box box = entityType.get().getDimensions().getBoxAt(vec3d.getX(), vec3d.getY(), vec3d.getZ());
+		Box box = entityType.getDimensions().getBoxAt(vec3d.getX(), vec3d.getY(), vec3d.getZ());
 		if(!world.isSpaceEmpty(null, box) || !world.getOtherEntities(null, box).isEmpty())
 			return ActionResult.FAIL;
 		
 		if(world instanceof ServerWorld)
 		{
 			ServerWorld serverWorld = (ServerWorld)world;
-			Consumer<T> consumer = EntityType.copier(serverWorld, itemStack, context.getPlayer());
-			T entity = makeEntity(serverWorld, itemStack, consumer, blockPos);
+			T entity = makeEntity(serverWorld, itemStack, context.getPlayer(), blockPos);
 			if (entity == null)
 				return ActionResult.FAIL;
 			
@@ -61,8 +58,8 @@ public abstract class EntityPlacerItem<T extends Entity> extends Item
 		}
 		
 		itemStack.decrement(1);
-		return ActionResult.success(world.isClient);
+		return ActionResult.SUCCESS_SERVER;
 	}
 	
-	protected abstract T makeEntity(ServerWorld serverWorld, ItemStack stack, Consumer<T> consumer, BlockPos pos);
+	protected abstract T makeEntity(ServerWorld serverWorld, ItemStack stack, PlayerEntity placer, BlockPos pos);
 }

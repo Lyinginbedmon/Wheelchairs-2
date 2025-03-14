@@ -1,5 +1,8 @@
 package com.lying.fabric;
 
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+
 import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
 import com.lying.entity.EntityWalker;
@@ -10,30 +13,21 @@ import com.lying.item.ItemVest;
 import com.lying.reference.Reference;
 import com.lying.utility.XPlatHandler;
 
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
-import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
-import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.passive.ParrotEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
 
-public final class WheelchairsFabric implements ModInitializer, EntityComponentInitializer
+public final class WheelchairsFabric implements ModInitializer
 {
-	public static final ComponentKey<VestComponent> VEST_DATA	= ComponentRegistry.getOrCreate(new Identifier(Reference.ModInfo.MOD_ID, "vest_data"), VestComponent.class);
+	public static final ComponentKey<VestComponent> VEST_DATA	= ComponentRegistry.getOrCreate(Reference.ModInfo.prefix("vest_data"), VestComponent.class);
 	
     public void onInitialize()
     {
-    	Wheelchairs.commonInit();
-		FabricDefaultAttributeRegistry.register(WHCEntityTypes.WHEELCHAIR.get(), EntityWheelchair.createMountAttributes());
+        Wheelchairs.commonInit();
+		FabricDefaultAttributeRegistry.register(WHCEntityTypes.WHEELCHAIR.get(), EntityWheelchair.createWheelchairAttributes());
 		FabricDefaultAttributeRegistry.register(WHCEntityTypes.WALKER.get(), EntityWalker.createWalkerAttributes());
-		FabricDefaultAttributeRegistry.register(WHCEntityTypes.STOOL.get(), EntityStool.createMountAttributes());
+		FabricDefaultAttributeRegistry.register(WHCEntityTypes.STOOL.get(), EntityStool.createStoolAttributes());
 		
 		Wheelchairs.HANDLER = new XPlatHandler()
 		{
@@ -53,13 +47,5 @@ public final class WheelchairsFabric implements ModInitializer, EntityComponentI
 					VEST_DATA.get(entity).setVest(stack);
 			}
 		};
-    }
-    
-    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry)
-    {
-    	registry.registerFor(WolfEntity.class, VEST_DATA, VestComponent::new);
-    	registry.registerFor(CatEntity.class, VEST_DATA, VestComponent::new);
-    	registry.registerFor(ParrotEntity.class, VEST_DATA, VestComponent::new);
-    	registry.registerFor(FoxEntity.class, VEST_DATA, VestComponent::new);
     }
 }

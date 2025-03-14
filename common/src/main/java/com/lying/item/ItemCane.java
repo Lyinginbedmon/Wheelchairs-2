@@ -4,19 +4,17 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCSoundEvents;
 
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 
 public class ItemCane extends Item
@@ -35,23 +33,15 @@ public class ItemCane extends Item
 	
 	public static void setHandle(ItemStack stack, ItemStack handle)
 	{
-		NbtCompound data = stack.getOrCreateNbt();
-		data.put("Handle", handle.writeNbt(new NbtCompound()));
-		stack.setNbt(data);
+		stack.set(WHCDataComponentTypes.HANDLE.get(), handle.copy());
 	}
 	
 	public ItemStack getHandle(ItemStack stack)
 	{
-		if(stack.getItem() instanceof ItemCane && stack.hasNbt())
-		{
-			NbtCompound data = stack.getNbt();
-			if(data.contains("Handle", NbtElement.COMPOUND_TYPE))
-				return ItemStack.fromNbt(data.getCompound("Handle"));
-		}
-		return WHCItems.HANDLE_OAK.get().getDefaultStack().copy();
+		return stack.contains(WHCDataComponentTypes.HANDLE.get()) ? stack.get(WHCDataComponentTypes.HANDLE.get()) : WHCItems.HANDLE_OAK.get().getDefaultStack().copy();
 	}
 	
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
+	public ActionResult use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack heldStack = user.getStackInHand(hand);
 		ItemStack sword = getSword(heldStack);
@@ -64,17 +54,14 @@ public class ItemCane extends Item
 			else
 				user.getInventory().insertStack(cane);
 			
-			world.playSound(null, user.getX(), user.getY(), user.getZ(), WHCSoundEvents.SWORD_DRAW.get(), SoundCategory.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
-			return TypedActionResult.success(sword);
+			world.playSound(null, user.getX(), user.getY(), user.getZ(), WHCSoundEvents.SWORD_DRAW, SoundCategory.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
+			return ActionResult.SUCCESS.withNewHandStack(sword);
 		}
-		return TypedActionResult.pass(heldStack);
+		return ActionResult.PASS;
 	}
 	
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
 	{
-		if(!stack.hasNbt())
-			return;
-		
 		tooltip.add(Text.translatable("gui.wheelchairs.cane.handle", getHandle(stack).getName()));
 		
 		ItemStack sword = getSword(stack);
@@ -84,23 +71,12 @@ public class ItemCane extends Item
 	
 	public static ItemStack setSword(ItemStack cane, ItemStack sword)
 	{
-		NbtCompound data = cane.getOrCreateNbt();
-		if(sword.isEmpty())
-			data.remove("Contains");
-		else
-			data.put("Contains", sword.writeNbt(new NbtCompound()));
-		cane.setNbt(data);
+		cane.set(WHCDataComponentTypes.SWORD.get(), sword.copy());
 		return cane;
 	}
 	
 	public static ItemStack getSword(ItemStack cane)
 	{
-		if(cane.getItem() instanceof ItemCane && cane.hasNbt())
-		{
-			NbtCompound data = cane.getNbt();
-			if(data.contains("Contains", NbtElement.COMPOUND_TYPE))
-				return ItemStack.fromNbt(data.getCompound("Contains"));
-		}
-		return ItemStack.EMPTY;
+		return cane.contains(WHCDataComponentTypes.SWORD.get()) ? cane.get(WHCDataComponentTypes.SWORD.get()) : ItemStack.EMPTY;
 	}
 }

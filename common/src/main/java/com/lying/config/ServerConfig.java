@@ -50,7 +50,7 @@ public class ServerConfig extends Config
 	
 	public static enum SwordCaneFilter implements StringIdentifiable
 	{
-		ENCHANT(stack -> EnchantmentHelper.getLevel(WHCEnchantments.SLIM.get(), stack) > 0),
+		ENCHANT(stack -> EnchantmentHelper.getLevel(WHCEnchantments.SLIM, stack) > 0),
 		ALLOW_LIST(stack -> stack.isIn(WHCItemTags.FILTER_SWORD_CANE)),
 		DENY_LIST(stack -> !SwordCaneFilter.ALLOW_LIST.test(stack));
 		

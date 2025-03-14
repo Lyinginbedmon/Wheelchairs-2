@@ -1,28 +1,48 @@
 package com.lying.fabric.component;
 
-import com.lying.component.VestData;
+import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
-import dev.onyxstudios.cca.api.v3.component.tick.ServerTickingComponent;
+import com.lying.component.VestData;
+import com.lying.fabric.init.WHCComponents;
+
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 
 public class VestComponent extends VestData implements AutoSyncedComponent, ServerTickingComponent
 {
-	public VestComponent(LivingEntity ownerIn)
+	private ItemStack vestStack = ItemStack.EMPTY;
+	
+	public VestComponent(LivingEntity e) { super(e); }
+	
+	public void copyFrom(VestComponent other)
 	{
-		super(ownerIn);
+		this.vestStack = other.vestStack.copy();
 	}
 	
-	public void readFromNbt(NbtCompound tag)
+	public boolean hasVest() { return !vestStack.isEmpty(); }
+	
+	public ItemStack get() { return vestStack.copy(); }
+	
+	public void setVest(ItemStack stack)
 	{
-		super.readFromNbt(tag);
+		vestStack = stack;
+		markDirty();
 	}
 	
-	public void writeToNbt(NbtCompound tag)
+	public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup)
 	{
-		super.writeToNbt(tag);
+		vestStack = ItemStack.fromNbtOrEmpty(lookup, tag.getCompound("Vest"));
 	}
+	
+	public void writeToNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup)
+	{
+		tag.put("Vest", vestStack.toNbt(lookup));
+	}
+	
+	public void markDirty() { WHCComponents.VEST_TRACKING.sync(owner); }
 	
 	public void serverTick()
 	{

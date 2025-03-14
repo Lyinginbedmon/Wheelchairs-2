@@ -1,7 +1,6 @@
 package com.lying.mixin;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,10 +26,8 @@ public class EnchantmentHelperMixin
 		if(stack.getItem() instanceof ItemWheelchair)
 		{
 			ArrayList<EnchantmentLevelEntry> list = Lists.newArrayList();
-			Iterator<Enchantment> iterator = WHCEnchantments.REGISTRY.iterator();
-			while(iterator.hasNext())
+			for(Enchantment enchantment : WHCEnchantments.REGISTRY)
 			{
-				Enchantment enchantment = iterator.next();
 				if(enchantment.isTreasure() && !treasureAllowed || !enchantment.isAvailableForRandomSelection()) continue;
 				for(int i = enchantment.getMaxLevel(); i>enchantment.getMinLevel() - 1; --i)
 				{

@@ -191,7 +191,7 @@ public class AACLibrary
 			phrases = phrasesIn;
 			
 			if(phrases.size() > 25)
-				Wheelchairs.LOGGER.warn("# AAC phrase set ["+setName+"] has more phrases than the AAC screen can display! "+phrases.size());
+				Wheelchairs.LOGGER.warn("# AAC phrase set [{}] has more phrases than the AAC screen can display! {}", setName, phrases.size());
 		}
 		
 		public Text displayName() { return this.displayName; }

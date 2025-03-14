@@ -1,5 +1,7 @@
 package com.lying.init;
 
+import static com.lying.reference.Reference.ModInfo.prefix;
+
 import com.lying.Wheelchairs;
 import com.lying.reference.Reference;
 
@@ -13,13 +15,13 @@ public class WHCSoundEvents
 {
 	public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.SOUND_EVENT);
 	
-	private static final Identifier ID_SEATBELT_ON = new Identifier(Reference.ModInfo.MOD_ID, "seatbelt_on");
+	private static final Identifier ID_SEATBELT_ON = prefix("seatbelt_on");
 	public static final RegistrySupplier<SoundEvent> SEATBELT_ON = register(ID_SEATBELT_ON);
 	
-	private static final Identifier ID_SEATBELT_OFF = new Identifier(Reference.ModInfo.MOD_ID, "seatbelt_off");
+	private static final Identifier ID_SEATBELT_OFF = prefix("seatbelt_off");
 	public static final RegistrySupplier<SoundEvent> SEATBELT_OFF = register(ID_SEATBELT_OFF);
 	
-	private static final Identifier ID_SWORD_DRAW = new Identifier(Reference.ModInfo.MOD_ID, "cane_sword_draw");
+	private static final Identifier ID_SWORD_DRAW = prefix("cane_sword_draw");
 	public static final RegistrySupplier<SoundEvent> SWORD_DRAW = register(ID_SWORD_DRAW);
 	
 	private static RegistrySupplier<SoundEvent> register(Identifier name)

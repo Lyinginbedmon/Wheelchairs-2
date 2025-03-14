@@ -9,19 +9,21 @@ import org.jetbrains.annotations.Nullable;
 import com.lying.Wheelchairs;
 import com.lying.mixin.FoxEntityMixin;
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 
-public class ItemVest extends Item implements DyeableItem
+public class ItemVest extends Item
 {
 	private static final Function<Entity, UUID> tamedOwner = entity -> ((TameableEntity)entity).getOwnerUuid();
 	public static final Map<EntityType<? extends LivingEntity>, Function<Entity,UUID>> APPLICABLE_MOBS = Map.of(
@@ -32,7 +34,7 @@ public class ItemVest extends Item implements DyeableItem
 	
 	public ItemVest(Settings settings)
 	{
-		super(settings);
+		super(settings.component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(-6265536, true)));
 	}
 	
 	public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand)
@@ -52,17 +54,17 @@ public class ItemVest extends Item implements DyeableItem
 		user.sendMessage(Text.translatable("gui.wheelchairs.service_vest_applied"), true);
 		if(!user.isCreative())
 			stack.decrement(1);
-		return ActionResult.success(user.getWorld().isClient());
-	}
-	
-	public static boolean isValidMobForVest(Entity entity)
-	{
-		return APPLICABLE_MOBS.containsKey(entity.getType());
+		return ActionResult.SUCCESS_SERVER;
 	}
 	
 	public static boolean isMobWithVest(Entity entity)
 	{
 		return isValidMobForVest(entity) && !getVest((LivingEntity)entity).isEmpty();
+	}
+	
+	public static boolean isValidMobForVest(Entity entity)
+	{
+		return APPLICABLE_MOBS.containsKey(entity.getType());
 	}
 	
 	@Nullable
@@ -84,9 +86,9 @@ public class ItemVest extends Item implements DyeableItem
 	public static void dropVest(LivingEntity entity)
 	{
 		ItemStack vest = getVest(entity);
-		if(!vest.isEmpty())
+		if(!vest.isEmpty() && !entity.getWorld().isClient())
 		{
-			entity.dropStack(vest);
+			entity.dropStack((ServerWorld)entity.getWorld(), vest);
 			setVest(entity, ItemStack.EMPTY);
 		}
 	}

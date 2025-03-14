@@ -1,6 +1,6 @@
 package com.lying.client.utility;
 
-import com.lying.client.network.StartFlyingPacket;
+import com.lying.network.StartFlyingPacket;
 import com.lying.entity.IFlyingMount;
 import com.lying.utility.ServerEvents;
 

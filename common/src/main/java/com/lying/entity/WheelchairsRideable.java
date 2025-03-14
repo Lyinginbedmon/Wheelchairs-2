@@ -1,15 +1,10 @@
 package com.lying.entity;
 
-import java.util.Optional;
-
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
-import com.lying.Wheelchairs;
 import com.lying.mixin.AccessorEntity;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.entity.Dismounting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
@@ -25,9 +20,8 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
@@ -38,12 +32,8 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockLocating;
-import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
-import net.minecraft.world.border.WorldBorder;
 
 public abstract class WheelchairsRideable extends LivingEntity
 {
@@ -54,7 +44,7 @@ public abstract class WheelchairsRideable extends LivingEntity
 	
 	public static DefaultAttributeContainer.Builder createMountAttributes()
 	{
-		return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 1F).add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.1F);
+		return MobEntity.createMobAttributes().add(EntityAttributes.MAX_HEALTH, 1F).add(EntityAttributes.MOVEMENT_SPEED, 0.1F).add(EntityAttributes.STEP_HEIGHT, 1F);
 	}
 	
 	public abstract void copyFromItem(ItemStack stack);
@@ -69,7 +59,7 @@ public abstract class WheelchairsRideable extends LivingEntity
 		
 		ItemStack stack = entityToItem(this);
 		ItemEntity item = new ItemEntity(getWorld(), getX(), getY(), getZ(), stack);
-		dropInventory();
+		dropInventory((ServerWorld)getWorld());
 		
 		if(player == null || !player.getInventory().insertStack(stack))
 			getWorld().spawnEntity(item);
@@ -109,90 +99,70 @@ public abstract class WheelchairsRideable extends LivingEntity
 	
 	public boolean isSaddled() { return true; }
 	
-	/** Usually only called by InGameHud, we set this to FALSE to prevent the hunger bar being hidden */
-	public boolean isLiving() { return false; }
-	
 	public int getDefaultPortalCooldown() { return 10; }
 	
 	/** Identical to standard behaviour, except can use portals whilst ridden */
 	public boolean canUsePortals() { return !hasVehicle() && !isSleeping(); }
 	
-	public Entity moveToWorld(ServerWorld destination)
-	{
-		if(!(getWorld() instanceof ServerWorld) || isRemoved())
-			return null;
-		else if(!hasPassengers())
-			return super.moveToWorld(destination);
-		
-		Profiler profiler = getWorld().getProfiler();
-		profiler.push("changeDimension");
-		if(hasVehicle())
-			dismountVehicle();
-		profiler.push("reposition");
-		TeleportTarget teleportTarget = getTeleportTarget(destination);
-		if(teleportTarget == null)
-			return null;
-		profiler.swap("reloading");
-		Entity entity = recreateInDimension(destination);
-		if(entity != null)
-		{
-			ServerPlayerEntity player = null;
-			if(getPlayerPassengers() > 0)
-			{
-				player = (ServerPlayerEntity)getFirstPassenger();
-				player.dismountVehicle();
-			}
-			
-			entity.refreshPositionAndAngles(teleportTarget.position.x, teleportTarget.position.y, teleportTarget.position.z, teleportTarget.yaw, entity.getPitch());
-			entity.setVelocity(teleportTarget.velocity);
-			destination.spawnNewEntityAndPassengers(entity);
-			if(destination.getRegistryKey() == World.END)
-				ServerWorld.createEndSpawnPlatform(destination);
-			
-			if(player != null)
-			{
-				Vector3f seatOffset = new Vector3f(0F, (float)getMountedHeightOffset(player), 0F);
-				Vec3d offsetPos = entity.getPos().add(seatOffset.x, seatOffset.y, seatOffset.z);
-				player.teleport(destination, offsetPos.x, offsetPos.y, offsetPos.z, entity.getYaw(), entity.getPitch());
-				player.startRiding(entity);
-			}
-		}
-		removeFromDimension();
-		profiler.pop();
-		((ServerWorld)getWorld()).resetIdleTimeout();
-		destination.resetIdleTimeout();
-		profiler.pop();
-		return entity;
-	}
-	
-	protected Optional<BlockLocating.Rectangle> getPortalRect(ServerWorld destWorld, BlockPos destPos, boolean destIsNether, WorldBorder worldBorder)
-	{
-		Optional<BlockLocating.Rectangle> optional = super.getPortalRect(destWorld, destPos, destIsNether, worldBorder);
-		if(optional.isPresent())
-			return optional;
-		Direction.Axis axis = getWorld().getBlockState(this.lastNetherPortalPosition).getOrEmpty(NetherPortalBlock.AXIS).orElse(Direction.Axis.X);
-		optional = destWorld.getPortalForcer().createPortal(destPos, axis);
-		if(!optional.isPresent())
-			Wheelchairs.LOGGER.error("Unable to create a portal, likely target is outside of the worldborder {}", destPos.toString());
-		return optional;
-	}
-	
-	public abstract double getMountedHeightOffset(Entity passenger);
-	
-	public double getMountedHeightOffset() { return hasControllingPassenger() ? getMountedHeightOffset(getControllingPassenger()) : super.getMountedHeightOffset(); }
-	
-	public int getPlayerPassengers() { return (int)getPassengerList().stream().filter(Entity::isPlayer).count(); }
-	
-	protected Entity recreateInDimension(ServerWorld destination)
-	{
-		NbtCompound chairData = new NbtCompound();
-		saveNbt(chairData);
-		
-		return EntityType.loadEntityWithPassengers(chairData, destination, entity -> {
-			entity.refreshPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
-			return entity;
-		});
-	}
+	// FIXME Ensure ridden wheelchairs can pass through portals regardless of world settings
+//	public Entity moveToWorld(ServerWorld destination)
+//	{
+//		if(!(getWorld() instanceof ServerWorld) || isRemoved())
+//			return null;
+//		else if(!hasPassengers())
+//			return super.moveToWorld(destination);
+//		
+//		Profiler profiler = getWorld().getProfiler();
+//		profiler.push("changeDimension");
+//		if(hasVehicle())
+//			dismountVehicle();
+//		profiler.push("reposition");
+//		TeleportTarget teleportTarget = getTeleportTarget(destination);
+//		if(teleportTarget == null)
+//			return null;
+//		profiler.swap("reloading");
+//		Entity entity = recreateInDimension(destination);
+//		if(entity != null)
+//		{
+//			ServerPlayerEntity player = null;
+//			if(getPlayerPassengers() > 0)
+//			{
+//				player = (ServerPlayerEntity)getFirstPassenger();
+//				player.dismountVehicle();
+//			}
+//			
+//			entity.refreshPositionAndAngles(teleportTarget.position.x, teleportTarget.position.y, teleportTarget.position.z, teleportTarget.yaw, entity.getPitch());
+//			entity.setVelocity(teleportTarget.velocity);
+//			destination.spawnNewEntityAndPassengers(entity);
+//			if(destination.getRegistryKey() == World.END)
+//				ServerWorld.createEndSpawnPlatform(destination);
+//			
+//			if(player != null)
+//			{
+//				Vector3f seatOffset = getPassengerAttachmentPos(player, entity.getDimensions(EntityPose.STANDING), 1F);
+//				Vec3d offsetPos = entity.getPos().add(seatOffset.x, seatOffset.y, seatOffset.z);
+//				player.teleport(destination, offsetPos.x, offsetPos.y, offsetPos.z, entity.getYaw(), entity.getPitch());
+//				player.startRiding(entity);
+//			}
+//		}
+//		removeFromDimension();
+//		profiler.pop();
+//		((ServerWorld)getWorld()).resetIdleTimeout();
+//		destination.resetIdleTimeout();
+//		profiler.pop();
+//		return entity;
+//	}
+//	
+//	protected Entity recreateInDimension(ServerWorld destination)
+//	{
+//		NbtCompound chairData = new NbtCompound();
+//		saveNbt(chairData);
+//		
+//		return EntityType.loadEntityWithPassengers(chairData, destination, entity -> {
+//			entity.refreshPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
+//			return entity;
+//		});
+//	}
 	
 	protected boolean putPlayerInSaddle(PlayerEntity player)
 	{
@@ -261,7 +231,7 @@ public abstract class WheelchairsRideable extends LivingEntity
 		return null;
 	}
 	
-	protected void updatePassengerPosition(Entity passenger, PositionUpdater positionUpdater)
+	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
 	{
 		super.updatePassengerPosition(passenger, positionUpdater);
 		if(passenger instanceof LivingEntity)
@@ -352,4 +322,16 @@ public abstract class WheelchairsRideable extends LivingEntity
 	}
 	
 	public abstract float getActualStepHeight();
+	
+	public void dropItem(ItemConvertible itemIn)
+	{
+		if(!getWorld().isClient())
+			super.dropItem((ServerWorld)getWorld(), itemIn);
+	}
+	
+	public void dropStack(ItemStack itemIn)
+	{
+		if(!getWorld().isClient())
+			super.dropStack((ServerWorld)getWorld(), itemIn);
+	}
 }

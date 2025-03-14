@@ -56,7 +56,7 @@ public abstract class EntityMixin
 	@Shadow
 	public DataTracker getDataTracker() { return null; }
 	
-	protected boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
+	private boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
 	
 	@Inject(method = "startRiding(Lnet/minecraft/entity/Entity;Z)Z", at = @At("HEAD"))
 	private void whc$startRidingHead(Entity entity, boolean force, final CallbackInfoReturnable<Boolean> ci)

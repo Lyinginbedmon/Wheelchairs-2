@@ -7,7 +7,6 @@ import com.lying.entity.EntityWheelchair;
 import com.lying.item.ItemAACTablet;
 import com.lying.item.ItemCane;
 import com.lying.item.ItemCaneHandle;
-import com.lying.item.ItemController;
 import com.lying.item.ItemCrutch;
 import com.lying.item.ItemStool;
 import com.lying.item.ItemVest;
@@ -21,9 +20,9 @@ import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.OnAStickItem;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 
 public class WHCItems
@@ -48,6 +47,18 @@ public class WHCItems
 	public static final RegistrySupplier<Item> WHEELCHAIR_MANGROVE = wheelchair("mangrove");
 	public static final RegistrySupplier<Item> WHEELCHAIR_CHERRY = wheelchair("cherry");
 	public static final RegistrySupplier<Item> WHEELCHAIR_BAMBOO = wheelchair("bamboo");
+	
+	public static final RegistrySupplier<Item> WALKER_OAK = walker("oak");
+	public static final RegistrySupplier<Item> WALKER_SPRUCE = walker("spruce");
+	public static final RegistrySupplier<Item> WALKER_BIRCH = walker("birch");
+	public static final RegistrySupplier<Item> WALKER_DARK_OAK = walker("dark_oak");
+	public static final RegistrySupplier<Item> WALKER_ACACIA = walker("acacia");
+	public static final RegistrySupplier<Item> WALKER_JUNGLE = walker("jungle");
+	public static final RegistrySupplier<Item> WALKER_CRIMSON = walker("crimson");
+	public static final RegistrySupplier<Item> WALKER_WARPED = walker("warped");
+	public static final RegistrySupplier<Item> WALKER_MANGROVE = walker("mangrove");
+	public static final RegistrySupplier<Item> WALKER_CHERRY = walker("cherry");
+	public static final RegistrySupplier<Item> WALKER_BAMBOO = walker("bamboo");
 	
 	public static final RegistrySupplier<Item> WHEEL_OAK = wheel("oak");
 	public static final RegistrySupplier<Item> WHEEL_SPRUCE = wheel("spruce");
@@ -76,18 +87,6 @@ public class WHCItems
 	public static final RegistrySupplier<Item> CRUTCH_MANGROVE = crutch("mangrove");
 	public static final RegistrySupplier<Item> CRUTCH_CHERRY = crutch("cherry");
 	public static final RegistrySupplier<Item> CRUTCH_BAMBOO = crutch("bamboo");
-	
-	public static final RegistrySupplier<Item> WALKER_OAK = walker("oak");
-	public static final RegistrySupplier<Item> WALKER_SPRUCE = walker("spruce");
-	public static final RegistrySupplier<Item> WALKER_BIRCH = walker("birch");
-	public static final RegistrySupplier<Item> WALKER_DARK_OAK = walker("dark_oak");
-	public static final RegistrySupplier<Item> WALKER_ACACIA = walker("acacia");
-	public static final RegistrySupplier<Item> WALKER_JUNGLE = walker("jungle");
-	public static final RegistrySupplier<Item> WALKER_CRIMSON = walker("crimson");
-	public static final RegistrySupplier<Item> WALKER_WARPED = walker("warped");
-	public static final RegistrySupplier<Item> WALKER_MANGROVE = walker("mangrove");
-	public static final RegistrySupplier<Item> WALKER_CHERRY = walker("cherry");
-	public static final RegistrySupplier<Item> WALKER_BAMBOO = walker("bamboo");
 	
 	public static final RegistrySupplier<Item> CANE_OAK = cane("oak");
 	public static final RegistrySupplier<Item> CANE_SPRUCE = cane("spruce");
@@ -119,16 +118,16 @@ public class WHCItems
 	public static final RegistrySupplier<Item> HANDLE_CHERRY = handle("cherry");
 	public static final RegistrySupplier<Item> HANDLE_BAMBOO = handle("bamboo");
 	
-	public static final RegistrySupplier<Item> CONTROLLER = register("controller", () -> new ItemController<EntityWheelchair>(new Item.Settings().arch$tab(WHEELCHAIR_TAB), WHCEntityTypes.WHEELCHAIR, 0));
-	public static final RegistrySupplier<Item> STOOL	= registerWithFake("wheeled_stool", () -> new ItemStool(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+	public static final RegistrySupplier<Item> CONTROLLER = register("controller", () -> new OnAStickItem<EntityWheelchair>(WHCEntityTypes.WHEELCHAIR.get(), 0, new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+	public static final RegistrySupplier<Item> STOOL = register("wheeled_stool", () -> new ItemStool(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	
 	public static final RegistrySupplier<Item> VEST	= register("service_vest", () -> new ItemVest(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
-	public static final RegistrySupplier<Item> TABLET	= register("speech_tablet", () -> new ItemAACTablet(new Item.Settings().maxCount(1).arch$tab(WHEELCHAIR_TAB).rarity(Rarity.RARE)));
+	public static final RegistrySupplier<Item> TABLET	= register("speech_tablet", () -> new ItemAACTablet(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1).rarity(Rarity.RARE)));
 	
 	private static RegistrySupplier<Item> register(String nameIn, Supplier<Item> itemIn)
 	{
 		++tally;
-		return ITEMS.register(new Identifier(Reference.ModInfo.MOD_ID, nameIn), itemIn);
+		return ITEMS.register(Reference.ModInfo.prefix(nameIn), itemIn);
 	}
 	
 	private static RegistrySupplier<Item> registerWithFake(String nameIn, Supplier<Item> itemIn)
@@ -143,7 +142,7 @@ public class WHCItems
 		
 		ITEMS.register();
 		TABS.register();
-		Wheelchairs.LOGGER.info(" # Registered "+tally+" items");
+		Wheelchairs.LOGGER.info(" # Registered {} items", tally);
 	}
 	
 	private static RegistrySupplier<Item> wheelchair(String name)
@@ -173,6 +172,6 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> handle(String name)
 	{
-		return register(name+"_handle", () -> new ItemCaneHandle(new Item.Settings().maxCount(1)));
+		return register(name+"_handle", () -> new ItemCaneHandle(new Item.Settings().arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 }

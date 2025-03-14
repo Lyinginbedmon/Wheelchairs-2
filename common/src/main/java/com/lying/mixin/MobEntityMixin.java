@@ -23,7 +23,7 @@ public class MobEntityMixin
 		if(ci.getReturnValue().isAccepted()) return;
 		MobEntity mob = (MobEntity)(Object)this;
 		ItemStack stack = player.getStackInHand(hand);
-		if(!stack.isEmpty() && stack.getItem() == WHCItems.VEST.get())
+		if(!stack.isEmpty() && stack.getItem() == WHCItems.VEST)
 		{
 			ActionResult result = ((ItemVest)stack.getItem()).useOnEntity(stack, player, mob, hand);
 			if(result.isAccepted())

@@ -1,74 +1,65 @@
 package com.lying.client.init;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.lying.init.WHCItems;
-import com.lying.mixin.ItemRendererMixin;
-import com.lying.mixin.ModelLoaderMixin;
 
 import dev.architectury.registry.registries.RegistrySupplier;
-import net.minecraft.client.color.item.ItemColorProvider;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.util.Identifier;
 
-@SuppressWarnings("unchecked")
 public class WHCItemsClient
 {
 	private static final List<ExtraModelHandler> EXTRA_MODELS = Lists.newArrayList();
 	
-	private static final Map<ItemColorProvider, Supplier<? extends Item>[]> COLORS = new HashMap<>();
-	
-	static
-	{
-		register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, WHCItems.STOOL);
-		register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, WHCItems.VEST);
-		register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
-				WHCItems.WHEELCHAIR_ACACIA,
-				WHCItems.WHEELCHAIR_BIRCH,
-				WHCItems.WHEELCHAIR_DARK_OAK,
-				WHCItems.WHEELCHAIR_JUNGLE,
-				WHCItems.WHEELCHAIR_OAK,
-				WHCItems.WHEELCHAIR_SPRUCE,
-				WHCItems.WHEELCHAIR_CHERRY,
-				WHCItems.WHEELCHAIR_MANGROVE,
-				WHCItems.WHEELCHAIR_WARPED,
-				WHCItems.WHEELCHAIR_CRIMSON,
-				WHCItems.WHEELCHAIR_BAMBOO);
-		register((stack, tintIndex) -> { return tintIndex > 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
-				WHCItems.CRUTCH_ACACIA,
-				WHCItems.CRUTCH_BIRCH,
-				WHCItems.CRUTCH_DARK_OAK,
-				WHCItems.CRUTCH_JUNGLE,
-				WHCItems.CRUTCH_OAK,
-				WHCItems.CRUTCH_SPRUCE,
-				WHCItems.CRUTCH_CHERRY,
-				WHCItems.CRUTCH_MANGROVE,
-				WHCItems.CRUTCH_WARPED,
-				WHCItems.CRUTCH_CRIMSON,
-				WHCItems.CRUTCH_BAMBOO);
-	}
-	
-	private static void register(ItemColorProvider provider, Supplier<? extends Item>... items)
-	{
-		COLORS.put(provider, items);
-	}
-	
-	public static void registerItemColors(BiConsumer<ItemColorProvider, Supplier<? extends Item>[]> consumer)
-	{
-		COLORS.entrySet().forEach(entry -> consumer.accept(entry.getKey(), entry.getValue()));
-	}
+//	private static final Map<ItemColorProvider, Supplier<? extends Item>[]> COLORS = new HashMap<>();
+//	
+//	static
+//	{
+//		register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, WHCItems.STOOL);
+//		register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, WHCItems.VEST);
+//		register((stack, tintIndex) -> { return tintIndex == 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
+//				WHCItems.WHEELCHAIR_ACACIA,
+//				WHCItems.WHEELCHAIR_BIRCH,
+//				WHCItems.WHEELCHAIR_DARK_OAK,
+//				WHCItems.WHEELCHAIR_JUNGLE,
+//				WHCItems.WHEELCHAIR_OAK,
+//				WHCItems.WHEELCHAIR_SPRUCE,
+//				WHCItems.WHEELCHAIR_CHERRY,
+//				WHCItems.WHEELCHAIR_MANGROVE,
+//				WHCItems.WHEELCHAIR_WARPED,
+//				WHCItems.WHEELCHAIR_CRIMSON,
+//				WHCItems.WHEELCHAIR_BAMBOO);
+//		register((stack, tintIndex) -> { return tintIndex > 0 ? ((DyeableItem)stack.getItem()).getColor(stack) : -1; }, 
+//				WHCItems.CRUTCH_ACACIA,
+//				WHCItems.CRUTCH_BIRCH,
+//				WHCItems.CRUTCH_DARK_OAK,
+//				WHCItems.CRUTCH_JUNGLE,
+//				WHCItems.CRUTCH_OAK,
+//				WHCItems.CRUTCH_SPRUCE,
+//				WHCItems.CRUTCH_CHERRY,
+//				WHCItems.CRUTCH_MANGROVE,
+//				WHCItems.CRUTCH_WARPED,
+//				WHCItems.CRUTCH_CRIMSON,
+//				WHCItems.CRUTCH_BAMBOO);
+//	}
+//	
+//	private static void register(ItemColorProvider provider, Supplier<? extends Item>... items)
+//	{
+//		COLORS.put(provider, items);
+//	}
+//	
+//	public static void registerItemColors(BiConsumer<ItemColorProvider, Supplier<? extends Item>[]> consumer)
+//	{
+//		COLORS.entrySet().forEach(entry -> consumer.accept(entry.getKey(), entry.getValue()));
+//	}
 	
 	private static void addExtraCrutchModel(RegistrySupplier<Item> item)
 	{
@@ -145,7 +136,7 @@ public class WHCItemsClient
 				return model.get();
 			
 			Identifier itemID = item.getId();
-			ModelIdentifier id = new ModelIdentifier(itemID.getNamespace(), itemID.getPath()+suffix, "inventory");
+			ModelIdentifier id = new ModelIdentifier(Identifier.of(itemID.getNamespace(), itemID.getPath()+suffix), "inventory");
 			model = Optional.of(id);
 			return id;
 		}

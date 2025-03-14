@@ -14,7 +14,7 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
 
 @Mixin(PlayerEntity.class)
-public class PlayerEntityMixin extends LivingEntityMixin
+public class PlayerEntityMixin extends EntityMixin
 {
 	@Inject(method = "getBlockBreakingSpeed(Lnet/minecraft/block/BlockState;)F", at = @At("RETURN"), cancellable = true)
 	public void whc$getBlockBreakingSpeed(BlockState block, final CallbackInfoReturnable<Float> ci)
@@ -29,7 +29,7 @@ public class PlayerEntityMixin extends LivingEntityMixin
 	@Inject(method = "updatePose()V", at = @At("HEAD"))
 	public void whc$updatePoseStart(final CallbackInfo ci)
 	{
-		wasFlying = getPose() == EntityPose.FALL_FLYING;
+		wasFlying = getPose() == EntityPose.GLIDING;
 	}
 	
 	@Inject(method = "updatePose()V", at = @At("TAIL"))
@@ -38,7 +38,7 @@ public class PlayerEntityMixin extends LivingEntityMixin
 		if(getWorld().isClient())
 			return;
 		
-		boolean isFlying = getPose() == EntityPose.FALL_FLYING;
+		boolean isFlying = getPose() == EntityPose.GLIDING;
 		if(wasFlying != isFlying)
 		{
 			PlayerEntity player = (PlayerEntity)(Object)this;

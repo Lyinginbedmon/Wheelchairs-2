@@ -1,28 +1,26 @@
 package com.lying.data.recipe;
 
-import java.util.Objects;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCSpecialRecipes;
 import com.lying.item.ItemCane;
 import com.lying.reference.Reference;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.IngredientPlacement;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.RecipeType;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
+import net.minecraft.recipe.book.RecipeBookCategories;
+import net.minecraft.recipe.book.RecipeBookCategory;
+import net.minecraft.recipe.input.RecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 
 /**
@@ -31,9 +29,9 @@ import net.minecraft.world.World;
  * @author Lying
  *
  */
-public class RecipeHandle implements Recipe<Inventory>
+public class RecipeHandle implements Recipe<RecipeInput>
 {
-	public static final Identifier ID = new Identifier(Reference.ModInfo.MOD_ID, "handle");
+	public static final Identifier ID = Reference.ModInfo.prefix("handle");
 	
 	private final ItemStack result;
 	private final Ingredient material;
@@ -44,22 +42,22 @@ public class RecipeHandle implements Recipe<Inventory>
 		this.material = staff;
 	}
 	
-	public Identifier getId() { return Registries.ITEM.getId(result.getItem()); }
-	
 	public RecipeType<RecipeHandle> getType() { return WHCSpecialRecipes.HANDLE_TYPE.get(); }
 	
-	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
+	public RecipeBookCategory getRecipeBookCategory() { return RecipeBookCategories.CRAFTING_MISC; }
+	
+	public IngredientPlacement getIngredientPlacement() { return IngredientPlacement.NONE; }	// XXX ????
 	
 	public boolean isIgnoredInRecipeBook() { return true; }
 	
 	public boolean fits(int width, int height) { return width >= 1 && height >= 1; }
 	
-	public boolean matches(Inventory inv, World var2)
+	public boolean matches(RecipeInput inv, World var2)
 	{
 		ItemStack mat = ItemStack.EMPTY;
 		for(int i=0; i<inv.size(); i++)
 		{
-			ItemStack stackInSlot = inv.getStack(i);
+			ItemStack stackInSlot = inv.getStackInSlot(i);
 			if(material.test(stackInSlot))
 			{
 				if(mat.isEmpty())
@@ -73,7 +71,7 @@ public class RecipeHandle implements Recipe<Inventory>
 	}
 	
 	/** Gets an oak cane with this handle */
-	public ItemStack getOutput(DynamicRegistryManager var2)
+	public ItemStack getResult(DynamicRegistryManager var2)
 	{
 		return ItemCane.withHandle(WHCItems.CANE_OAK.get(), this.result.getItem());
 	}
@@ -81,13 +79,13 @@ public class RecipeHandle implements Recipe<Inventory>
 	/** Returns the actual item for this recipe that should be added to the cane */
 	public ItemStack getResult() { return this.result.copy(); }
 	
-	public ItemStack craft(Inventory inv, DynamicRegistryManager var2)
+	public ItemStack craft(RecipeInput inv, RegistryWrapper.WrapperLookup var2)
 	{
 		ItemStack mat = ItemStack.EMPTY;
 		
 		for(int i=0; i<inv.size(); i++)
 		{
-			ItemStack stackInSlot = inv.getStack(i);
+			ItemStack stackInSlot = inv.getStackInSlot(i);
 			if(material.test(stackInSlot))
 			{
 				if(mat.isEmpty())
@@ -100,42 +98,22 @@ public class RecipeHandle implements Recipe<Inventory>
 		return !mat.isEmpty() ? this.result.copy() : ItemStack.EMPTY;
 	}
 	
-	public RecipeSerializer<?> getSerializer() { return WHCSpecialRecipes.HANDLE_SERIALIZER.get(); }
+	public RecipeSerializer<? extends Recipe<RecipeInput>> getSerializer() { return WHCSpecialRecipes.HANDLE_SERIALIZER.get(); }
 	
     public static class Serializer implements RecipeSerializer<RecipeHandle>
     {
-        public RecipeHandle read(Identifier recipeId, JsonObject json)
+		private static final MapCodec<RecipeHandle> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			ItemStack.CODEC.fieldOf("result").forGetter(r -> r.result),
+        	Ingredient.CODEC.fieldOf("material").forGetter(r -> r.material))
+				.apply(instance, RecipeHandle::new));
+        public static final PacketCodec<RegistryByteBuf, RecipeHandle> PACKET_CODEC	= PacketCodec.of((r, buf) -> 
         {
-    		JsonObject item = json.get("result").getAsJsonObject();
-    		ItemStack result = getItem(JsonHelper.getString(item, "item")).getDefaultStack().copy();
-    		
-    		Ingredient material = Ingredient.fromJson(json.get("material"));
-    		return new RecipeHandle(result, material);
-        }
+        	ItemStack.PACKET_CODEC.encode(buf, r.result);
+        	Ingredient.PACKET_CODEC.encode(buf, r.material);
+        }, buf -> new RecipeHandle(ItemStack.PACKET_CODEC.decode(buf), Ingredient.PACKET_CODEC.decode(buf)));
         
-        public RecipeHandle read(Identifier recipeId, PacketByteBuf packetByteBuf)
-        {
-        	ItemStack result = packetByteBuf.readItemStack();
-            Ingredient backing = Ingredient.fromPacket(packetByteBuf);
-            return new RecipeHandle(result, backing);
-        }
+        public MapCodec<RecipeHandle> codec() { return CODEC; }
         
-        public static Item getItem(String name)
-        {
-        	Identifier itemKey = new Identifier(name);
-        	if(!Registries.ITEM.containsId(itemKey))
-        		throw new JsonSyntaxException("Unknown item '" + name + "'");
-        	
-        	Item item = Registries.ITEM.get(itemKey);
-        	if(item == Items.AIR)
-        		throw new JsonSyntaxException("Invalid item: " + name);
-        	return Objects.requireNonNull(item);
-        }
-        
-        public void write(PacketByteBuf packetByteBuf, RecipeHandle handleRecipe)
-        {
-        	packetByteBuf.writeItemStack(handleRecipe.result);
-        	handleRecipe.material.write(packetByteBuf);
-        }
+        public PacketCodec<RegistryByteBuf, RecipeHandle> packetCodec() { return PACKET_CODEC; }
     }
 }

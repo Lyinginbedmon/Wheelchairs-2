@@ -6,25 +6,26 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.RegistryWrapper;
 
-public class VestData
+public abstract class VestData
 {
-	private final LivingEntity owner;
+	protected final LivingEntity owner;
 	private ItemStack vest = ItemStack.EMPTY;
 	
 	public VestData(LivingEntity ownerIn) { this.owner = ownerIn; }
 	
-	public void readFromNbt(NbtCompound tag)
+	public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup)
 	{
 		vest = ItemStack.EMPTY;
 		if(tag.contains("Vest", NbtElement.COMPOUND_TYPE))
-			vest = ItemStack.fromNbt(tag.getCompound("Vest"));
+			vest = ItemStack.fromNbt(lookup, tag.getCompound("Vest")).orElse(ItemStack.EMPTY);
 	}
 	
-	public void writeToNbt(NbtCompound tag)
+	public void writeToNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup)
 	{
 		if(!vest.isEmpty())
-			tag.put("Vest", vest.writeNbt(new NbtCompound()));
+			tag.put("Vest", vest.toNbt(lookup));
 	}
 	
 	public boolean hasVest() { return !vest.isEmpty(); }

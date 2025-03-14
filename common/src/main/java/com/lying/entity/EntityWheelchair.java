@@ -7,11 +7,11 @@ import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import com.google.common.collect.Lists;
 import com.lying.block.BlockFrostedLava;
 import com.lying.init.WHCBlocks;
+import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCUpgrades;
 import com.lying.item.ItemWheelchair;
@@ -22,6 +22,8 @@ import com.lying.utility.WHCUtils;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -35,27 +37,31 @@ import net.minecraft.entity.JumpingMount;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.SaddledComponent;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandler;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.AutomaticItemPlacementContext;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
@@ -81,7 +87,8 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	public static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	public static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	
-	public static final TrackedData<NbtCompound> UPGRADES = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.NBT_COMPOUND);
+	public static final TrackedDataHandler<List<Identifier>> UPGRADE_LIST	= TrackedDataHandler.create(Identifier.PACKET_CODEC.collect(PacketCodecs.toList()));
+	public static final TrackedData<List<Identifier>> UPGRADES = DataTracker.registerData(EntityWheelchair.class, UPGRADE_LIST);
 	
 	public static final TrackedData<Boolean> POWERED = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
 	public static final TrackedData<Optional<UUID>> USER_ID = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
@@ -98,26 +105,30 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	public EntityWheelchair(EntityType<? extends EntityWheelchair> entityType, World world)
 	{
 		super(entityType, world);
-		this.setStepHeight(1.0f);
 		this.saddledComponent = new SaddledComponent(this.dataTracker, BOOST_TIME, POWERED);
 		this.onChestedStatusChanged();
 	}
 	
-	public void initDataTracker()
+	public void initDataTracker(DataTracker.Builder builder)
 	{
-		super.initDataTracker();
+		super.initDataTracker(builder);
 		
-		this.getDataTracker().startTracking(CHAIR, WHCItems.WHEELCHAIR_OAK.get().getDefaultStack());
-		this.getDataTracker().startTracking(COLOR, OptionalInt.of(DyeableItem.DEFAULT_COLOR));
-		this.getDataTracker().startTracking(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK.get()));
-		this.getDataTracker().startTracking(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK.get()));
+		builder.add(CHAIR, WHCItems.WHEELCHAIR_OAK.get().getDefaultStack());
+		builder.add(COLOR, OptionalInt.of(DyedColorComponent.DEFAULT_COLOR));
+		builder.add(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
+		builder.add(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
 		
-		this.getDataTracker().startTracking(UPGRADES, new NbtCompound());
-		this.getDataTracker().startTracking(POWERED, false);
-		this.getDataTracker().startTracking(USER_ID, Optional.empty());
-		this.getDataTracker().startTracking(REBIND, 0);
-		this.getDataTracker().startTracking(FLYING, false);
-		this.getDataTracker().startTracking(BOOST_TIME, 0);
+		builder.add(UPGRADES, Lists.newArrayList());
+		builder.add(POWERED, false);
+		builder.add(USER_ID, Optional.empty());
+		builder.add(REBIND, 0);
+		builder.add(FLYING, false);
+		builder.add(BOOST_TIME, 0);
+	}
+	
+	public static DefaultAttributeContainer.Builder createWheelchairAttributes()
+	{
+		return createMountAttributes().add(EntityAttributes.STEP_HEIGHT, 1.0F);
 	}
 	
 	public void onTrackedDataSet(TrackedData<?> data)
@@ -131,7 +142,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	{
 		super.readCustomDataFromNbt(data);
 		if(data.contains("Chair", NbtElement.COMPOUND_TYPE))
-			getDataTracker().set(CHAIR, ItemStack.fromNbt(data.getCompound("Chair")));
+			getDataTracker().set(CHAIR, ItemStack.fromNbt(getRegistryManager(), data.getCompound("Chair")).get());
 		
 		if(data.contains("Color", NbtElement.INT_TYPE))
 			getDataTracker().set(COLOR, OptionalInt.of(data.getInt("Color")));
@@ -139,12 +150,12 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		if(data.contains("Wheels", NbtElement.COMPOUND_TYPE))
 		{
 			NbtCompound wheels = data.getCompound("Wheels");
-			getDataTracker().set(LEFT_WHEEL, ItemStack.fromNbt(wheels.getCompound("Left")));
-			getDataTracker().set(RIGHT_WHEEL, ItemStack.fromNbt(wheels.getCompound("Right")));
+			getDataTracker().set(LEFT_WHEEL, ItemStack.fromNbt(getRegistryManager(), wheels.getCompound("Left")).get());
+			getDataTracker().set(RIGHT_WHEEL, ItemStack.fromNbt(getRegistryManager(), wheels.getCompound("Right")).get());
 		}
 		
 		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
-			setUpgrades(data.getList("Upgrades", NbtElement.STRING_TYPE));
+			setUpgrades(data.getList("Upgrades", NbtElement.STRING_TYPE).stream().map(e -> Identifier.of(e.asString())).toList());
 		
 		onChestedStatusChanged();
 		if(hasUpgrade(WHCUpgrades.STORAGE.get()))
@@ -155,7 +166,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 				NbtCompound nbt = items.getCompound(i);
 				int j = nbt.getByte("Slot") & 0xFF;
 				if (j < this.items.size())
-					this.items.setStack(j, ItemStack.fromNbt(nbt));
+					this.items.setStack(j, ItemStack.fromNbt(getRegistryManager(), nbt).get());
 			}
 		}
 	}
@@ -163,15 +174,18 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	public void writeCustomDataToNbt(NbtCompound data)
 	{
 		super.writeCustomDataToNbt(data);
-		data.put("Chair", getDataTracker().get(CHAIR).writeNbt(new NbtCompound()));
+		data.put("Chair", getDataTracker().get(CHAIR).toNbt(getRegistryManager()));
 		if(getDataTracker().get(COLOR).isPresent())
 			data.putInt("Color", getColor());
 		NbtCompound wheels = new NbtCompound();
-			wheels.put("Left", getLeftWheel().writeNbt(new NbtCompound()));
-			wheels.put("Right", getRightWheel().writeNbt(new NbtCompound()));
+			wheels.put("Left", getLeftWheel().toNbt(getRegistryManager()));
+			wheels.put("Right", getRightWheel().toNbt(getRegistryManager()));
 		data.put("Wheels", wheels);
 		
-		data.put("Upgrades", getUpgradeList());
+		NbtList upgradeList = new NbtList();
+		getUpgradeList().forEach(u -> upgradeList.add(NbtString.of(u.toString())));
+		data.put("Upgrades", upgradeList);
+		
 		if(hasUpgrade(WHCUpgrades.STORAGE.get()))
 		{
 			NbtList items = new NbtList();
@@ -181,17 +195,17 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 				if(stack.isEmpty()) continue;
 				NbtCompound nbt = new NbtCompound();
 				nbt.putByte("Slot", (byte)i);
-				stack.writeNbt(nbt);
+				stack.toNbt(getRegistryManager());
 				items.add(nbt);
 			}
 			data.put("Items", items);
 		}
 	}
 	
-	protected void setUpgrades(NbtList data)
+	protected void setUpgrades(List<Identifier> data)
 	{
 		List<ChairUpgrade> oldSet = getUpgrades();
-		List<ChairUpgrade> newSet = WHCUpgrades.nbtToList(data);
+		List<ChairUpgrade> newSet = WHCUpgrades.idsToList(data);
 		
 		// Remove any upgrades currently applied that aren't in the new set
 		oldSet.forEach(upgrade -> 
@@ -200,38 +214,34 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 				upgrade.removeFrom(this);
 		});
 		
-		NbtCompound upgrades = new NbtCompound();
-		NbtList set = new NbtList();
+		List<Identifier> upgrades = Lists.newArrayList();
 		for(int i=0; i<data.size(); i++)
 		{
-			String name = data.getString(i);
-			ChairUpgrade upgrade = WHCUpgrades.get(new Identifier(name));
+			ChairUpgrade upgrade = WHCUpgrades.get(data.get(i));
 			if(upgrade == null)
 				continue;
 			
 			if(!oldSet.contains(upgrade))
 				upgrade.applyTo(this);
-			set.add(NbtString.of(name));
+			upgrades.add(data.get(i));
 		}
 		
-		upgrades.put("Set", set);
 		getDataTracker().set(UPGRADES, upgrades);
 	}
 	
-	public NbtList getUpgradeList()
+	public List<Identifier> getUpgradeList()
 	{
-		NbtCompound data = getDataTracker().get(UPGRADES);
-		if(data.contains("Set", NbtElement.LIST_TYPE))
-			return data.getList("Set", NbtElement.STRING_TYPE);
-		else
-			return new NbtList();
+		return getDataTracker().get(UPGRADES);
 	}
 	
-	public List<ChairUpgrade> getUpgrades() { return WHCUpgrades.nbtToList(getUpgradeList()); }
+	public List<ChairUpgrade> getUpgrades()
+	{
+		return WHCUpgrades.idsToList(getUpgradeList());
+	}
 	
 	public boolean hasUpgrade(ChairUpgrade upgrade)
 	{
-		return getUpgradeList().stream().anyMatch(element -> element.asString().equals(upgrade.registryName().toString()));
+		return getUpgrades().contains(upgrade);
 	}
 	
 	public void addUpgrade(ChairUpgrade upgrade)
@@ -239,12 +249,12 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		if(hasUpgrade(upgrade))
 			return;
 		
-		NbtList upgrades = getUpgradeList();
-		upgrades.add(NbtString.of(upgrade.registryName().toString()));
+		List<Identifier> upgrades = getUpgradeList();
+		upgrades.add(upgrade.registryName());
 		setUpgrades(upgrades);
 		onChestedStatusChanged();
 		
-		playSound(SoundEvents.ITEM_ARMOR_EQUIP_IRON, getSoundVolume(), getSoundPitch());
+		playSound(SoundEvents.ITEM_ARMOR_EQUIP_IRON.value(), getSoundVolume(), getSoundPitch());
 	}
 	
 	public void removeUpgrade(ChairUpgrade upgrade)
@@ -252,9 +262,9 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		if(!hasUpgrade(upgrade) || hasPassengers())
 			return;
 		
-		NbtList upgrades = getUpgradeList();
-		upgrades.removeIf(element -> element.asString().equals(upgrade.registryName().toString()));
-		setUpgrades(upgrades);
+		List<ChairUpgrade> upgrades = getUpgrades();
+		upgrades.remove(upgrade);
+		setUpgrades(WHCUpgrades.listToIds(upgrades));
 		onChestedStatusChanged();
 		
 		dropItem(upgrade.dropItem());
@@ -269,8 +279,8 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	protected void onChestedStatusChanged()
 	{
-		if(!hasInventory())
-			dropInventory();
+		if(!hasInventory() && !getWorld().isClient())
+			dropInventory((ServerWorld)getWorld());
 		
 		SimpleInventory inv = this.items;
 		this.items = new SimpleInventory(16);
@@ -297,15 +307,15 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		}
 	}
 	
-	public void dropInventory()
+	public void dropInventory(ServerWorld world)
 	{
-		super.dropInventory();
+		super.dropInventory(world);
 		if(this.items != null)
 			for(int i=0; i<this.items.size(); ++i)
 			{
 				ItemStack stack = this.items.getStack(i);
 				if(stack.isEmpty() || EnchantmentHelper.hasVanishingCurse(stack)) continue;
-				this.dropStack(stack);
+				this.dropStack(world, stack);
 				this.items.setStack(i, ItemStack.EMPTY);
 			}
 	}
@@ -317,14 +327,15 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		{
 			if(heldStack.isIn(ItemTags.AXES))
 			{
-				// Get the last upgrade and remove
+				// get the last upgrade and remove
 				List<ChairUpgrade> upgrades = getUpgrades();
 				if(upgrades.isEmpty())
 					return ActionResult.FAIL;
+				
 				removeUpgrade(upgrades.get(upgrades.size() - 1));
 				if(!player.isCreative())
-					heldStack.damage(1, player, playerx -> playerx.sendToolBreakStatus(hand));
-				return ActionResult.success(getWorld().isClient());
+					heldStack.damage(1, player);
+				return ActionResult.SUCCESS_SERVER.withNewHandStack(heldStack);
 			}
 			else
 			{
@@ -335,7 +346,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 					addUpgrade(possibleUpgrades.stream().findFirst().get());
 					if(!player.getAbilities().creativeMode)
 						heldStack.decrement(1);
-					return ActionResult.success(getWorld().isClient());
+					return ActionResult.SUCCESS_SERVER.withNewHandStack(heldStack);
 				}
 			}
 		}
@@ -347,7 +358,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		}
 		else if(!this.getWorld().isClient())
 		{
-			if(hasPassengers() && hasUpgrade(WHCUpgrades.HANDLES.get()) && rebindCooldown() <= 0)
+			if(hasPassengers() && !hasPassenger(player) && hasUpgrade(WHCUpgrades.HANDLES.get()) && rebindCooldown() <= 0)
 				return IParentedEntity.bindToPlayer(player, this) ? ActionResult.CONSUME : ActionResult.PASS;
 			else if(!hasPassengers())
 				return putPlayerInSaddle(player) ? ActionResult.CONSUME : ActionResult.PASS;
@@ -362,23 +373,24 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		ItemStack stack = chair.getChair();
 		ItemWheelchair.setWheels(stack, chair.getLeftWheel(), chair.getRightWheel());
 		if(chair.hasColor() && stack.getItem() instanceof ItemWheelchair)
-			((ItemWheelchair)stack.getItem()).setColor(stack, chair.getColor());
+			stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(chair.getColor(), true));
 		
-		stack.getNbt().put("Upgrades", chair.getUpgradeList());
+		stack.set(WHCDataComponentTypes.UPGRADES.get(), chair.getUpgradeList());
 		
 		return stack;
 	}
 	
 	public void copyFromItem(ItemStack stack)
 	{
+		stack.getComponents().contains(DataComponentTypes.DYED_COLOR);
 		getDataTracker().set(CHAIR, stack.copy());
-		getDataTracker().set(COLOR, stack.getItem() instanceof DyeableItem ? OptionalInt.of(((DyeableItem)stack.getItem()).getColor(stack)) : OptionalInt.empty());
+		getDataTracker().set(COLOR, stack.getComponents().contains(DataComponentTypes.DYED_COLOR) ? OptionalInt.of(DyedColorComponent.getColor(stack, -1)) : OptionalInt.empty());
 		getDataTracker().set(LEFT_WHEEL, ItemWheelchair.getWheel(stack, Arm.LEFT));
 		getDataTracker().set(RIGHT_WHEEL, ItemWheelchair.getWheel(stack, Arm.RIGHT));
 		
-		NbtCompound stackData;
-		if(stack.hasNbt() && (stackData = stack.getNbt()).contains("Upgrades", NbtElement.LIST_TYPE))
-			setUpgrades(stackData.getList("Upgrades", NbtElement.STRING_TYPE));
+		List<Identifier> stackData;
+		if(stack.contains(WHCDataComponentTypes.UPGRADES.get()) && !(stackData = stack.get(WHCDataComponentTypes.UPGRADES.get())).isEmpty())
+			setUpgrades(stackData);
 	}
 	
 	/** Converts this wheelchair into an ItemEntity or (if a player is supplied) an ItemStack in a player's inventory */
@@ -388,7 +400,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		{
 			ItemStack stack = entityToItem(this);
 			ItemEntity item = new ItemEntity(getWorld(), getX(), getY(), getZ(), stack);
-			dropInventory();
+			dropInventory((ServerWorld)getWorld());
 			
 			if(player == null || !player.getInventory().insertStack(stack))
 				getWorld().spawnEntity(item);
@@ -398,13 +410,13 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	public LivingEntity getControllingPassenger()
 	{
-		return !isFallFlying() && !hasParent() && getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
+		return !isGliding() && !hasParent() && getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
 	}
 	
 	public void tickMovement()
 	{
 		LivingEntity rider = null;
-		if(isFallFlying() && (rider = (LivingEntity)getFirstPassenger()) != null)
+		if(isGliding() && (rider = (LivingEntity)getFirstPassenger()) != null)
 			orientToRider(rider, Vec3d.ZERO);
 		super.tickMovement();
 	}
@@ -437,7 +449,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	private void serverTick()
 	{
-		if(hasControllingPassenger() && isOnGround() && !isFallFlying() && age%5 == 0 && hasUpgrade(WHCUpgrades.PLACER.get()))
+		if(hasControllingPassenger() && isOnGround() && !isGliding() && age%5 == 0 && hasUpgrade(WHCUpgrades.PLACER.get()))
 		{
 			Inventory inv = getInventory();
 			ItemStack stack = inv.getStack(0);
@@ -461,15 +473,10 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
         ServerWorld world = (ServerWorld)getWorld();
         Direction direction = Direction.DOWN;
         BlockPos blockPos = getBlockPos().offset(direction);
-        Direction direction2 = world.isAir(getBlockPos().down()) ? direction : Direction.UP;
-        if(blockPos.getY() < world.getBottomY() + 2 || !world.isAir(blockPos) || world.getBlockState(blockPos).isOf(item.getBlock()))
+        if(world.getBlockState(blockPos).getBlock() == item.getBlock())
         	return false;
         
-        try
-        {
-        	return item.place(new AutomaticItemPlacementContext(world, blockPos, direction, stack.copy(), direction2)).isAccepted();
-        }
-        catch(Exception e) { return false; }
+        return item.place(new AutomaticItemPlacementContext(world, blockPos, direction, stack, direction)).isAccepted();
 	}
 	
 	protected void tickControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
@@ -562,6 +569,13 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		return isOnGround() || this.fallDistance < this.getStepHeight() && !this.getWorld().isSpaceEmpty(this, this.getBoundingBox().offset(0, this.fallDistance - this.getStepHeight(), 0));
 	}
 	
+	protected void updatePassengerPosition(Entity passenger, Entity.PositionUpdater positionUpdater)
+	{
+		super.updatePassengerPosition(passenger, positionUpdater);
+		if(passenger instanceof LivingEntity)
+			clampPassengerYaw(passenger);
+	}
+	
 	protected void clampPassengerYaw(Entity passenger)
 	{
 		passenger.setBodyYaw(this.getYaw());
@@ -581,7 +595,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		if(amount == 0F || amount == 360F)
 			return;
 		
-		if(isFallFlying()) return;
+		if(isGliding()) return;
 		this.spinLeft = WHCUtils.wrapDegrees(this.spinLeft + amount);
 		this.spinRight = WHCUtils.wrapDegrees(this.spinRight - amount);
 	}
@@ -610,7 +624,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	protected float getSaddledSpeed(PlayerEntity controllingPlayer)
 	{
-		return (float)controllingPlayer.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * (isManual(controllingPlayer) ? 1F : this.saddledComponent.getMovementSpeedMultiplier());
+		return (float)controllingPlayer.getAttributeValue(EntityAttributes.MOVEMENT_SPEED) * (isManual(controllingPlayer) ? 1F : this.saddledComponent.getMovementSpeedMultiplier());
 	}
 	
 	public void move(MovementType type, Vec3d movementInput)
@@ -625,7 +639,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		super.move(type, movementInput);
 		this.tickExhaustion(getX() - x, getZ() - z);
 		
-		if(getWorld().isClient() && !isFallFlying())
+		if(getWorld().isClient() && !isGliding())
 		{
 			Vec3d local = WHCUtils.globalToLocal(movementInput, getYaw());
 			double speed = WHCUtils.calculateSpin((float)local.getZ(), 1F);
@@ -652,9 +666,9 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 				(hasUpgrade(WHCUpgrades.NETHERITE.get()) && getFluidHeight(FluidTags.LAVA) > swimHeight));
 	}
 	
-	public void applyMovementEffects(BlockPos pos)
+	public void applyMovementEffects(ServerWorld world, BlockPos pos)
 	{
-		super.applyMovementEffects(pos);
+		super.applyMovementEffects(world, pos);
 		if(EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()) > 0 && hasUpgrade(WHCUpgrades.NETHERITE.get()))
 			freezeLava(this, getWorld(), getBlockPos(), EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()));
 	}
@@ -706,24 +720,19 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		return EnchantmentHelper.getLevel(ench, getDataTracker().get(CHAIR));
 	}
 	
-    public double getMountedHeightOffset(Entity passenger)
-    {
-        return (double)getHeight() * (passenger.isInSneakingPose() ? 0.75 : 0.55);
-    }
-	
-	protected Vector3f getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
+	protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
 	{
-		return new Vector3f(0F, dimensions.height * 0.75F * scaleFactor, 0F);
+		return new Vec3d(0F, dimensions.height() * 0.85F * scaleFactor, 0F);
 	}
 	
-	public boolean hasStatusEffect(StatusEffect effect)
+	public boolean hasStatusEffect(RegistryEntry<StatusEffect> effect)
 	{
 		if(hasPassengers() && getControllingPassenger() instanceof LivingEntity)
 			return getControllingPassenger().hasStatusEffect(effect);
 		return false;
 	}
 	
-	public StatusEffectInstance getStatusEffect(StatusEffect effect)
+	public StatusEffectInstance getStatusEffect(RegistryEntry<StatusEffect> effect)
 	{
 		if(hasPassengers() && getControllingPassenger() instanceof LivingEntity)
 			return getControllingPassenger().getStatusEffect(effect);
@@ -751,7 +760,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	public ItemStack getChair()
 	{
 		ItemStack stack = getDataTracker().get(CHAIR);
-		return stack.getItem() instanceof ItemWheelchair ? stack : new ItemStack(WHCItems.WHEELCHAIR_OAK.get());
+		return stack.getItem() instanceof ItemWheelchair ? stack : new ItemStack(WHCItems.WHEELCHAIR_OAK);
 	}
 	
 	public boolean hasColor() { return getDataTracker().get(COLOR).isPresent(); }
@@ -787,20 +796,20 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	public boolean isFlying() { return getDataTracker().get(FLYING); }
 	
-	public boolean isFallFlying() { return isFlying() || super.isFallFlying(); }
+	public boolean isGliding() { return isFlying() || super.isGliding(); }
 	
 	public boolean canUseRocket() { return true; }
 	
 	public void startFlying()
 	{
 		getDataTracker().set(FLYING, true);
-		playSound(SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, getSoundVolume(), getSoundPitch());
+		playSound(SoundEvents.ITEM_ARMOR_EQUIP_LEATHER.value(), getSoundVolume(), getSoundPitch());
 	}
 	
 	public void stopFlying()
 	{
 		getDataTracker().set(FLYING, false);
-		playSound(SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, getSoundVolume(), getSoundPitch() * 0.5F);
+		playSound(SoundEvents.ITEM_ARMOR_EQUIP_LEATHER.value(), getSoundVolume(), getSoundPitch() * 0.5F);
 	}
 	
 	public boolean hasParent() { return hasUpgrade(WHCUpgrades.HANDLES.get()) && getDataTracker().get(USER_ID).isPresent(); }

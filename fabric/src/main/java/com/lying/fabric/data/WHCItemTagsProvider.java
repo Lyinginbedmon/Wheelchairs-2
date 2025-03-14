@@ -16,7 +16,7 @@ public class WHCItemTagsProvider extends ItemTagProvider
 	{
 		super(output, completableFuture);
 	}
-
+	
 	protected void configure(WrapperLookup arg)
 	{
 		getOrCreateTagBuilder(WHCItemTags.WHEEL).add(
@@ -29,8 +29,8 @@ public class WHCItemTagsProvider extends ItemTagProvider
 				WHCItems.WHEEL_OAK.get(), 
 				WHCItems.WHEEL_SPRUCE.get(), 
 				WHCItems.WHEEL_WARPED.get(),
-				WHCItems.WHEEL_BAMBOO.get(),
 				WHCItems.WHEEL_CHERRY.get(),
+				WHCItems.WHEEL_BAMBOO.get(),
 				WHCItems.WHEEL_COPPER.get(),
 				WHCItems.WHEEL_IRON.get(),
 				WHCItems.WHEEL_GOLD.get(),

@@ -7,7 +7,8 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.utility.ChairspaceCondition;
+import com.lying.Wheelchairs;
+import com.lying.chairspace.ChairspaceCondition;
 import com.lying.utility.ServerEvents;
 
 import dev.architectury.event.Event;
@@ -23,7 +24,7 @@ import net.minecraft.util.Identifier;
  */
 public class WHCChairspaceConditions
 {
-	private static final Map<Identifier, Supplier<ChairspaceCondition>> CONDITIONS = new HashMap<>();
+	public static final Map<Identifier, Supplier<ChairspaceCondition>> CONDITIONS = new HashMap<>();
 	
 	/** Respawn whenever the owner respawns */
 	public static final Supplier<ChairspaceCondition> ON_RESPAWN = register(ChairspaceCondition.Builder.of("on_respawn", PlayerEvent.PLAYER_RESPAWN));
@@ -45,11 +46,14 @@ public class WHCChairspaceConditions
 	
 	private static Supplier<ChairspaceCondition> register(ChairspaceCondition.Builder builder)
 	{
-		CONDITIONS.put(builder.registryName(), () -> builder.build());
-		return CONDITIONS.get(builder.registryName());
+		ChairspaceCondition made = builder.build();
+		return CONDITIONS.put(made.registryName(), () -> made);
 	}
 	
-	public static void init() { }
+	public static void init()
+	{
+		Wheelchairs.LOGGER.info(" # Registered {} chairspace conditions", CONDITIONS.size());
+	}
 	
 	@Nullable
 	public static ChairspaceCondition get(Identifier nameIn) { return CONDITIONS.getOrDefault(nameIn, () -> null).get(); }
@@ -57,6 +61,6 @@ public class WHCChairspaceConditions
 	/** Returns a collection of all registered conditions listening to the given event */
 	public static Collection<ChairspaceCondition> getApplicable(Event<?> eventIn)
 	{
-		return CONDITIONS.values().stream().filter(c -> c.get().isListeningTo(eventIn)).map(c -> c.get()).toList();
+		return CONDITIONS.values().stream().map(s -> s.get()).filter(c -> c.isListeningTo(eventIn)).toList();
 	}
 }

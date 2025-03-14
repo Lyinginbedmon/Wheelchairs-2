@@ -2,21 +2,15 @@ package com.lying.utility;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.reference.Reference;
-
 import dev.architectury.event.Event;
 import dev.architectury.event.EventFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 
 public class ServerEvents
 {
-	public static final Identifier EVENT_FIRST = new Identifier(Reference.ModInfo.MOD_ID, "first");
-	public static final Identifier EVENT_LAST = new Identifier(Reference.ModInfo.MOD_ID, "last");
-	
 	/**
 	 * Fired AFTER the player changes gamemode
 	 */

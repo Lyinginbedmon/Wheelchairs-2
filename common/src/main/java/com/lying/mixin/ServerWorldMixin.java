@@ -19,7 +19,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
 @Mixin(ServerWorld.class)
-public class ServerWorldMixin extends WorldMixin
+public class ServerWorldMixin
 {
 	@Shadow
 	public List<ServerPlayerEntity> players = Lists.newArrayList();

@@ -1,10 +1,12 @@
 package com.lying.entity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import org.apache.commons.lang3.function.Consumers;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -19,6 +21,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -31,15 +34,15 @@ public class ChairUpgrade
 	private final boolean enablesScreen;
 	
 	private final Consumer<EntityWheelchair> onApplied, onRemoved;
-	private final Map<EntityAttribute, EntityAttributeModifier> attributeModifiers = Maps.newHashMap();
+	private final Map<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifiers = Maps.newHashMap();
 	
 	private final Predicate<EntityWheelchair> isValid;
-	private final Supplier<List<ChairUpgrade>> incompatibleWith;
+	private final Supplier<List<Supplier<ChairUpgrade>>> incompatibleWith;
 	
 	protected ChairUpgrade(Identifier nameIn, boolean modelled, boolean screenEnabler,
 			Predicate<ItemStack> keyItem, Item dropItem, Predicate<EntityWheelchair> valid, 
-			Supplier<List<ChairUpgrade>> incompatibleWith, 
-			Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed, Map<EntityAttribute, EntityAttributeModifier> modifiers)
+			Supplier<List<Supplier<ChairUpgrade>>> incompatibleWith, 
+			Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed, Map<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifiers)
 	{
 		this.name = nameIn;
 		this.hasModel = modelled;
@@ -84,8 +87,8 @@ public class ChairUpgrade
 			this.attributeModifiers.entrySet().forEach(entry -> 
 			{
 				EntityAttributeInstance instance = rider.getAttributes().getCustomInstance(entry.getKey());
-				if(instance == null || instance.hasModifier(entry.getValue()))
-					return;
+				if(instance == null || instance.hasModifier(entry.getValue().id())) return;
+				
 				instance.addTemporaryModifier(entry.getValue());
 			});
 	}
@@ -112,20 +115,18 @@ public class ChairUpgrade
 		private Predicate<ItemStack> isKeyItem = Predicates.alwaysFalse();
 		private Item dropItem = Items.STICK;
 		private Predicate<EntityWheelchair> isValid = Predicates.alwaysTrue();
-		private Supplier<List<ChairUpgrade>> incompatibleWith = () -> Lists.newArrayList();
+		private Supplier<List<Supplier<ChairUpgrade>>> incompatibleWith = () -> Lists.newArrayList();
 		
 		private boolean hasModel = false;
 		
-		private Consumer<EntityWheelchair> onApplied = (chair) -> {}, onRemoved = (chair) -> {};
-		private final Map<EntityAttribute, EntityAttributeModifier> attributeModifiers = Maps.newHashMap();
+		private Consumer<EntityWheelchair> onApplied = Consumers.nop(), onRemoved = Consumers.nop();
+		private final Map<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifiers = new HashMap<>();
 		
 		private boolean enablesScreen = false;
 		
 		protected Builder(Identifier nameIn) { this.name = nameIn; }
 		
-		public static Builder of(String nameIn) { return new Builder(new Identifier(Reference.ModInfo.MOD_ID, nameIn)); }
-		
-		public final Identifier registryName() { return name; }
+		public static Builder of(String nameIn) { return new Builder(Reference.ModInfo.prefix(nameIn)); }
 		
 		/** Defines the item needed to apply this upgrade to a wheelchair */
 		public final Builder keyItem(Item itemIn)
@@ -142,6 +143,12 @@ public class ChairUpgrade
 			return this;
 		}
 		
+		public final Builder dropItem(Item itemIn)
+		{
+			dropItem = itemIn;
+			return this;
+		}
+		
 		/** Defines the properties a wheelchair must have to apply this upgrade*/
 		public final Builder isValid(Predicate<EntityWheelchair> validIn)
 		{
@@ -149,17 +156,11 @@ public class ChairUpgrade
 			return this;
 		}
 		
-		public final Builder dropItem(Item itemIn)
-		{
-			dropItem = itemIn;
-			return this;
-		}
-		
 		/** 
 		 * Defines what upgrades this upgrade is not compatible with.<br>
 		 * Upgrades must be mutually compatible to be applied to the same wheelchair
 		 */
-		public final Builder incompatible(Supplier<List<ChairUpgrade>> upgrades)
+		public final Builder incompatible(Supplier<List<Supplier<ChairUpgrade>>> upgrades)
 		{
 			this.incompatibleWith = upgrades;
 			return this;
@@ -179,9 +180,9 @@ public class ChairUpgrade
 			return this;
 		}
 		
-		public final Builder attribute(EntityAttribute attribute, String uuid, double amount, EntityAttributeModifier.Operation operation)
+		public final Builder attribute(RegistryEntry<EntityAttribute> attribute, String uuid, double amount, EntityAttributeModifier.Operation operation)
 		{
-			this.attributeModifiers.put(attribute, new EntityAttributeModifier(UUID.fromString(uuid), name.getPath(), amount, operation));
+			this.attributeModifiers.put(attribute, new EntityAttributeModifier(name, amount, operation));
 			return this;
 		}
 		

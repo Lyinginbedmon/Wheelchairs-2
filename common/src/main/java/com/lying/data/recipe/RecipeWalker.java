@@ -2,31 +2,32 @@ package com.lying.data.recipe;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import com.lying.data.WHCItemTags;
 import com.lying.init.WHCSpecialRecipes;
 import com.lying.item.ItemWalker;
 import com.lying.reference.Reference;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.inventory.RecipeInputInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.IngredientPlacement;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
+import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryWrapper.WrapperLookup;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
@@ -38,7 +39,7 @@ import net.minecraft.world.World;
  */
 public class RecipeWalker implements CraftingRecipe
 {
-	public static final Identifier ID = new Identifier(Reference.ModInfo.MOD_ID, "walker");
+	public static final Identifier ID = Reference.ModInfo.prefix("walker");
 	
 	private final ItemStack result;
 	private final Ingredient strut, platform, handle, wheelLeft, wheelRight;
@@ -63,13 +64,11 @@ public class RecipeWalker implements CraftingRecipe
 		recipeGrid.put(new Vector2i(2,2), wheelR);
 	}
 	
-	public Identifier getId() { return Registries.ITEM.getId(result.getItem()); }
-	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	
 	public boolean fits(int width, int height) { return width >= 3 && height >= 3; }
 	
-	public boolean matches(RecipeInputInventory inv, World var2)
+	public boolean matches(CraftingRecipeInput inv, World var2)
 	{
 		for(int x=0; x<(inv.getWidth() - 2); x++)
 			for(int y=0; y<(inv.getHeight() - 2); y++)
@@ -79,9 +78,9 @@ public class RecipeWalker implements CraftingRecipe
 		return false;
 	}
 	
-	public ItemStack getOutput(DynamicRegistryManager var2) { return this.result.copy(); }
+	public ItemStack getResult(DynamicRegistryManager var2) { return this.result.copy(); }
 	
-	public ItemStack craft(RecipeInputInventory inv, DynamicRegistryManager var2)
+	public ItemStack craft(CraftingRecipeInput inv, WrapperLookup registries)
 	{
 		for(int x=0; x<(inv.getWidth() - 2); x++)
 			for(int y=0; y<(inv.getHeight() - 2); y++)
@@ -98,12 +97,12 @@ public class RecipeWalker implements CraftingRecipe
 		return ItemStack.EMPTY;
 	}
 	
-	private boolean checkFrom(RecipeInputInventory inv, int x, int y)
+	private boolean checkFrom(CraftingRecipeInput inv, int x, int y)
 	{
 		for(int i=0; i<3; i++)
 			for(int j=0; j<3; j++)
 			{
-				ItemStack stackInSlot = inv.getStack(coordsToIndex(i+x, j+y, inv.getWidth()));
+				ItemStack stackInSlot = inv.getStackInSlot(coordsToIndex(i+x, j+y, inv.getWidth()));
 				Vector2i gridSlot = new Vector2i(i,j);
 				
 				if(recipeGrid.containsKey(gridSlot))
@@ -119,20 +118,20 @@ public class RecipeWalker implements CraftingRecipe
 	}
 	
 	@Nullable
-	private DefaultedList<ItemStack> getDataComps(RecipeInputInventory inv, int x, int y)
+	private DefaultedList<ItemStack> getDataComps(CraftingRecipeInput inv, int x, int y)
 	{
 		DefaultedList<ItemStack> wheels = DefaultedList.ofSize(2, ItemStack.EMPTY);
 		
 		int leftWheelSlot = coordsToIndex(0 + x, 2 + y, inv.getWidth());
 		int rightWheelSlot = coordsToIndex(2 + x, 2 + y, inv.getWidth());
 		
-		if(!inv.getStack(leftWheelSlot).isEmpty() && wheelLeft.test(inv.getStack(leftWheelSlot)))
-			wheels.set(0, inv.getStack(leftWheelSlot));
+		if(!inv.getStackInSlot(leftWheelSlot).isEmpty() && wheelLeft.test(inv.getStackInSlot(leftWheelSlot)))
+			wheels.set(0, inv.getStackInSlot(leftWheelSlot));
 		else
 			return null;
 		
-		if(!inv.getStack(rightWheelSlot).isEmpty() && wheelLeft.test(inv.getStack(rightWheelSlot)))
-			wheels.set(1, inv.getStack(rightWheelSlot));
+		if(!inv.getStackInSlot(rightWheelSlot).isEmpty() && wheelLeft.test(inv.getStackInSlot(rightWheelSlot)))
+			wheels.set(1, inv.getStackInSlot(rightWheelSlot));
 		else
 			return null;
 		
@@ -141,55 +140,32 @@ public class RecipeWalker implements CraftingRecipe
 	
 	private int coordsToIndex(int x, int y, int width) { return x + (y * width); }
 	
-	public RecipeSerializer<?> getSerializer() { return WHCSpecialRecipes.WALKER_SERIALIZER.get(); }
+	public RecipeSerializer<? extends CraftingRecipe> getSerializer() { return WHCSpecialRecipes.WALKER_SERIALIZER.get(); }
 	
-	public static class Serializer implements RecipeSerializer<RecipeWalker>
-	{
-		public RecipeWalker read(Identifier recipeId, JsonObject json)
-		{
-			JsonObject item = json.get("result").getAsJsonObject();
-			ItemStack result = getItem(JsonHelper.getString(item, "item")).getDefaultStack().copy();
-			
-			Ingredient strut = Ingredient.fromJson(json.get("strut"));
-			Ingredient platform = Ingredient.fromJson(json.get("platform"));
-			
-			Ingredient handle = json.has("handle") ? Ingredient.fromJson(json.get("handle")) : Ingredient.ofItems(Items.STICK);
-			Ingredient wheelL = json.has("left_wheel") ? Ingredient.fromJson(json.get("left_wheel")) : Ingredient.fromTag(WHCItemTags.WHEEL);
-			Ingredient wheelR = json.has("right_wheel") ? Ingredient.fromJson(json.get("right_wheel")) : Ingredient.fromTag(WHCItemTags.WHEEL);
-			return new RecipeWalker(result, strut, platform, handle, wheelL, wheelR);
-		}
-		
-		public RecipeWalker read(Identifier recipeId, PacketByteBuf packetByteBuf)
-		{
-			ItemStack result = packetByteBuf.readItemStack();
-			Ingredient strut = Ingredient.fromPacket(packetByteBuf);
-			Ingredient platform = Ingredient.fromPacket(packetByteBuf);
-			Ingredient handle = Ingredient.fromPacket(packetByteBuf);
-			Ingredient wheelL = Ingredient.fromPacket(packetByteBuf);
-			Ingredient wheelR = Ingredient.fromPacket(packetByteBuf);
-			return new RecipeWalker(result, strut, platform, handle, wheelL, wheelR);
-		}
-		
-		public static Item getItem(String name)
-		{
-			Identifier itemKey = new Identifier(name);
-			if(!Registries.ITEM.containsId(itemKey))
-				throw new JsonSyntaxException("Unknown item '" + name + "'");
-			
-			Item item = Registries.ITEM.get(itemKey);
-			if(item == Items.AIR)
-				throw new JsonSyntaxException("Invalid item: " + name);
-			return Objects.requireNonNull(item);
-		}
-		
-		public void write(PacketByteBuf packetByteBuf, RecipeWalker walkerRecipe)
-		{
-			packetByteBuf.writeItemStack(walkerRecipe.result);
-			walkerRecipe.strut.write(packetByteBuf);
-			walkerRecipe.platform.write(packetByteBuf);
-			walkerRecipe.handle.write(packetByteBuf);
-			walkerRecipe.wheelLeft.write(packetByteBuf);
-			walkerRecipe.wheelRight.write(packetByteBuf);
-		}
-	}
+	public IngredientPlacement getIngredientPlacement() { return IngredientPlacement.NONE; }	// XXX ????
+	
+    public static class Serializer implements RecipeSerializer<RecipeWalker>
+    {
+		private static final MapCodec<RecipeWalker> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			ItemStack.CODEC.fieldOf("result").forGetter(r -> r.result),
+        	Ingredient.CODEC.fieldOf("strut").forGetter(r -> r.strut), 
+        	Ingredient.CODEC.fieldOf("platform").orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(ItemTags.WOOL))).forGetter(r -> r.platform), 
+        	Ingredient.CODEC.fieldOf("handle").orElse(Ingredient.ofItems(Items.STICK)).forGetter(r -> r.handle), 
+        	Ingredient.CODEC.fieldOf("left_wheel").orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL))).forGetter(r -> r.wheelLeft), 
+        	Ingredient.CODEC.fieldOf("right_wheel").orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL))).forGetter(r -> r.wheelRight)
+        	).apply(instance, RecipeWalker::new));
+        private static final PacketCodec<RegistryByteBuf, RecipeWalker> PACKET_CODEC	= PacketCodec.of((r, buf) -> 
+        {
+        	ItemStack.PACKET_CODEC.encode(buf, r.result);
+        	Ingredient.PACKET_CODEC.encode(buf, r.strut);
+        	Ingredient.PACKET_CODEC.encode(buf, r.platform);
+        	Ingredient.PACKET_CODEC.encode(buf, r.handle);
+        	Ingredient.PACKET_CODEC.encode(buf, r.wheelLeft);
+        	Ingredient.PACKET_CODEC.encode(buf, r.wheelRight);
+        }, buf -> new RecipeWalker(ItemStack.PACKET_CODEC.decode(buf), Ingredient.PACKET_CODEC.decode(buf), Ingredient.PACKET_CODEC.decode(buf), Ingredient.PACKET_CODEC.decode(buf), Ingredient.PACKET_CODEC.decode(buf), Ingredient.PACKET_CODEC.decode(buf)));
+        
+        public MapCodec<RecipeWalker> codec() { return CODEC; }
+        
+		public PacketCodec<RegistryByteBuf, RecipeWalker> packetCodec() { return PACKET_CODEC; }
+    }
 }

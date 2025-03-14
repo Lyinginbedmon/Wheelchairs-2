@@ -1,24 +1,25 @@
 package com.lying.item;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.google.common.collect.Lists;
 import com.lying.entity.ChairUpgrade;
 import com.lying.entity.EntityWheelchair;
+import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCEntityTypes;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCUpgrades;
 
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.component.ComponentType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.item.DyeableItem;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -27,11 +28,16 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implements DyeableItem, IBonusBlockItem
+public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implements IBonusBlockItem
 {
 	public ItemWheelchair(Settings settings)
 	{
-		super(WHCEntityTypes.WHEELCHAIR, settings);
+		super(WHCEntityTypes.WHEELCHAIR.get(), settings
+				.component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(-6265536, true))
+				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK.get()))
+				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK.get()))
+				.component(WHCDataComponentTypes.UPGRADES.get(), Lists.newArrayList())
+				.component(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT));
 	}
 	
 	public static ItemStack withWheels(Item chair, Item wheels)
@@ -45,9 +51,9 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 	
 	public int getEnchantability() { return 5; }
 	
-	protected EntityWheelchair makeEntity(ServerWorld serverWorld, ItemStack stack, Consumer<EntityWheelchair> consumer, BlockPos pos)
+	protected EntityWheelchair makeEntity(ServerWorld serverWorld, ItemStack stack, @Nullable PlayerEntity player, BlockPos pos)
 	{
-		EntityWheelchair wheelchair = entityType.get().create(serverWorld, stack.getNbt(), consumer, pos, SpawnReason.SPAWN_EGG, true, true);
+		EntityWheelchair wheelchair = WHCEntityTypes.WHEELCHAIR.get().spawnFromItemStack(serverWorld, stack, player, pos, SpawnReason.SPAWN_ITEM_USE, true, true);
 		if(wheelchair != null)
 			wheelchair.copyFromItem(stack);
 		return wheelchair;
@@ -55,19 +61,16 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 	
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
 	{
-		if(!stack.hasNbt())
-			return;
-		
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_left", getWheel(stack, Arm.LEFT).getName()));
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_right", getWheel(stack, Arm.RIGHT).getName()));
 		
-		NbtList upgrades = stack.getNbt().getList("Upgrades", NbtElement.STRING_TYPE);
+		List<Identifier> upgrades = stack.get(WHCDataComponentTypes.UPGRADES.get());
 		if(upgrades.size() > 0)
 		{
 			tooltip.add(Text.translatable("gui.wheelchairs.upgrades"));
-			for(int i = 0; i<upgrades.size(); i++)
+			for(Identifier id : upgrades)
 			{
-				ChairUpgrade upgrade = WHCUpgrades.get(new Identifier(upgrades.getString(i)));
+				ChairUpgrade upgrade = WHCUpgrades.get(id);
 				if(upgrade != null)
 					tooltip.add(Text.literal(" * ").append(upgrade.translate()));
 			}
@@ -76,7 +79,7 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 	
 	public static Iterable<ItemStack> getWheels(ItemStack stack)
 	{
-		DefaultedList<ItemStack> wheels = DefaultedList.ofSize(2, new ItemStack(WHCItems.WHEEL_OAK.get()));
+		DefaultedList<ItemStack> wheels = DefaultedList.ofSize(2, new ItemStack(WHCItems.WHEEL_OAK));
 		wheels.set(0, getWheel(stack, Arm.LEFT));
 		wheels.set(1, getWheel(stack, Arm.RIGHT));
 		return wheels;
@@ -84,43 +87,20 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 	
 	public static void setWheels(ItemStack stack, ItemStack left, ItemStack right)
 	{
-		NbtCompound data = stack.getOrCreateNbt();
-		
-		NbtCompound wheels = new NbtCompound();
-		wheels.put("Left", left.writeNbt(new NbtCompound()));
-		wheels.put("Right", right.writeNbt(new NbtCompound()));
-		data.put("Wheels", wheels);
-		
-		stack.setNbt(data);
+		stack.set(WHCDataComponentTypes.LEFT_WHEEL.get(), left.copy());
+		stack.set(WHCDataComponentTypes.RIGHT_WHEEL.get(), right.copy());
 	}
 	
 	public static ItemStack getWheel(ItemStack stack, Arm arm)
 	{
-		String entry = arm == Arm.LEFT ? "Left" : "Right";
-		ItemStack wheel = new ItemStack(WHCItems.WHEEL_OAK.get());
-		if(stack.getItem() instanceof ItemWheelchair && stack.hasNbt())
-		{
-			NbtCompound data = stack.getNbt();
-			if(data.contains("Wheels", NbtElement.COMPOUND_TYPE))
-			{
-				data = data.getCompound("Wheels");
-				if(data.contains(entry, NbtElement.COMPOUND_TYPE))
-					wheel = ItemStack.fromNbt(data.getCompound(entry));
-			}
-		}
-		return wheel;
+		ComponentType<ItemStack> entry = arm == Arm.LEFT ? WHCDataComponentTypes.LEFT_WHEEL.get() : WHCDataComponentTypes.RIGHT_WHEEL.get();
+		if(stack.contains(entry))
+			return stack.get(entry);
+		return new ItemStack(WHCItems.WHEEL_OAK);
 	}
 	
 	public static boolean hasUpgrade(ItemStack stack, ChairUpgrade upgrade)
 	{
-		NbtCompound data = stack.getOrCreateNbt();
-		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
-		{
-			NbtList list = data.getList("Upgrades", NbtElement.STRING_TYPE);
-			for(int i=0; i<list.size(); i++)
-				if(list.getString(i).equals(upgrade.registryName().toString()))
-					return true;
-		}
-		return false;
+		return stack.get(WHCDataComponentTypes.UPGRADES.get()).stream().anyMatch(up -> up.equals(upgrade.registryName()));
 	}
 }

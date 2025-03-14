@@ -25,7 +25,7 @@ public class WHCModelParts
 	
 	private static EntityModelLayer ofName(String main, String part)
 	{
-		return new EntityModelLayer(new Identifier(Reference.ModInfo.MOD_ID, main), part);
+		return new EntityModelLayer(Reference.ModInfo.prefix(main), part);
 	}
 	
 	public static void init(BiConsumer<EntityModelLayer, Supplier<TexturedModelData>> consumer)

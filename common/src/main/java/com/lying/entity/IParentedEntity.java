@@ -23,10 +23,7 @@ public interface IParentedEntity
 {
 	public static final double SEARCH_RANGE = 8D;
 	
-	public static Predicate<Entity> isChildOf(LivingEntity entity)
-	{
-		return ent -> ent.isAlive() && !ent.hasPassengers() && ent instanceof IParentedEntity && ((IParentedEntity)ent).isParent(entity);
-	} 
+	public static Predicate<Entity> isChildOf(LivingEntity entity) { return ent -> ent.isAlive() && ent instanceof IParentedEntity && ((IParentedEntity)ent).isParent(entity); } 
 	
 	public boolean hasParent();
 	

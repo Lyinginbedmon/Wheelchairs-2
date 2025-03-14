@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.Wheelchairs;
+import com.lying.chairspace.Chairspace;
+import com.lying.chairspace.Chairspace.Flag;
 import com.lying.data.WHCItemTags;
 import com.lying.entity.EntityWalker;
 import com.lying.entity.EntityWheelchair;
@@ -12,7 +14,6 @@ import com.lying.entity.IParentedEntity;
 import com.lying.init.WHCChairspaceConditions;
 import com.lying.init.WHCEntityTypes;
 import com.lying.item.ItemVest;
-import com.lying.utility.Chairspace.Flag;
 
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
@@ -21,13 +22,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageSources;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
 
 public class ServerBus
 {
@@ -35,15 +37,16 @@ public class ServerBus
 	{
 		ServerEvents.AFTER_LIVING_CHANGE_MOUNT_START.register((living, next, last) -> 
 		{
-			Wheelchairs.LOGGER.info("Mount changed: "+living.getName().getString()+", "+(last == null ? "NULL" : last.getName().getString())+" -> "+(next == null ? "NULL" : next.getName().getString()));
+			Wheelchairs.LOGGER.info("Mount changed: {}, {} -> {}", living.getName().getString(), (last == null ? "NULL" : last.getName().getString()), (next == null ? "NULL" : next.getName().getString()));
 		});
 		
 		registerChairspaceEvents();
 		registerMountEvents();
 		
-		PlayerEvent.PLAYER_CLONE.register((ServerPlayerEntity oldPlayer, ServerPlayerEntity newPlayer, boolean wonGame) -> 
+		PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, oldIsAlive) ->
 		{
-			if(!newPlayer.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
+			World world = newPlayer.getWorld();
+			if(!world.isClient() && !((ServerWorld)world).getGameRules().getBoolean(GameRules.KEEP_INVENTORY))
 			{
 				PlayerInventory oldInv = oldPlayer.getInventory();
 				PlayerInventory newInv = newPlayer.getInventory();
@@ -55,6 +58,12 @@ public class ServerBus
 				}
 			}
 		});
+		
+//		ServerEntityWorldChangeEvents.AFTER_ENTITY_CHANGE_WORLD.register((originalEntity, newEntity, origin, destination) -> 
+//		{
+//			if(ItemVest.isValidMobForVest(originalEntity))
+//				WHCComponents.VEST_TRACKING.get(newEntity).copyFrom(WHCComponents.VEST_TRACKING.get(originalEntity));
+//		});
 	}
 	
 	public static void invokeMountChange(LivingEntity living, @Nullable Entity nextMount, @Nullable Entity lastMount)
@@ -71,33 +80,34 @@ public class ServerBus
 		Wheelchairs.LOGGER.info("Registered Chairspace event handlers");
 		
 		// Storing wheelchair due to rider death
-		EntityEvent.LIVING_DEATH.register((LivingEntity entity, DamageSource damage) -> 
+		EntityEvent.LIVING_DEATH.register((entity,damage) -> 
 		{
 			if(entity.getType() != EntityType.PLAYER || entity.getWorld().isClient())
 				return EventResult.pass();
 			
 			Chairspace chairs = Chairspace.getChairspace(entity.getServer());
-			boolean shouldDropContents = !entity.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY);
+			boolean shouldDropContents = !((ServerWorld)entity.getWorld()).getGameRules().getBoolean(GameRules.KEEP_INVENTORY);
 			
 			if(entity.hasVehicle() && entity.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get())
 			{
 				Entity vehicle = entity.getVehicle();
 				if(shouldDropContents)
-					((EntityWheelchair)vehicle).dropInventory();
+					((EntityWheelchair)vehicle).dropInventory((ServerWorld)vehicle.getWorld());
 				chairs.storeEntityInChairspace(vehicle, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN.get(), Flag.MOUNT);
 			}
 			
-			entity.getWorld().getEntitiesByClass(LivingEntity.class, entity.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), IParentedEntity.isChildOf(entity)).forEach(ent -> 
+			entity.getWorld().getEntitiesByClass(LivingEntity.class, entity.getBoundingBox().expand(6D), IParentedEntity.isChildOf(entity)).forEach(ent -> 
 				{
 					if(ent.getType() == WHCEntityTypes.WALKER && ((EntityWalker)ent).hasInventory())
-						((EntityWalker)ent).dropInventory();
+						((EntityWalker)ent).dropInventory((ServerWorld)entity.getWorld());
 					chairs.storeEntityInChairspace(ent, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN.get(), Flag.PARENT);
 				});
+			
 			return EventResult.pass();
 		});
 		
 		// Retrieving wheelchair when rider respawns
-		PlayerEvent.PLAYER_RESPAWN.register((ServerPlayerEntity newPlayer, boolean conqueredEnd) -> 
+		PlayerEvent.PLAYER_RESPAWN.register((ServerPlayerEntity newPlayer, boolean conqueredEnd, Entity.RemovalReason removalReason) -> 
 		{
 			if(!newPlayer.getWorld().isClient())
 				Chairspace.getChairspace(newPlayer.getServer()).reactToEvent(PlayerEvent.PLAYER_RESPAWN, newPlayer);
@@ -149,8 +159,8 @@ public class ServerBus
 				
 				player.getWorld().getEntitiesByClass(LivingEntity.class, player.getBoundingBox().expand(6D), IParentedEntity.isChildOf(player)).forEach(ent -> 
 					{
-						if(ent.getType() == WHCEntityTypes.WALKER && ((EntityWalker)ent).hasInventory())
-							((EntityWalker)ent).dropInventory();
+						if(ent.getType() == WHCEntityTypes.WALKER.get() && ((EntityWalker)ent).hasInventory())
+							((EntityWalker)ent).dropInventory((ServerWorld)ent.getWorld());
 						chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LEAVE_SPECTATOR.get(), Flag.PARENT);
 					});
 			}
@@ -171,7 +181,7 @@ public class ServerBus
 				return;
 			
 			Chairspace chairs = Chairspace.getChairspace(living.getServer());
-			living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER.get(), living.getBoundingBox().expand(IParentedEntity.SEARCH_RANGE), IParentedEntity.isChildOf(living)).forEach(ent -> 
+			living.getWorld().getEntitiesByType(WHCEntityTypes.WALKER.get(), living.getBoundingBox().expand(6D), IParentedEntity.isChildOf(living)).forEach(ent -> 
 				chairs.storeEntityInChairspace(ent, living.getUuid(), WHCChairspaceConditions.ON_STOP_FLYING.get(), Flag.PARENT));
 		});
 		
@@ -183,10 +193,7 @@ public class ServerBus
 		
 		EntityEvent.LIVING_DEATH.register((LivingEntity entity, DamageSource damageSource) -> 
 		{
-			DamageSources types = entity.getWorld().getDamageSources();
-			if(damageSource == types.genericKill() || entity.getWorld().isClient()) return EventResult.pass();
-			
-			if(ItemVest.isMobWithVest(entity))
+			if(ItemVest.isValidMobForVest(entity) && !ItemVest.getVest(entity).isEmpty())
 			{
 				UUID ownerID = ItemVest.getVestedMobOwner(entity);
 				if(ownerID == null)
