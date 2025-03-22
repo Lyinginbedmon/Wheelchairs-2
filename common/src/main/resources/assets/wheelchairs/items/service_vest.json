@@ -1,0 +1,13 @@
+{
+  "model": 
+  {
+	  "type": "minecraft:model",
+	  "model": "wheelchairs:item/service_vest",
+	  "tints": [
+	    {
+	      "type": "minecraft:dye",
+	      "default": -6265536
+	    }
+	  ]
+  }
+}

@@ -32,10 +32,10 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 {
 	public ItemWheelchair(Settings settings)
 	{
-		super(WHCEntityTypes.WHEELCHAIR.get(), settings
+		super(WHCEntityTypes.WHEELCHAIR, settings
 				.component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(-6265536, true))
-				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK.get()))
-				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK.get()))
+				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK))
+				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK))
 				.component(WHCDataComponentTypes.UPGRADES.get(), Lists.newArrayList())
 				.component(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT));
 	}

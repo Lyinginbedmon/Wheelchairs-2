@@ -4,8 +4,8 @@ import java.io.FileWriter;
 import java.util.Properties;
 import java.util.function.Predicate;
 
-import com.lying.data.WHCItemTags;
-import com.lying.init.WHCEnchantments;
+import com.lying.data.WHCTags;
+import com.lying.init.WHCEnchantmentComponentTypes;
 
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemStack;
@@ -50,8 +50,8 @@ public class ServerConfig extends Config
 	
 	public static enum SwordCaneFilter implements StringIdentifiable
 	{
-		ENCHANT(stack -> EnchantmentHelper.getLevel(WHCEnchantments.SLIM, stack) > 0),
-		ALLOW_LIST(stack -> stack.isIn(WHCItemTags.FILTER_SWORD_CANE)),
+		ENCHANT(stack -> EnchantmentHelper.hasAnyEnchantmentsWith(stack, WHCEnchantmentComponentTypes.CANE_STOREABLE.get())),
+		ALLOW_LIST(stack -> stack.isIn(WHCTags.FILTER_SWORD_CANE)),
 		DENY_LIST(stack -> !SwordCaneFilter.ALLOW_LIST.test(stack));
 		
 		private final Predicate<ItemStack> condition;

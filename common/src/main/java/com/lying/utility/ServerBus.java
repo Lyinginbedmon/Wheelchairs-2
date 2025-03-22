@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import com.lying.Wheelchairs;
 import com.lying.chairspace.Chairspace;
 import com.lying.chairspace.Chairspace.Flag;
-import com.lying.data.WHCItemTags;
+import com.lying.data.WHCTags;
 import com.lying.entity.EntityWalker;
 import com.lying.entity.EntityWheelchair;
 import com.lying.entity.IParentedEntity;
@@ -53,7 +53,7 @@ public class ServerBus
 				for(int i=0; i<oldInv.size(); i++)
 				{
 					ItemStack stack = oldInv.getStack(i);
-					if(!stack.isEmpty() && stack.isIn(WHCItemTags.PRESERVED))
+					if(!stack.isEmpty() && stack.isIn(WHCTags.PRESERVED))
 						newInv.setStack(i, stack.copy());
 				}
 			}

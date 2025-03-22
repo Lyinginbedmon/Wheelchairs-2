@@ -3,7 +3,7 @@ package com.lying.data.recipe;
 import java.util.function.Predicate;
 
 import com.lying.Wheelchairs;
-import com.lying.init.WHCEnchantments;
+import com.lying.init.WHCEnchantmentComponentTypes;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCSpecialRecipes;
 import com.lying.item.ItemCane;
@@ -26,15 +26,10 @@ public class RecipeCaneSword extends SpecialCraftingRecipe
 	
 	private static final Predicate<ItemStack> IS_HOLLOW_CANE = stack -> 
 	{
-		if(!(stack.getItem() instanceof ItemCane))
-			return false;
-		
-		if(!ItemCane.getSword(stack).isEmpty())
-			return false;
-		
-		if(EnchantmentHelper.getLevel(WHCEnchantments.HOLLOWED, stack) <= 0)
-			return false;
-		return true;
+		return 
+				stack.getItem() instanceof ItemCane && 
+				EnchantmentHelper.hasAnyEnchantmentsWith(stack, WHCEnchantmentComponentTypes.CANE_INVENTORY.get()) && 
+				ItemCane.getSword(stack).isEmpty();
 	};
 	
 	public RecipeCaneSword()

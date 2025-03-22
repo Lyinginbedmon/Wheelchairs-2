@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.data.WHCItemTags;
+import com.lying.data.WHCTags;
 import com.lying.init.WHCSpecialRecipes;
 import com.lying.item.ItemWheelchair;
 import com.lying.reference.Reference;
@@ -28,7 +28,6 @@ import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
@@ -51,8 +50,8 @@ public class RecipeWheelchair implements CraftingRecipe
 		this.result = result;
 		this.backing = backing;
 		this.cushion = cushion;
-		this.wheelLeft = wheelL.orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)));
-		this.wheelRight = wheelR.orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)));
+		this.wheelLeft = wheelL.orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)));
+		this.wheelRight = wheelR.orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)));
 	}
 	
 	public RecipeWheelchair(ItemStack result, Ingredient backing, Ingredient cushion, Ingredient wheelL, Ingredient wheelR)
@@ -176,9 +175,9 @@ public class RecipeWheelchair implements CraftingRecipe
         private static final MapCodec<RecipeWheelchair> CODEC	= RecordCodecBuilder.mapCodec(instance -> instance.group(
         		ItemStack.CODEC.fieldOf("result").forGetter(r -> r.result),
         		Ingredient.CODEC.fieldOf("backing").forGetter(r -> r.backing),
-        		Ingredient.CODEC.fieldOf("cushion").orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(ItemTags.WOOL))).forGetter(r -> r.cushion),
-        		Ingredient.CODEC.optionalFieldOf("left_wheel").orElse(Optional.of(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)))).forGetter(r -> Optional.of(r.wheelLeft)),
-        		Ingredient.CODEC.optionalFieldOf("right_wheel").orElse(Optional.of(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)))).forGetter(r -> Optional.of(r.wheelRight))
+        		Ingredient.CODEC.fieldOf("cushion").forGetter(r -> r.cushion),
+        		Ingredient.CODEC.optionalFieldOf("left_wheel").forGetter(r -> Optional.of(r.wheelLeft)),
+        		Ingredient.CODEC.optionalFieldOf("right_wheel").forGetter(r -> Optional.of(r.wheelRight))
         		).apply(instance, RecipeWheelchair::new));
         public static final PacketCodec<RegistryByteBuf, RecipeWheelchair> PACKET_CODEC	= PacketCodec.of((r, buf) -> 
         {

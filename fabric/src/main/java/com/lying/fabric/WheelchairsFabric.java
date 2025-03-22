@@ -2,6 +2,7 @@ package com.lying.fabric;
 
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.internal.base.ComponentRegistrationInitializer;
 
 import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
@@ -18,7 +19,7 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 
-public final class WheelchairsFabric implements ModInitializer
+public final class WheelchairsFabric implements ModInitializer, ComponentRegistrationInitializer
 {
 	public static final ComponentKey<VestComponent> VEST_DATA	= ComponentRegistry.getOrCreate(Reference.ModInfo.prefix("vest_data"), VestComponent.class);
 	

@@ -1,0 +1,13 @@
+{
+  "model": 
+  {
+	  "type": "minecraft:model",
+	  "model": "wheelchairs:item/wheeled_stool",
+	  "tints": [
+	    {
+	      "type": "minecraft:dye",
+	      "default": -1
+	    }
+	  ]
+  }
+}

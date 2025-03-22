@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.lying.data.WHCItemTags;
+import com.lying.data.WHCTags;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -35,7 +35,7 @@ public class PlayerInventoryMixin
 			for(int i=0; i<list.size(); ++i)
 			{
 				ItemStack stack = (ItemStack)list.get(i);
-				if(stack.isEmpty() || stack.isIn(WHCItemTags.PRESERVED))
+				if(stack.isEmpty() || stack.isIn(WHCTags.PRESERVED))
 					continue;
 				this.player.dropItem(stack, true, false);
 				list.set(i, ItemStack.EMPTY);

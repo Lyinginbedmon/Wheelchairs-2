@@ -1,5 +1,6 @@
 package com.lying.item;
 
+import dev.architectury.registry.registries.RegistrySupplier;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,9 +22,9 @@ import net.minecraft.world.event.GameEvent;
 
 public abstract class EntityPlacerItem<T extends Entity> extends Item
 {
-	private final EntityType<T> entityType;
+	private final RegistrySupplier<EntityType<T>> entityType;
 	
-	protected EntityPlacerItem(EntityType<T> typeIn, Settings settings)
+	protected EntityPlacerItem(RegistrySupplier<EntityType<T>> typeIn, Settings settings)
 	{
 		super(settings);
 		entityType = typeIn;
@@ -39,7 +40,7 @@ public abstract class EntityPlacerItem<T extends Entity> extends Item
 		BlockPos blockPos = itemPlacementContext.getBlockPos();
 		ItemStack itemStack = context.getStack();
 		Vec3d vec3d = Vec3d.ofBottomCenter(blockPos);
-		Box box = entityType.getDimensions().getBoxAt(vec3d.getX(), vec3d.getY(), vec3d.getZ());
+		Box box = entityType.get().getDimensions().getBoxAt(vec3d.getX(), vec3d.getY(), vec3d.getZ());
 		if(!world.isSpaceEmpty(null, box) || !world.getOtherEntities(null, box).isEmpty())
 			return ActionResult.FAIL;
 		

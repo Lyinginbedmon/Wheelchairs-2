@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:mangrove_cane"
+  },
+  "staff": "minecraft:stripped_mangrove_log"
+}

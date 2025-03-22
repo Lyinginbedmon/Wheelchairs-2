@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:handle",
+  "material": "minecraft:warped_button",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:warped_handle"
+  }
+}

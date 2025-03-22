@@ -2,8 +2,8 @@
     "parent": "item/handheld_rod",
     "textures":
     {
-    	"layer0": "wheelchairs:item/crutch_oak_inventory",
-    	"layer1": "wheelchairs:item/crutch_inventory_overlay"
+		"layer0": "wheelchairs:item/crutch_inventory_overlay",
+    	"layer1": "wheelchairs:item/crutch_oak_inventory"
     },
 	"display": {
 		"firstperson_righthand": {

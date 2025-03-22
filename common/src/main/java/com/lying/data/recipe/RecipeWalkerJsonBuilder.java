@@ -3,7 +3,7 @@ package com.lying.data.recipe;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.lying.data.WHCItemTags;
+import com.lying.data.WHCTags;
 
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementCriterion;
@@ -30,7 +30,13 @@ public class RecipeWalkerJsonBuilder
 	
 	public RecipeWalkerJsonBuilder(ItemStack result, Ingredient strut, Ingredient platform, RecipeCategory category)
 	{
-		this(result, strut, platform, Ingredient.ofItems(Items.STICK), Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)), Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)), category);
+		this(
+				result, 
+				strut, 
+				platform, 
+				Ingredient.ofItems(Items.STICK), 
+				Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)), 
+				Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)), category);
 	}
 	
 	public RecipeWalkerJsonBuilder(ItemStack result, Ingredient strut, Ingredient platform, Ingredient handle, Ingredient wheelL, Ingredient wheelR, RecipeCategory category)

@@ -15,7 +15,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 
 @Mixin(MobEntity.class)
-public class MobEntityMixin
+public class MobEntityMixin extends EntityMixin
 {
 	@Inject(method = "interactWithItem(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;", at = @At("TAIL"), cancellable = true)
 	private void whc$interact(PlayerEntity player, Hand hand, final CallbackInfoReturnable<ActionResult> ci)

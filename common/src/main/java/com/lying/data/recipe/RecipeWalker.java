@@ -6,7 +6,6 @@ import java.util.Map;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
-import com.lying.data.WHCItemTags;
 import com.lying.init.WHCSpecialRecipes;
 import com.lying.item.ItemWalker;
 import com.lying.reference.Reference;
@@ -14,7 +13,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.CraftingRecipe;
@@ -24,9 +22,7 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper.WrapperLookup;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
@@ -149,10 +145,10 @@ public class RecipeWalker implements CraftingRecipe
 		private static final MapCodec<RecipeWalker> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			ItemStack.CODEC.fieldOf("result").forGetter(r -> r.result),
         	Ingredient.CODEC.fieldOf("strut").forGetter(r -> r.strut), 
-        	Ingredient.CODEC.fieldOf("platform").orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(ItemTags.WOOL))).forGetter(r -> r.platform), 
-        	Ingredient.CODEC.fieldOf("handle").orElse(Ingredient.ofItems(Items.STICK)).forGetter(r -> r.handle), 
-        	Ingredient.CODEC.fieldOf("left_wheel").orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL))).forGetter(r -> r.wheelLeft), 
-        	Ingredient.CODEC.fieldOf("right_wheel").orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL))).forGetter(r -> r.wheelRight)
+        	Ingredient.CODEC.fieldOf("platform").forGetter(r -> r.platform), 
+        	Ingredient.CODEC.fieldOf("handle").forGetter(r -> r.handle), 
+        	Ingredient.CODEC.fieldOf("left_wheel").forGetter(r -> r.wheelLeft), 
+        	Ingredient.CODEC.fieldOf("right_wheel").forGetter(r -> r.wheelRight)
         	).apply(instance, RecipeWalker::new));
         private static final PacketCodec<RegistryByteBuf, RecipeWalker> PACKET_CODEC	= PacketCodec.of((r, buf) -> 
         {

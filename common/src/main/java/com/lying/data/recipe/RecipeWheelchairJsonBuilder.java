@@ -3,7 +3,7 @@ package com.lying.data.recipe;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.lying.data.WHCItemTags;
+import com.lying.data.WHCTags;
 
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementCriterion;
@@ -30,7 +30,12 @@ public class RecipeWheelchairJsonBuilder
 	
 	public RecipeWheelchairJsonBuilder(ItemStack result, Ingredient backing, RecipeCategory category)
 	{
-		this(result, backing, Ingredient.fromTag(Registries.ITEM.getOrThrow(ItemTags.WOOL)), Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)), Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCItemTags.WHEEL)), category);
+		this(
+				result, 
+				backing, 
+				Ingredient.fromTag(Registries.ITEM.getOrThrow(ItemTags.WOOL)), 
+				Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)), 
+				Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)), category);
 	}
 	
 	public RecipeWheelchairJsonBuilder(ItemStack result, Ingredient backing, Ingredient cushion, Ingredient wheelL, Ingredient wheelR, RecipeCategory category)

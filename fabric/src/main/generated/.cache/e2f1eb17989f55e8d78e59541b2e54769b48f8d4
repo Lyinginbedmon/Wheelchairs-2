@@ -1,0 +1,10 @@
+// 1.21.4	-999999999-01-01T00:00:00	Wheelchairs/Tags for minecraft:item
+1269452780d7038fd633d50dc3623541c86aa902 data/minecraft/tags/item/dyeable.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/minecraft/tags/item/swords.json
+e6756cdd6fb03cf772eba210ae3f93335e83dcd6 data/wheelchairs/tags/item/cane_filter.json
+36ab36d829c51dec9c77133d245c3569225f81c1 data/wheelchairs/tags/item/canes.json
+99416c0567a0137c01829eea0d32200951b9015d data/wheelchairs/tags/item/crutches.json
+8f7976224d9634b3fde8684ed18a6daf6e217467 data/wheelchairs/tags/item/preserved.json
+0c8faa12529ba5e0e2f51c7419a17d02e40ec038 data/wheelchairs/tags/item/walkers.json
+f07a25a6f01f7ccfca0f8a22f4432fa76e1912f6 data/wheelchairs/tags/item/wheelchairs.json
+244d67c771a9f5981bd20de7f0d0f2c4a33d8a1c data/wheelchairs/tags/item/wheels.json

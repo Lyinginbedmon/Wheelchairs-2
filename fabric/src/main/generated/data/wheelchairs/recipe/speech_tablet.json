@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": "minecraft:stone_button",
+    "n": "minecraft:note_block",
+    "s": "minecraft:smooth_stone_slab"
+  },
+  "pattern": [
+    "bb",
+    "ns"
+  ],
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:speech_tablet"
+  }
+}

@@ -9,7 +9,6 @@
 		"EnchantmentHelperMixin",
 		"EnchantmentMixin",
 		"EntityMixin",
-		"LivingEntityMixin",
 		"PlayerEntityMixin",
 		"MobEntityMixin",
 		"FoxEntityMixin",
@@ -18,19 +17,21 @@
 		"ServerPlayerEntityMixin",
 		"ServerPlayerInteractionManagerMixin",
 		"ServerPlayNetworkHandlerMixin",
-		"WorldMixin",
 		"ServerWorldMixin" 
 	],
 	"client": [ 
+		"AccessorItemModelManager",
+		"AccessorEntityRenderDispatcher",
+		"AccessorLivingEntityRenderer",
+		"EntityRenderDispatcherMixin",
 		"FireworkRocketItemMixinClient",
 		"PlayerEntityMixinClient" ,
 		"EntityModelMixin",
 		"BipedEntityModelMixin",
 		"ItemRendererMixin",
 		"HeldItemRendererMixin",
-		"ClientWorldMixin",
-		"WorldMixin",
-		"ModelLoaderMixin"
+		"ClientWorldMixin"
+		//"ModelLoaderMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

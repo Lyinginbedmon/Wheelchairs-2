@@ -30,7 +30,7 @@ public abstract class EntityMixin
 	private Entity originalVehicle;
 	
 	@Shadow
-	protected static final int FALL_FLYING_FLAG_INDEX = 7;
+	protected static final int GLIDING_FLAG_INDEX = 7;
 	
 	@Shadow
 	public boolean hasVehicle() { return false; }

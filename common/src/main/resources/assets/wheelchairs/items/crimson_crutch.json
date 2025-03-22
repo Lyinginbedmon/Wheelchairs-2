@@ -1,0 +1,13 @@
+{
+  "model": 
+  {
+	  "type": "minecraft:model",
+	  "model": "wheelchairs:item/crimson_crutch",
+	  "tints": [
+	    {
+	      "type": "minecraft:dye",
+	      "default": -6265536
+	    }
+	  ]
+  }
+}

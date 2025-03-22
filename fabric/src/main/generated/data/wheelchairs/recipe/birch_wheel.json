@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheels",
+  "key": {
+    "S": "minecraft:birch_slab",
+    "s": "minecraft:stick"
+  },
+  "pattern": [
+    " S ",
+    "SsS",
+    " S "
+  ],
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:birch_wheel"
+  }
+}

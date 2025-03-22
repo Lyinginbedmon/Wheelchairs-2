@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:acacia_cane"
+  },
+  "staff": "minecraft:stripped_acacia_log"
+}

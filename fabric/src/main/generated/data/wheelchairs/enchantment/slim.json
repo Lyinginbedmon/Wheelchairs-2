@@ -1,0 +1,32 @@
+{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.wheelchairs.slim"
+  },
+  "effects": {
+    "minecraft:damage": [
+      {
+        "effect": {
+          "type": "minecraft:add",
+          "value": -2.0
+        }
+      }
+    ],
+    "wheelchairs:can_store_in_cane": {}
+  },
+  "exclusive_set": "#wheelchairs:cane_interact_exclusive",
+  "max_cost": {
+    "base": 20,
+    "per_level_above_first": 6
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 6
+  },
+  "slots": [
+    "hand"
+  ],
+  "supported_items": "#minecraft:swords",
+  "weight": 5
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:crutches",
+  "key": {
+    "P": "minecraft:spruce_planks",
+    "W": "minecraft:white_wool",
+    "s": "minecraft:stick"
+  },
+  "pattern": [
+    "sWs",
+    "s s",
+    " P "
+  ],
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:spruce_crutch"
+  }
+}

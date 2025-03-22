@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.data.WHCItemTags;
+import com.lying.data.WHCTags;
 import com.lying.data.recipe.RecipeCaneJsonBuilder;
 import com.lying.data.recipe.RecipeCaneSword;
 import com.lying.data.recipe.RecipeHandleJsonBuilder;
@@ -33,6 +33,8 @@ import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryEntryLookup.RegistryLookup;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.RegistryWrapper.WrapperLookup;
 import net.minecraft.registry.tag.ItemTags;
@@ -66,8 +68,8 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 						WOOD_GUIDE.entrySet().forEach(entry -> 
 						{
 							offerWoodWheelRecipe(exporter, entry.getValue().wheel, entry.getKey());
-							offerWheelchairRecipe(exporter, entry.getValue().wheelchair, entry.getKey());
-							offerWalkerRecipe(exporter, entry.getValue().walker, entry.getKey());
+							offerWheelchairRecipe(exporter, wrapperLookup, entry.getValue().wheelchair, entry.getKey());
+							offerWalkerRecipe(exporter, wrapperLookup, entry.getValue().walker, entry.getKey());
 							offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
 							offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
 							offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());
@@ -93,11 +95,11 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 						
 						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.STOOL.get())
 							.pattern(" s ").pattern(" i ").pattern("wbw")
-							.input('s', ItemTags.WOOL)
+							.input('s', ingredientFromTag(ItemTags.WOOL))
 							.input('i', Items.IRON_INGOT)
 							.input('b', Items.IRON_BARS)
-							.input('w', WHCItemTags.WHEEL)
-							.criterion(hasItem(WHCItems.WHEEL_OAK.get()), conditionsFromTag(WHCItemTags.WHEEL))
+							.input('w', ingredientFromTag(WHCTags.WHEEL))
+							.criterion(hasItem(WHCItems.WHEEL_OAK.get()), conditionsFromTag(WHCTags.WHEEL))
 							.criterion(hasItem(Items.IRON_BARS), conditionsFromItem(Items.IRON_BARS)).offerTo(exporter);
 						
 						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.VEST.get())
@@ -138,13 +140,15 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 							.criterion(hasItem(Items.STICK), conditionsFromItem(Items.STICK)).offerTo(exporter);
 					}
 					
-					private void offerWheelchairRecipe(RecipeExporter exporter, Item chair, Wood wood)
+					private void offerWheelchairRecipe(RecipeExporter exporter, RegistryLookup lookup, Item chair, Wood wood)
 					{
 						String name = wood.name().toLowerCase()+"_wheelchair";
 						Ingredient backing = Ingredient.ofItems(wood.log);
 						
-						// Primary customisable recipe
-						RecipeWheelchairJsonBuilder builder = new RecipeWheelchairJsonBuilder(chair.getDefaultStack(), backing, RecipeCategory.TRANSPORTATION);
+						Ingredient cushion = Ingredient.fromTag(lookup.getOrThrow(RegistryKeys.ITEM).getOrThrow(ItemTags.WOOL));
+						Ingredient wheel = ingredientFromTag(WHCTags.WHEEL);
+						
+						RecipeWheelchairJsonBuilder builder = new RecipeWheelchairJsonBuilder(chair.getDefaultStack(), backing, cushion, wheel, wheel, RecipeCategory.TRANSPORTATION);
 						if(!backing.isEmpty())
 							builder.criterion("has_backing", conditionsFromItem(backing.getMatchingItems().findFirst().get().value()));
 						builder.offerTo(exporter, prefix(name));
@@ -190,14 +194,16 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 							.criterion(hasItem(wood.planks), conditionsFromItem(wood.planks)).offerTo(exporter);
 					}
 					
-					private void offerWalkerRecipe(RecipeExporter exporter, Item walker, Wood wood)
+					private void offerWalkerRecipe(RecipeExporter exporter, RegistryLookup lookup, Item walker, Wood wood)
 					{
 						String name = wood.name().toLowerCase()+"_walker";
 						Ingredient strut = Ingredient.ofItems(wood.log);
 						Ingredient platform = Ingredient.ofItems(wood.planks);
 						
-						// Primary customisable recipe
-						RecipeWalkerJsonBuilder builder = new RecipeWalkerJsonBuilder(walker.getDefaultStack(), strut, platform, RecipeCategory.TRANSPORTATION);
+						Ingredient handle = Ingredient.ofItem(Items.STICK);
+						Ingredient wheel = ingredientFromTag(WHCTags.WHEEL);
+						
+						RecipeWalkerJsonBuilder builder = new RecipeWalkerJsonBuilder(walker.getDefaultStack(), strut, platform, handle, wheel, wheel, RecipeCategory.TRANSPORTATION);
 						if(!strut.isEmpty())
 							builder.criterion("has_strut", conditionsFromItem(strut.getMatchingItems().findFirst().get().value().asItem()));
 						if(!platform.isEmpty())

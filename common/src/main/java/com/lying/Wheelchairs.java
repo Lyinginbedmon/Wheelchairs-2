@@ -9,6 +9,7 @@ import com.lying.config.ServerConfig;
 import com.lying.init.WHCBlocks;
 import com.lying.init.WHCChairspaceConditions;
 import com.lying.init.WHCDataComponentTypes;
+import com.lying.init.WHCEnchantmentComponentTypes;
 import com.lying.init.WHCEnchantments;
 import com.lying.init.WHCEntityTypes;
 import com.lying.init.WHCItems;
@@ -45,6 +46,7 @@ public class Wheelchairs
 		WHCDataComponentTypes.init();
 		WHCItems.init();
 		WHCUpgrades.init();
+		WHCEnchantmentComponentTypes.init();
 		WHCEnchantments.init();
 		WHCBlocks.init();
 		WHCEntityTypes.init();

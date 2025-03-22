@@ -8,12 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 
-import com.google.common.collect.Lists;
 import com.lying.init.WHCItems;
 import com.lying.item.ItemWalker;
 import com.lying.utility.WHCUtils;
 
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -264,7 +264,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	public static ItemStack getEnchantments(ItemStack chair)
 	{
 		ItemStack spoof = Items.STONE.getDefaultStack();
-		EnchantmentHelper.get(chair).forEach((enchant, lvl) -> spoof.addEnchantment(enchant, lvl));
+		spoof.set(DataComponentTypes.ENCHANTMENTS, chair.get(DataComponentTypes.ENCHANTMENTS));
 		return spoof;
 	}
 	
@@ -282,7 +282,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	protected ItemStack getWheel(ItemStack actualWheel)
 	{
 		ItemStack wheel = actualWheel.getItem().getDefaultStack().copy();
-		EnchantmentHelper.get(getFrame()).forEach((enchant, lvl) -> wheel.addEnchantment(enchant, lvl));
+		wheel.set(DataComponentTypes.ENCHANTMENTS, getFrame().get(DataComponentTypes.ENCHANTMENTS));
 		return wheel;
 	}
 	public ItemStack getLeftWheel() { return getWheel(getDataTracker().get(LEFT_WHEEL)); }
@@ -391,7 +391,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 			for(int i=0; i<this.items.size(); ++i)
 			{
 				ItemStack stack = this.items.getStack(i);
-				if(stack.isEmpty() || EnchantmentHelper.hasVanishingCurse(stack)) continue;
+				if(stack.isEmpty() || EnchantmentHelper.hasAnyEnchantmentsWith(stack, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP)) continue;
 				this.dropStack(world, stack);
 				this.items.setStack(i, ItemStack.EMPTY);
 			}

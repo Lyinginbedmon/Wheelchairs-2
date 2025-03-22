@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.lying.block.BlockFrostedLava;
 import com.lying.init.WHCBlocks;
 import com.lying.init.WHCDataComponentTypes;
+import com.lying.init.WHCEnchantments;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCUpgrades;
 import com.lying.item.ItemWheelchair;
@@ -23,10 +24,11 @@ import com.lying.utility.WHCUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -47,7 +49,6 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -291,7 +292,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 			{
 				if(hasUpgrade(WHCUpgrades.PLACER.get()))
 					items.setStack(0, stackInPlacer.copy());
-				else if(!EnchantmentHelper.hasVanishingCurse(stackInPlacer))
+				else if(!EnchantmentHelper.hasAnyEnchantmentsWith(stackInPlacer, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP))
 					dropStack(stackInPlacer);
 			}
 			
@@ -301,7 +302,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 				if(!stack.isEmpty())
 					if(hasUpgrade(WHCUpgrades.STORAGE.get()))
 						items.setStack(i, stack.copy());
-					else if(!EnchantmentHelper.hasVanishingCurse(stack))
+					else if(!EnchantmentHelper.hasAnyEnchantmentsWith(stack, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP))
 						dropStack(stack);
 			}
 		}
@@ -314,7 +315,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 			for(int i=0; i<this.items.size(); ++i)
 			{
 				ItemStack stack = this.items.getStack(i);
-				if(stack.isEmpty() || EnchantmentHelper.hasVanishingCurse(stack)) continue;
+				if(stack.isEmpty() || EnchantmentHelper.hasAnyEnchantmentsWith(stack, EnchantmentEffectComponentTypes.PREVENT_EQUIPMENT_DROP)) continue;
 				this.dropStack(world, stack);
 				this.items.setStack(i, ItemStack.EMPTY);
 			}
@@ -493,10 +494,25 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		this.saddledComponent.tickBoost();
 		
 		ItemStack chair = getChair();
-		if(!controllingPlayer.isOnFire() && EnchantmentHelper.getLevel(Enchantments.FIRE_PROTECTION, chair) > 0)
-			controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 5 * Reference.Values.TICKS_PER_SECOND * EnchantmentHelper.getLevel(Enchantments.FIRE_PROTECTION, chair), 0, false, false, true));
-		if(!isSubmergedIn(FluidTags.WATER) && EnchantmentHelper.getLevel(Enchantments.RESPIRATION, chair) > 0)
-			controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 5 * Reference.Values.TICKS_PER_SECOND * EnchantmentHelper.getLevel(Enchantments.RESPIRATION, chair), 0, false, false, true));
+		ItemEnchantmentsComponent comp = chair.get(DataComponentTypes.ENCHANTMENTS);
+		if(comp != null && !comp.isEmpty())
+		{
+			if(!controllingPlayer.isOnFire())
+				WHCEnchantments.getFireProtection(getRegistryManager()).ifPresent(f -> 
+				{
+					int fireProtectionLevel = comp.getLevel(f);
+					if(fireProtectionLevel > 0)
+						controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, 5 * Reference.Values.TICKS_PER_SECOND * fireProtectionLevel, 0, false, false, true));
+				});
+			
+			if(!isSubmergedIn(FluidTags.WATER))
+				WHCEnchantments.getRespiration(getRegistryManager()).ifPresent(r -> 
+				{
+					int respirationLevel = comp.getLevel(r);
+					if(respirationLevel > 0)
+						controllingPlayer.addStatusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 5 * Reference.Values.TICKS_PER_SECOND * respirationLevel, 0, false, false, true));
+				});
+		}
 		
 		if(this.jumpStrength > 0F)
 		{
@@ -669,8 +685,18 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	public void applyMovementEffects(ServerWorld world, BlockPos pos)
 	{
 		super.applyMovementEffects(world, pos);
-		if(EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()) > 0 && hasUpgrade(WHCUpgrades.NETHERITE.get()))
-			freezeLava(this, getWorld(), getBlockPos(), EnchantmentHelper.getLevel(Enchantments.FROST_WALKER, getChair()));
+		ItemStack chair = getChair();
+		ItemEnchantmentsComponent comp = chair.get(DataComponentTypes.ENCHANTMENTS);
+		if(comp == null || comp.isEmpty())
+			return;
+		
+		if(isOnGround() && hasUpgrade(WHCUpgrades.NETHERITE.get()))
+			WHCEnchantments.getFrostWalker(getRegistryManager()).ifPresent(f -> 
+			{
+				int frostWalkerLevel = comp.getLevel(f);
+				if(frostWalkerLevel > 0)
+					freezeLava(this, getWorld(), getBlockPos(), frostWalkerLevel);
+			});
 	}
 	
 	public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource)
@@ -687,9 +713,6 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	// Performs the effect of Frost Walker on lava when the chair item also has Flame
 	protected static void freezeLava(LivingEntity entity, World world, BlockPos blockPos, int level)
 	{
-		if(!entity.isOnGround())
-			return;
-		
 		BlockState frosted = WHCBlocks.FROSTED_LAVA.get().getDefaultState();
 		int range = Math.min(16, 2 + level);
 		BlockPos.Mutable mutable = new BlockPos.Mutable();
@@ -715,9 +738,9 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		return !hasUpgrade(WHCUpgrades.POWERED.get()) && getControllingPassenger() != null && getControllingPassenger().getType() == EntityType.PLAYER;
 	}
 	
-	public int getEnchantmentLevel(Enchantment ench)
+	public int getEnchantmentLevel(RegistryEntry<Enchantment> ench)
 	{
-		return EnchantmentHelper.getLevel(ench, getDataTracker().get(CHAIR));
+		return EnchantmentHelper.getEnchantments(getDataTracker().get(CHAIR)).getLevel(ench);
 	}
 	
 	protected Vec3d getPassengerAttachmentPos(Entity passenger, EntityDimensions dimensions, float scaleFactor)
@@ -751,7 +774,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	public static ItemStack getEnchantments(ItemStack chair)
 	{
 		ItemStack spoof = Items.STONE.getDefaultStack();
-		EnchantmentHelper.get(chair).forEach((enchant, lvl) -> spoof.addEnchantment(enchant, lvl));
+		spoof.set(DataComponentTypes.ENCHANTMENTS, chair.get(DataComponentTypes.ENCHANTMENTS));
 		return spoof;
 	}
 	
@@ -770,7 +793,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	protected ItemStack getWheel(ItemStack actualWheel)
 	{
 		ItemStack wheel = actualWheel.getItem().getDefaultStack().copy();
-		EnchantmentHelper.get(getChair()).forEach((enchant, lvl) -> wheel.addEnchantment(enchant, lvl));
+		wheel.set(DataComponentTypes.ENCHANTMENTS, getChair().get(DataComponentTypes.ENCHANTMENTS));
 		return wheel;
 	}
 	public ItemStack getLeftWheel() { return getWheel(getDataTracker().get(LEFT_WHEEL)); }

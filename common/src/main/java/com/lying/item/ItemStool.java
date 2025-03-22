@@ -19,7 +19,7 @@ public class ItemStool extends EntityPlacerItem<EntityStool> implements IBonusBl
 	
 	public ItemStool(Settings settings)
 	{
-		super(WHCEntityTypes.STOOL.get(), settings.component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(DEFAULT_COLOR, true)));
+		super(WHCEntityTypes.STOOL, settings.component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(DEFAULT_COLOR, true)));
 	}
 	
 	public boolean isEnchantable(ItemStack stack) { return false; }

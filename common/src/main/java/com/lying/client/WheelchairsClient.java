@@ -3,6 +3,10 @@ package com.lying.client;
 import com.lying.Wheelchairs;
 import com.lying.client.config.ClientConfig;
 import com.lying.client.init.WHCKeybinds;
+import com.lying.client.init.WHCModelParts;
+import com.lying.client.screen.AACScreen;
+import com.lying.client.screen.ChairInventoryScreen;
+import com.lying.client.screen.WalkerInventoryScreen;
 import com.lying.client.utility.AACLibrary;
 import com.lying.client.utility.ClientBus;
 import com.lying.init.WHCBlocks;
@@ -16,6 +20,7 @@ import com.mojang.text2speech.Narrator;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.networking.NetworkManager;
+import dev.architectury.registry.client.level.entity.EntityModelLayerRegistry;
 import dev.architectury.registry.client.rendering.RenderTypeRegistry;
 import dev.architectury.registry.menu.MenuRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -48,7 +53,7 @@ public class WheelchairsClient
 		
 		ClientBus.registerEventCallbacks();
 		RenderTypeRegistry.register(RenderLayer.getCutout(), WHCBlocks.FROSTED_LAVA.get());
-		
+		WHCModelParts.init((layer, definition) -> EntityModelLayerRegistry.register(layer, definition));
 		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER.get(), ChairInventoryScreen::new);
 		MenuRegistry.registerScreenFactory(WHCScreenHandlerTypes.WALKER_INVENTORY_HANDLER.get(), WalkerInventoryScreen::new);
 		

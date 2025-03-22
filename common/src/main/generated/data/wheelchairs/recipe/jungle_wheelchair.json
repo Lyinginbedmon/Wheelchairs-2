@@ -1,0 +1,11 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": "minecraft:jungle_log",
+  "cushion": "#minecraft:wool",
+  "left_wheel": "#wheelchairs:wheels",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:jungle_wheelchair"
+  },
+  "right_wheel": "#wheelchairs:wheels"
+}

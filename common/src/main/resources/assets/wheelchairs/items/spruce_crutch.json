@@ -1,0 +1,13 @@
+{
+  "model": 
+  {
+	  "type": "minecraft:model",
+	  "model": "wheelchairs:item/spruce_crutch",
+	  "tints": [
+	    {
+	      "type": "minecraft:dye",
+	      "default": -6265536
+	    }
+	  ]
+  }
+}

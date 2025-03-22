@@ -1,0 +1,7 @@
+// 1.21.4	-999999999-01-01T00:00:00	Wheelchairs/Wheelchairs enchantment tags
+b188d8a9f41b5788dbd78834657b7b755bf314db data/minecraft/tags/enchantment/curse.json
+35a0f1c3d17b508677ea0150542fdcc365bbe443 data/minecraft/tags/enchantment/in_enchanting_table.json
+35a0f1c3d17b508677ea0150542fdcc365bbe443 data/minecraft/tags/enchantment/non_treasure.json
+1de76df799d326a52fd3c10e33f464acafc8c31c data/minecraft/tags/enchantment/tooltip_order.json
+b188d8a9f41b5788dbd78834657b7b755bf314db data/minecraft/tags/enchantment/tradeable.json
+1de76df799d326a52fd3c10e33f464acafc8c31c data/wheelchairs/tags/enchantment/cane_interact_exclusive.json

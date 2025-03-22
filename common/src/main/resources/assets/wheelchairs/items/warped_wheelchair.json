@@ -1,0 +1,13 @@
+{
+  "model": 
+  {
+	  "type": "minecraft:model",
+	  "model": "wheelchairs:item/warped_wheelchair",
+	  "tints": [
+	    {
+	      "type": "minecraft:dye",
+	      "default": -6265536
+	    }
+	  ]
+  }
+}
