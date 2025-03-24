@@ -2,8 +2,8 @@ package com.lying.item;
 
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
-
+import com.lying.component.type.HandleComponent;
+import com.lying.component.type.SwordComponent;
 import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCSoundEvents;
@@ -11,6 +11,7 @@ import com.lying.init.WHCSoundEvents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -21,7 +22,9 @@ public class ItemCane extends Item
 {
 	public ItemCane(Settings settings)
 	{
-		super(settings);
+		super(settings
+				.component(WHCDataComponentTypes.HANDLE.get(), HandleComponent.empty())
+				.component(WHCDataComponentTypes.SWORD.get(), SwordComponent.empty()));
 	}
 	
 	public static ItemStack withHandle(Item cane, Item handle)
@@ -33,12 +36,14 @@ public class ItemCane extends Item
 	
 	public static void setHandle(ItemStack stack, ItemStack handle)
 	{
-		stack.set(WHCDataComponentTypes.HANDLE.get(), handle.copy());
+		stack.set(WHCDataComponentTypes.HANDLE.get(), new HandleComponent(handle.copy()));
 	}
 	
 	public ItemStack getHandle(ItemStack stack)
 	{
-		return stack.contains(WHCDataComponentTypes.HANDLE.get()) ? stack.get(WHCDataComponentTypes.HANDLE.get()) : WHCItems.HANDLE_OAK.get().getDefaultStack().copy();
+		if(stack.contains(WHCDataComponentTypes.HANDLE.get()))
+			return stack.get(WHCDataComponentTypes.HANDLE.get()).contents().orElse(WHCItems.HANDLE_OAK.get().getDefaultStack().copy());
+		return WHCItems.HANDLE_OAK.get().getDefaultStack().copy();
 	}
 	
 	public ActionResult use(World world, PlayerEntity user, Hand hand)
@@ -60,23 +65,20 @@ public class ItemCane extends Item
 		return ActionResult.PASS;
 	}
 	
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
-		tooltip.add(Text.translatable("gui.wheelchairs.cane.handle", getHandle(stack).getName()));
-		
-		ItemStack sword = getSword(stack);
-		if(!sword.isEmpty())
-			tooltip.add(Text.translatable("gui.wheelchairs.cane.sword", sword.getName()));
+		stack.get(WHCDataComponentTypes.HANDLE.get()).appendTooltip(context, tooltip::add, type);
+		stack.get(WHCDataComponentTypes.SWORD.get()).appendTooltip(context, tooltip::add, type);
 	}
 	
 	public static ItemStack setSword(ItemStack cane, ItemStack sword)
 	{
-		cane.set(WHCDataComponentTypes.SWORD.get(), sword.copy());
+		cane.set(WHCDataComponentTypes.SWORD.get(), new SwordComponent(sword.copy()));
 		return cane;
 	}
 	
 	public static ItemStack getSword(ItemStack cane)
 	{
-		return cane.contains(WHCDataComponentTypes.SWORD.get()) ? cane.get(WHCDataComponentTypes.SWORD.get()) : ItemStack.EMPTY;
+		return cane.contains(WHCDataComponentTypes.SWORD.get()) ? cane.get(WHCDataComponentTypes.SWORD.get()).contents().orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
 	}
 }

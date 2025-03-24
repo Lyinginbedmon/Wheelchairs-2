@@ -1,7 +1,7 @@
 package com.lying.screen;
 
 import com.lying.entity.ChairUpgrade;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
 import com.lying.init.WHCEntityTypes;
 import com.lying.init.WHCScreenHandlerTypes;
 import com.lying.init.WHCUpgrades;
@@ -21,7 +21,7 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 	public final boolean hasStorage;
 	public final boolean hasPlacer;
 	
-	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, final EntityWheelchair chair)
+	public ChairInventoryScreenHandler(int syncId, PlayerInventory playerInventory, final WheelchairEntity chair)
 	{
 		super(WHCScreenHandlerTypes.WHEELCHAIR_INVENTORY_HANDLER.get(), syncId);
 		boolean noChair = chair == null;
@@ -101,7 +101,15 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 	
 	public boolean canUse(PlayerEntity player)
 	{
-		return player.hasVehicle() && player.isAlive() && player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get() && ((EntityWheelchair)player.getVehicle()).getUpgrades().stream().anyMatch(ChairUpgrade::enablesScreen);
+		return isValidForUse(player);
 	}
-
+	
+	public static boolean isValidForUse(PlayerEntity player)
+	{
+		return 
+				player.isAlive() && 
+				player.hasVehicle() && 
+				player.getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get() && 
+				((WheelchairEntity)player.getVehicle()).getUpgrades().stream().anyMatch(ChairUpgrade::enablesScreen);
+	}
 }

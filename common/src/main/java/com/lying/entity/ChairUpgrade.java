@@ -33,16 +33,16 @@ public class ChairUpgrade
 	private final boolean hasModel;
 	private final boolean enablesScreen;
 	
-	private final Consumer<EntityWheelchair> onApplied, onRemoved;
+	private final Consumer<WheelchairEntity> onApplied, onRemoved;
 	private final Map<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifiers = Maps.newHashMap();
 	
-	private final Predicate<EntityWheelchair> isValid;
+	private final Predicate<WheelchairEntity> isValid;
 	private final Supplier<List<Supplier<ChairUpgrade>>> incompatibleWith;
 	
 	protected ChairUpgrade(Identifier nameIn, boolean modelled, boolean screenEnabler,
-			Predicate<ItemStack> keyItem, Item dropItem, Predicate<EntityWheelchair> valid, 
+			Predicate<ItemStack> keyItem, Item dropItem, Predicate<WheelchairEntity> valid, 
 			Supplier<List<Supplier<ChairUpgrade>>> incompatibleWith, 
-			Consumer<EntityWheelchair> applied, Consumer<EntityWheelchair> removed, Map<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifiers)
+			Consumer<WheelchairEntity> applied, Consumer<WheelchairEntity> removed, Map<RegistryEntry<EntityAttribute>, EntityAttributeModifier> modifiers)
 	{
 		this.name = nameIn;
 		this.hasModel = modelled;
@@ -67,7 +67,7 @@ public class ChairUpgrade
 	
 	public boolean matches(ItemStack stack) { return isKeyItem.apply(stack); }
 	
-	public boolean canApplyTo(EntityWheelchair chair) { return !chair.hasUpgrade(this) && isValid.apply(chair); }
+	public boolean canApplyTo(WheelchairEntity chair) { return !chair.hasUpgrade(this) && isValid.apply(chair); }
 	
 	public final boolean compatibleWith(ChairUpgrade upgrade)
 	{
@@ -77,9 +77,9 @@ public class ChairUpgrade
 	/* Returns true if the given upgrades are mutually compatible */
 	public static boolean canCombineWith(ChairUpgrade upgradeA, ChairUpgrade upgradeB) { return upgradeA.compatibleWith(upgradeB) && upgradeB.compatibleWith(upgradeA); }
 	
-	public void applyTo(EntityWheelchair chair) { onApplied.accept(chair); }
+	public void applyTo(WheelchairEntity chair) { onApplied.accept(chair); }
 	
-	public void removeFrom(EntityWheelchair chair) { onRemoved.accept(chair); }
+	public void removeFrom(WheelchairEntity chair) { onRemoved.accept(chair); }
 	
 	public void onStartRiding(LivingEntity rider)
 	{
@@ -114,12 +114,12 @@ public class ChairUpgrade
 		private final Identifier name;
 		private Predicate<ItemStack> isKeyItem = Predicates.alwaysFalse();
 		private Item dropItem = Items.STICK;
-		private Predicate<EntityWheelchair> isValid = Predicates.alwaysTrue();
+		private Predicate<WheelchairEntity> isValid = Predicates.alwaysTrue();
 		private Supplier<List<Supplier<ChairUpgrade>>> incompatibleWith = () -> Lists.newArrayList();
 		
 		private boolean hasModel = false;
 		
-		private Consumer<EntityWheelchair> onApplied = Consumers.nop(), onRemoved = Consumers.nop();
+		private Consumer<WheelchairEntity> onApplied = Consumers.nop(), onRemoved = Consumers.nop();
 		private final Map<RegistryEntry<EntityAttribute>, EntityAttributeModifier> attributeModifiers = new HashMap<>();
 		
 		private boolean enablesScreen = false;
@@ -150,7 +150,7 @@ public class ChairUpgrade
 		}
 		
 		/** Defines the properties a wheelchair must have to apply this upgrade*/
-		public final Builder isValid(Predicate<EntityWheelchair> validIn)
+		public final Builder isValid(Predicate<WheelchairEntity> validIn)
 		{
 			this.isValid = validIn;
 			return this;
@@ -167,14 +167,14 @@ public class ChairUpgrade
 		}
 		
 		/** Defines what this upgrade should do to a wheelchair when applied */
-		public final Builder applied(Consumer<EntityWheelchair> func)
+		public final Builder applied(Consumer<WheelchairEntity> func)
 		{
 			this.onApplied = func;
 			return this;
 		}
 		
 		/** Defines what this upgrade should do to a wheelchair when removed */
-		public final Builder removed(Consumer<EntityWheelchair> func)
+		public final Builder removed(Consumer<WheelchairEntity> func)
 		{
 			this.onRemoved = func;
 			return this;

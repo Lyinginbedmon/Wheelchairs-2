@@ -2,7 +2,7 @@ package com.lying.client.renderer.entity.feature;
 
 import com.lying.client.init.WHCModelParts;
 import com.lying.client.renderer.entity.model.WheelchairElytraModel;
-import com.lying.entity.EntityWheelchair;
+import com.lying.client.renderer.entity.state.WheelchairEntityRenderState;
 import com.lying.init.WHCUpgrades;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -14,7 +14,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerModelPart;
 import net.minecraft.util.Identifier;
 
-public class WheelchairElytraFeatureRenderer<T extends EntityWheelchair> extends EntityFeatureRenderer<T>
+public class WheelchairElytraFeatureRenderer<T extends WheelchairEntityRenderState> extends EntityFeatureRenderer<T>
 {
 	private static final Identifier TEXTURE = Identifier.of("textures/entity/elytra.png");
 	private final WheelchairElytraModel<T> model;
@@ -24,30 +24,30 @@ public class WheelchairElytraFeatureRenderer<T extends EntityWheelchair> extends
 		model = new WheelchairElytraModel<T>(ctx.getEntityModels().getModelPart(WHCModelParts.UPGRADE_ELYTRA));
 	}
 	
-	public boolean shouldRender(T entity)
+	public boolean shouldRender(T state)
 	{
-		return entity.hasUpgrade(WHCUpgrades.GLIDING.get());
+		return state.upgrades.contains(WHCUpgrades.GLIDING.get());
 	}
 	
-	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float age, float yaw, float pitch, float tickDelta)
+	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T state, float tickDelta)
 	{
 		matrices.push();
-			matrices.translate(0F, entity.isFlying() ? 1.5F : 1.3F, 0.125F + (entity.isFlying() ? 0F : 0.1F));
-			float scale = entity.isFlying() ? 1.75F : 0.8F;
+			matrices.translate(0F, state.isFlying ? 1.5F : 1.3F, 0.125F + (state.isFlying ? 0F : 0.1F));
+			float scale = state.isFlying ? 1.75F : 0.8F;
 			matrices.scale(scale, -scale, scale);
-			this.model.setAngles(entity, 0, 0, age, yaw, pitch);
+			this.model.setAngles(state, 0, 0, state.age, state.yawDegrees, state.pitch);
 			// FIXME Restore elytra upgrade rendering
 //			VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(getTexture(entity)), false, false);
 //			this.model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1F, 1F, 1F, 1F);
 		matrices.pop();
 	}
 	
-	public Identifier getTexture(T entity)
+	public Identifier getTexture(T state)
 	{
-		if(entity.getFirstPassenger() != null && entity.getFirstPassenger() instanceof LivingEntity)
+		if(state.rider.isPresent())
 		{
 			SkinTextures skinTextures;
-			LivingEntity livingEntity = (LivingEntity)entity.getFirstPassenger();
+			final LivingEntity livingEntity = state.rider.get();
 			AbstractClientPlayerEntity playerEntity;
 			return livingEntity instanceof AbstractClientPlayerEntity ? 
 						((skinTextures = (playerEntity = (AbstractClientPlayerEntity)livingEntity).getSkinTextures()).elytraTexture() != null ? 

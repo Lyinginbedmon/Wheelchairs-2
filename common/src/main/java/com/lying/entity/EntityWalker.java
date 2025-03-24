@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 
+import com.lying.component.type.WheelComponent;
 import com.lying.init.WHCItems;
 import com.lying.item.ItemWalker;
 import com.lying.utility.WHCUtils;
@@ -76,8 +77,8 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		super.initDataTracker(builder);
 		
 		builder.add(ITEM, WHCItems.WALKER_OAK.get().getDefaultStack());
-		builder.add(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
-		builder.add(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
+		builder.add(LEFT_WHEEL, WheelComponent.DEFAULT_WHEEL.get());
+		builder.add(RIGHT_WHEEL, WheelComponent.DEFAULT_WHEEL.get());
 		builder.add(USER_ID, Optional.empty());
 		builder.add(HAS_INV, false);
 	}

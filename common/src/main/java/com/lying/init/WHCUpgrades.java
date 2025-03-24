@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
@@ -11,42 +12,48 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Lists;
 import com.lying.Wheelchairs;
 import com.lying.entity.ChairUpgrade;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
+import com.lying.reference.Reference;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 
+// FIXME Ensure chair upgrades are properly initialised
 public class WHCUpgrades
 {
 	private static final Map<Identifier, Supplier<ChairUpgrade>> UPGRADES = new HashMap<>();
 	
-	public static final Supplier<ChairUpgrade> POWERED = register(ChairUpgrade.Builder.of("powered").modelled()
+	public static final Supplier<ChairUpgrade> POWERED = register("powered", b -> b.modelled()
 			.keyItem(Items.FURNACE_MINECART)
-			.applied(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, true))
-			.removed(chair -> chair.getDataTracker().set(EntityWheelchair.POWERED, false)));
-	public static final Supplier<ChairUpgrade> STORAGE = register(ChairUpgrade.Builder.of("storage").modelled().enablesScreen()
+			.applied(chair -> chair.getDataTracker().set(WheelchairEntity.POWERED, true))
+			.removed(chair -> chair.getDataTracker().set(WheelchairEntity.POWERED, false)));
+	public static final Supplier<ChairUpgrade> STORAGE = register("storage", b -> b.modelled().enablesScreen()
 			.keyItem(stack -> (stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST)))
 			.dropItem(Items.CHEST));
-	public static final Supplier<ChairUpgrade> FLOATING = register(ChairUpgrade.Builder.of("floating").modelled()
+	public static final Supplier<ChairUpgrade> FLOATING = register("floating", b -> b.modelled()
 			.keyItem(Items.PUMPKIN));
-	public static final Supplier<ChairUpgrade> NETHERITE = register(ChairUpgrade.Builder.of("netherite").modelled()
+	public static final Supplier<ChairUpgrade> NETHERITE = register("netherite", b -> b
+			.modelled()
 			.keyItem(Items.NETHERITE_INGOT));
-	public static final Supplier<ChairUpgrade> DIVING	= register(ChairUpgrade.Builder.of("diving").modelled()
+	public static final Supplier<ChairUpgrade> DIVING	= register("diving", b -> b.modelled()
 			.keyItem(Items.LEATHER)
 			.incompatible(() -> List.of(WHCUpgrades.FLOATING, WHCUpgrades.POWERED)));
-	public static final Supplier<ChairUpgrade> GLIDING = register(ChairUpgrade.Builder.of("gliding")
+	public static final Supplier<ChairUpgrade> GLIDING = register("gliding", b -> b
 			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
-	public static final Supplier<ChairUpgrade> PLACER = register(ChairUpgrade.Builder.of("placer").modelled().enablesScreen()
+	public static final Supplier<ChairUpgrade> PLACER = register("placer", b -> b.modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));
-	public static final Supplier<ChairUpgrade> HANDLES = register(ChairUpgrade.Builder.of("handles").modelled().enablesScreen()
+	public static final Supplier<ChairUpgrade> HANDLES = register("handles", b -> b.modelled().enablesScreen()
 			.keyItem(Items.IRON_BARS));
 	
-	private static Supplier<ChairUpgrade> register(ChairUpgrade.Builder builder)
+	private static Supplier<ChairUpgrade> register(String nameIn, Consumer<ChairUpgrade.Builder> consumer)
 	{
-		ChairUpgrade made = builder.build();
-		return UPGRADES.put(made.registryName(), () -> made);
+		ChairUpgrade.Builder builder = ChairUpgrade.Builder.of(nameIn);
+		consumer.accept(builder);
+		Supplier<ChairUpgrade> supplier = () -> builder.build();
+		UPGRADES.put(Reference.ModInfo.prefix(nameIn), supplier);
+		return supplier;
 	}
 	
 	public static void init()
@@ -59,7 +66,7 @@ public class WHCUpgrades
 	public static ChairUpgrade get(Identifier nameIn) { return UPGRADES.getOrDefault(nameIn, () -> null).get(); }
 	
 	@Nullable
-	public static Set<ChairUpgrade> fromItem(ItemStack stack, EntityWheelchair chair)
+	public static Set<ChairUpgrade> fromItem(ItemStack stack, WheelchairEntity chair)
 	{
 		List<ChairUpgrade> existing = chair.getUpgrades();
 		List<ChairUpgrade> upgrades = Lists.newArrayList();

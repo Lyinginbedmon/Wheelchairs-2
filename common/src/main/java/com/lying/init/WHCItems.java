@@ -3,7 +3,7 @@ package com.lying.init;
 import java.util.function.Function;
 
 import com.lying.Wheelchairs;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
 import com.lying.item.ItemAACTablet;
 import com.lying.item.ItemCane;
 import com.lying.item.ItemCaneHandle;
@@ -120,7 +120,7 @@ public class WHCItems
 	public static final RegistrySupplier<Item> CANE_CHERRY		= cane("cherry");
 	public static final RegistrySupplier<Item> CANE_BAMBOO		= cane("bamboo");
 	
-	public static final RegistrySupplier<Item> CONTROLLER	= register("controller", settings -> new ItemController<EntityWheelchair>(WHCEntityTypes.WHEELCHAIR, 0, settings.maxCount(1)));
+	public static final RegistrySupplier<Item> CONTROLLER	= register("controller", settings -> new ItemController<WheelchairEntity>(WHCEntityTypes.WHEELCHAIR, 0, settings.maxCount(1)));
 	public static final RegistrySupplier<Item> STOOL		= register("wheeled_stool", settings -> new ItemStool(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	
 	public static final RegistrySupplier<Item> VEST		= register("service_vest", settings -> new ItemVest(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));

@@ -5,21 +5,21 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
+import com.lying.component.type.WheelComponent;
 import com.lying.entity.ChairUpgrade;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
 import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCEntityTypes;
-import com.lying.init.WHCItems;
 import com.lying.init.WHCUpgrades;
 
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ContainerComponent;
-import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -28,14 +28,14 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implements IBonusBlockItem
+public class ItemWheelchair extends EntityPlacerItem<WheelchairEntity> implements IBonusBlockItem
 {
 	public ItemWheelchair(Settings settings)
 	{
 		super(WHCEntityTypes.WHEELCHAIR, settings
-				.component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(-6265536, true))
-				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK))
-				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK))
+				.component(DataComponentTypes.DYED_COLOR, null)
+				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), WheelComponent.empty(Arm.LEFT))
+				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), WheelComponent.empty(Arm.RIGHT))
 				.component(WHCDataComponentTypes.UPGRADES.get(), Lists.newArrayList())
 				.component(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT));
 	}
@@ -51,12 +51,19 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 	
 	public int getEnchantability() { return 5; }
 	
-	protected EntityWheelchair makeEntity(ServerWorld serverWorld, ItemStack stack, @Nullable PlayerEntity player, BlockPos pos)
+	protected WheelchairEntity makeEntity(ServerWorld serverWorld, ItemStack stack, @Nullable PlayerEntity player, BlockPos pos)
 	{
-		EntityWheelchair wheelchair = WHCEntityTypes.WHEELCHAIR.get().spawnFromItemStack(serverWorld, stack, player, pos, SpawnReason.SPAWN_ITEM_USE, true, true);
+		WheelchairEntity wheelchair = WHCEntityTypes.WHEELCHAIR.get().spawnFromItemStack(serverWorld, stack, player, pos, SpawnReason.SPAWN_ITEM_USE, true, true);
 		if(wheelchair != null)
 			wheelchair.copyFromItem(stack);
 		return wheelchair;
+	}
+	
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type)
+	{
+		stack.get(WHCDataComponentTypes.LEFT_WHEEL.get()).appendTooltip(context, tooltip::add, type);
+		stack.get(WHCDataComponentTypes.RIGHT_WHEEL.get()).appendTooltip(context, tooltip::add, type);;
+//		stack.get(WHCDataComponentTypes.UPGRADES.get()).appendTooltip(context, tooltip::add, type);	FIXME Add applied upgrades to wheelchair tooltip
 	}
 	
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
@@ -79,7 +86,7 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 	
 	public static Iterable<ItemStack> getWheels(ItemStack stack)
 	{
-		DefaultedList<ItemStack> wheels = DefaultedList.ofSize(2, new ItemStack(WHCItems.WHEEL_OAK));
+		DefaultedList<ItemStack> wheels = DefaultedList.ofSize(2, WheelComponent.DEFAULT_WHEEL.get());
 		wheels.set(0, getWheel(stack, Arm.LEFT));
 		wheels.set(1, getWheel(stack, Arm.RIGHT));
 		return wheels;
@@ -87,16 +94,16 @@ public class ItemWheelchair extends EntityPlacerItem<EntityWheelchair> implement
 	
 	public static void setWheels(ItemStack stack, ItemStack left, ItemStack right)
 	{
-		stack.set(WHCDataComponentTypes.LEFT_WHEEL.get(), left.copy());
-		stack.set(WHCDataComponentTypes.RIGHT_WHEEL.get(), right.copy());
+		if(!left.isEmpty())
+			stack.set(WHCDataComponentTypes.LEFT_WHEEL.get(), stack.get(WHCDataComponentTypes.LEFT_WHEEL.get()).with(left));
+		if(!right.isEmpty())
+			stack.set(WHCDataComponentTypes.RIGHT_WHEEL.get(), stack.get(WHCDataComponentTypes.RIGHT_WHEEL.get()).with(right));
 	}
 	
 	public static ItemStack getWheel(ItemStack stack, Arm arm)
 	{
-		ComponentType<ItemStack> entry = arm == Arm.LEFT ? WHCDataComponentTypes.LEFT_WHEEL.get() : WHCDataComponentTypes.RIGHT_WHEEL.get();
-		if(stack.contains(entry))
-			return stack.get(entry);
-		return new ItemStack(WHCItems.WHEEL_OAK);
+		ComponentType<WheelComponent> entry = arm == Arm.LEFT ? WHCDataComponentTypes.LEFT_WHEEL.get() : WHCDataComponentTypes.RIGHT_WHEEL.get();
+		return stack.contains(entry) ? stack.get(entry).item() : WheelComponent.DEFAULT_WHEEL.get();
 	}
 	
 	public static boolean hasUpgrade(ItemStack stack, ChairUpgrade upgrade)

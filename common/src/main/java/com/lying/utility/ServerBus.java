@@ -9,7 +9,7 @@ import com.lying.chairspace.Chairspace;
 import com.lying.chairspace.Chairspace.Flag;
 import com.lying.data.WHCTags;
 import com.lying.entity.EntityWalker;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
 import com.lying.entity.IParentedEntity;
 import com.lying.init.WHCChairspaceConditions;
 import com.lying.init.WHCEntityTypes;
@@ -77,7 +77,7 @@ public class ServerBus
 	 */
 	private static void registerChairspaceEvents()
 	{
-		Wheelchairs.LOGGER.info("Registered Chairspace event handlers");
+		Wheelchairs.LOGGER.info(" # Registered Chairspace event handlers");
 		
 		// Storing wheelchair due to rider death
 		EntityEvent.LIVING_DEATH.register((entity,damage) -> 
@@ -92,7 +92,7 @@ public class ServerBus
 			{
 				Entity vehicle = entity.getVehicle();
 				if(shouldDropContents)
-					((EntityWheelchair)vehicle).dropInventory((ServerWorld)vehicle.getWorld());
+					((WheelchairEntity)vehicle).dropInventory((ServerWorld)vehicle.getWorld());
 				chairs.storeEntityInChairspace(vehicle, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN.get(), Flag.MOUNT);
 			}
 			
@@ -220,10 +220,10 @@ public class ServerBus
 		ServerEvents.AFTER_LIVING_CHANGE_MOUNT_START.register((living, next, last) -> 
 		{
 			if(last != null && last.getType() == WHCEntityTypes.WHEELCHAIR.get())
-				((EntityWheelchair)last).getUpgrades().forEach(upg -> upg.onStopRiding(living));
+				((WheelchairEntity)last).getUpgrades().forEach(upg -> upg.onStopRiding(living));
 			
 			if(next != null && next.getType() == WHCEntityTypes.WHEELCHAIR.get())
-				((EntityWheelchair)next).getUpgrades().forEach(upg -> upg.onStartRiding(living));
+				((WheelchairEntity)next).getUpgrades().forEach(upg -> upg.onStartRiding(living));
 			
 			// Clear all walker bindings whenever riding status changes
 			IParentedEntity.clearParentedEntities(living, null);
@@ -234,7 +234,7 @@ public class ServerBus
 		{
 			if(last != null && last.getType() == WHCEntityTypes.WHEELCHAIR.get() && last.isAlive() && living.getType() == EntityType.PLAYER)
 			{
-				EntityWheelchair chair = (EntityWheelchair)last;
+				WheelchairEntity chair = (WheelchairEntity)last;
 				if(next != null && next.getType() != WHCEntityTypes.WHEELCHAIR.get() && (!chair.hasInventory() || chair.getInventory().isEmpty()))
 					chair.convertToItem((PlayerEntity)living);
 			}

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
 import com.lying.block.BlockFrostedLava;
+import com.lying.component.type.WheelComponent;
 import com.lying.init.WHCBlocks;
 import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCEnchantments;
@@ -79,23 +80,25 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class EntityWheelchair extends WheelchairsRideable implements JumpingMount, ItemSteerable, IFlyingMount, IParentedEntity
+public class WheelchairEntity extends WheelchairsRideable implements JumpingMount, ItemSteerable, IFlyingMount, IParentedEntity
 {
 	private static final int REBIND_COOLDOWN = Reference.Values.TICKS_PER_SECOND * 3;
 	
-	public static final TrackedData<ItemStack> CHAIR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	public static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
-	public static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	public static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	public static final TrackedData<ItemStack> CHAIR = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	public static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
+	public static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	public static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	
 	public static final TrackedDataHandler<List<Identifier>> UPGRADE_LIST	= TrackedDataHandler.create(Identifier.PACKET_CODEC.collect(PacketCodecs.toList()));
-	public static final TrackedData<List<Identifier>> UPGRADES = DataTracker.registerData(EntityWheelchair.class, UPGRADE_LIST);
+	static { TrackedDataHandlerRegistry.register(UPGRADE_LIST); }
 	
-	public static final TrackedData<Boolean> POWERED = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
-	public static final TrackedData<Optional<UUID>> USER_ID = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
-	public static final TrackedData<Integer> REBIND = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.INTEGER);
-	public static final TrackedData<Boolean> FLYING = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.BOOLEAN);
-	public static final TrackedData<Integer> BOOST_TIME = DataTracker.registerData(EntityWheelchair.class, TrackedDataHandlerRegistry.INTEGER);
+	public static final TrackedData<List<Identifier>> UPGRADES = DataTracker.registerData(WheelchairEntity.class, UPGRADE_LIST);
+	
+	public static final TrackedData<Boolean> POWERED = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final TrackedData<Optional<UUID>> USER_ID = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+	public static final TrackedData<Integer> REBIND = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	public static final TrackedData<Boolean> FLYING = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final TrackedData<Integer> BOOST_TIME = DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private final SaddledComponent saddledComponent;
 	
 	protected SimpleInventory items;
@@ -103,7 +106,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	private LivingEntity user = null;
 	public float spinLeft, spinRight;
 	
-	public EntityWheelchair(EntityType<? extends EntityWheelchair> entityType, World world)
+	public WheelchairEntity(EntityType<? extends WheelchairEntity> entityType, World world)
 	{
 		super(entityType, world);
 		this.saddledComponent = new SaddledComponent(this.dataTracker, BOOST_TIME, POWERED);
@@ -116,8 +119,8 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 		
 		builder.add(CHAIR, WHCItems.WHEELCHAIR_OAK.get().getDefaultStack());
 		builder.add(COLOR, OptionalInt.of(DyedColorComponent.DEFAULT_COLOR));
-		builder.add(LEFT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
-		builder.add(RIGHT_WHEEL, new ItemStack(WHCItems.WHEEL_OAK));
+		builder.add(LEFT_WHEEL, WheelComponent.DEFAULT_WHEEL.get());
+		builder.add(RIGHT_WHEEL, WheelComponent.DEFAULT_WHEEL.get());
 		
 		builder.add(UPGRADES, Lists.newArrayList());
 		builder.add(POWERED, false);
@@ -370,7 +373,7 @@ public class EntityWheelchair extends WheelchairsRideable implements JumpingMoun
 	
 	public <T extends WheelchairsRideable> ItemStack entityToItem(T entity)
 	{
-		EntityWheelchair chair = (EntityWheelchair)entity;
+		WheelchairEntity chair = (WheelchairEntity)entity;
 		ItemStack stack = chair.getChair();
 		ItemWheelchair.setWheels(stack, chair.getLeftWheel(), chair.getRightWheel());
 		if(chair.hasColor() && stack.getItem() instanceof ItemWheelchair)

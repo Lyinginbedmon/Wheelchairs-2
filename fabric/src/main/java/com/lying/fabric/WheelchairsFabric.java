@@ -7,7 +7,7 @@ import org.ladysnake.cca.internal.base.ComponentRegistrationInitializer;
 import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
 import com.lying.entity.EntityWalker;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
 import com.lying.fabric.component.VestComponent;
 import com.lying.init.WHCEntityTypes;
 import com.lying.item.ItemVest;
@@ -26,7 +26,7 @@ public final class WheelchairsFabric implements ModInitializer, ComponentRegistr
     public void onInitialize()
     {
         Wheelchairs.commonInit();
-		FabricDefaultAttributeRegistry.register(WHCEntityTypes.WHEELCHAIR.get(), EntityWheelchair.createWheelchairAttributes());
+		FabricDefaultAttributeRegistry.register(WHCEntityTypes.WHEELCHAIR.get(), WheelchairEntity.createWheelchairAttributes());
 		FabricDefaultAttributeRegistry.register(WHCEntityTypes.WALKER.get(), EntityWalker.createWalkerAttributes());
 		FabricDefaultAttributeRegistry.register(WHCEntityTypes.STOOL.get(), EntityStool.createStoolAttributes());
 		

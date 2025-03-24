@@ -4,7 +4,7 @@
     "translate": "enchantment.wheelchairs.hollowed"
   },
   "effects": {
-    "wheelchairs:can_stored_sword": {}
+    "wheelchairs:cane_inventory": {}
   },
   "exclusive_set": "#wheelchairs:cane_interact_exclusive",
   "max_cost": {

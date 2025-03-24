@@ -1,7 +1,9 @@
 package com.lying.data.recipe;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
@@ -41,6 +43,7 @@ public class RecipeWalker implements CraftingRecipe
 	private final Ingredient strut, platform, handle, wheelLeft, wheelRight;
 	
 	private final Map<Vector2i, Ingredient> recipeGrid = new HashMap<>();
+	private IngredientPlacement placement = null;
 	
 	public RecipeWalker(ItemStack result, Ingredient strut, Ingredient platform, Ingredient handle, Ingredient wheelL, Ingredient wheelR)
 	{
@@ -61,6 +64,16 @@ public class RecipeWalker implements CraftingRecipe
 	}
 	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
+	
+	public IngredientPlacement getIngredientPlacement()
+	{
+		if(placement == null)
+			placement = IngredientPlacement.forMultipleSlots(List.of(
+					Optional.of(handle), Optional.empty(), Optional.of(handle), 
+					Optional.of(strut), Optional.of(platform), Optional.of(strut),
+					Optional.of(wheelLeft), Optional.empty(), Optional.of(wheelRight)));
+		return placement;
+	}
 	
 	public boolean fits(int width, int height) { return width >= 3 && height >= 3; }
 	
@@ -137,8 +150,6 @@ public class RecipeWalker implements CraftingRecipe
 	private int coordsToIndex(int x, int y, int width) { return x + (y * width); }
 	
 	public RecipeSerializer<? extends CraftingRecipe> getSerializer() { return WHCSpecialRecipes.WALKER_SERIALIZER.get(); }
-	
-	public IngredientPlacement getIngredientPlacement() { return IngredientPlacement.NONE; }	// XXX ????
 	
     public static class Serializer implements RecipeSerializer<RecipeWalker>
     {

@@ -3,12 +3,14 @@ package com.lying.init;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.Wheelchairs;
 import com.lying.chairspace.ChairspaceCondition;
+import com.lying.reference.Reference;
 import com.lying.utility.ServerEvents;
 
 import dev.architectury.event.Event;
@@ -24,30 +26,32 @@ import net.minecraft.util.Identifier;
  */
 public class WHCChairspaceConditions
 {
-	public static final Map<Identifier, Supplier<ChairspaceCondition>> CONDITIONS = new HashMap<>();
+	private static final Map<Identifier, Supplier<ChairspaceCondition>> CONDITIONS = new HashMap<>();
 	
 	/** Respawn whenever the owner respawns */
-	public static final Supplier<ChairspaceCondition> ON_RESPAWN = register(ChairspaceCondition.Builder.of("on_respawn", PlayerEvent.PLAYER_RESPAWN));
+	public static final Supplier<ChairspaceCondition> ON_RESPAWN = register("on_respawn", id -> ChairspaceCondition.Builder.of(id, PlayerEvent.PLAYER_RESPAWN));
 	
 	/** Respawn whenever the owner logs in */
-	public static final Supplier<ChairspaceCondition> ON_LOGIN = register(ChairspaceCondition.Builder.of("on_login", PlayerEvent.PLAYER_JOIN));
+	public static final Supplier<ChairspaceCondition> ON_LOGIN = register("on_login", id -> ChairspaceCondition.Builder.of(id, PlayerEvent.PLAYER_JOIN));
 	
 	/** Respawn when the server receives a teleport confirmation packet from the owner */
-	public static final Supplier<ChairspaceCondition> ON_FINISH_TELEPORT = register(ChairspaceCondition.Builder.of("on_finish_teleport", ServerEvents.AFTER_PLAYER_TELEPORT));
+	public static final Supplier<ChairspaceCondition> ON_FINISH_TELEPORT = register("on_finish_teleport", id -> ChairspaceCondition.Builder.of(id, ServerEvents.AFTER_PLAYER_TELEPORT));
 	
 	/** Respawn when the owner exits Spectator mode */
-	public static final Supplier<ChairspaceCondition> ON_LEAVE_SPECTATOR = register(ChairspaceCondition.Builder.of("on_leave_spectator", ServerEvents.AFTER_PLAYER_CHANGE_GAME_MODE)
+	public static final Supplier<ChairspaceCondition> ON_LEAVE_SPECTATOR = register("on_leave_spectator", id -> ChairspaceCondition.Builder.of(id, ServerEvents.AFTER_PLAYER_CHANGE_GAME_MODE)
 			.condition(player -> !player.isSpectator()));
 	
 	/** Respawn when the user stops fall-flying */
-	public static final Supplier<ChairspaceCondition> ON_STOP_FLYING = register(ChairspaceCondition.Builder.of("on_stop_flying", ServerEvents.ON_STOP_FLYING));
+	public static final Supplier<ChairspaceCondition> ON_STOP_FLYING = register("on_stop_flying", id -> ChairspaceCondition.Builder.of(id, ServerEvents.ON_STOP_FLYING));
 	
-	public static final Supplier<ChairspaceCondition> ON_WAKE_UP = register(ChairspaceCondition.Builder.of("on_wake_up", ServerEvents.ON_WAKE_UP).postEffect(ent -> ((LivingEntity)ent).setHealth(1F)));
+	public static final Supplier<ChairspaceCondition> ON_WAKE_UP = register("on_wake_up", id -> ChairspaceCondition.Builder.of(id, ServerEvents.ON_WAKE_UP)
+			.postEffect(ent -> ((LivingEntity)ent).setHealth(1F)));
 	
-	private static Supplier<ChairspaceCondition> register(ChairspaceCondition.Builder builder)
+	private static Supplier<ChairspaceCondition> register(String nameIn, Function<String, ChairspaceCondition.Builder> supplier)
 	{
-		ChairspaceCondition made = builder.build();
-		return CONDITIONS.put(made.registryName(), () -> made);
+		Supplier<ChairspaceCondition> finalised = () -> supplier.apply(nameIn).build();
+		CONDITIONS.put(Reference.ModInfo.prefix(nameIn), finalised);
+		return finalised;
 	}
 	
 	public static void init()

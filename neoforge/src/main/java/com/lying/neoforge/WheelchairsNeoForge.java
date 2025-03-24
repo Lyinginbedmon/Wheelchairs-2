@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
 import com.lying.entity.EntityWalker;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
 import com.lying.init.WHCEntityTypes;
 import com.lying.item.ItemVest;
 import com.lying.neoforge.capability.VestCapability;
@@ -67,7 +67,7 @@ public final class WheelchairsNeoForge
 	public void registerEntityAttributes(final EntityAttributeCreationEvent event)
 	{
 		Wheelchairs.LOGGER.info(" # Registered entity attributes");
-		event.put(WHCEntityTypes.WHEELCHAIR.get(), EntityWheelchair.createWheelchairAttributes().build());
+		event.put(WHCEntityTypes.WHEELCHAIR.get(), WheelchairEntity.createWheelchairAttributes().build());
 		event.put(WHCEntityTypes.WALKER.get(), EntityWalker.createWalkerAttributes().build());
 		event.put(WHCEntityTypes.STOOL.get(), EntityStool.createStoolAttributes().build());
 	}

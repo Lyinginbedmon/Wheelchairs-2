@@ -10,7 +10,6 @@ import com.lying.Wheelchairs;
 import com.lying.mixin.FoxEntityMixin;
 
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -34,7 +33,7 @@ public class ItemVest extends Item
 	
 	public ItemVest(Settings settings)
 	{
-		super(settings.component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(-6265536, true)));
+		super(settings.component(DataComponentTypes.DYED_COLOR, null));
 	}
 	
 	public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand)

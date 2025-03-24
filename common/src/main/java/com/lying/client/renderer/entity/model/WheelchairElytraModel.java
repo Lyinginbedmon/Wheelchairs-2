@@ -1,5 +1,7 @@
 package com.lying.client.renderer.entity.model;
 
+import com.lying.client.renderer.entity.state.WheelchairEntityRenderState;
+
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.Model.SinglePartModel;
 import net.minecraft.client.model.ModelData;
@@ -10,10 +12,9 @@ import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
 
-public class WheelchairElytraModel<T extends LivingEntity> extends SinglePartModel
+public class WheelchairElytraModel<T extends WheelchairEntityRenderState> extends SinglePartModel
 {
 	private static final String PIVOT_PART = "pivot";
 	private static final float BASE_TILT = (float)Math.toRadians(15D);
@@ -41,15 +42,15 @@ public class WheelchairElytraModel<T extends LivingEntity> extends SinglePartMod
 		return TexturedModelData.of(meshdefinition, 64, 32);
 	}
 	
-	public void setAngles(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch)
+	public void setAngles(T state, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch)
 	{
 		float wingPitch = BASE_TILT;
 		float wingRoll = -BASE_TILT;
 		float wingYaw = 0.0f;
-		if(entity.isGliding())
+		if(state.isGliding)
 		{
 			float o = 1.0f;
-			Vec3d vec3d = entity.getVelocity();
+			Vec3d vec3d = state.velocity;
 			if (vec3d.y < 0.0)
 			{
 				Vec3d vec3d2 = vec3d.normalize();
@@ -60,7 +61,7 @@ public class WheelchairElytraModel<T extends LivingEntity> extends SinglePartMod
 			
 			wingRoll = o * -1.5707964f + (1.0f - o) * wingRoll;
 		}
-		else if(entity.isInSneakingPose())
+		else if(state.sneaking)
 		{
 			wingPitch = (float)Math.toRadians(40D);
 			wingRoll = -(float)Math.toRadians(45D);

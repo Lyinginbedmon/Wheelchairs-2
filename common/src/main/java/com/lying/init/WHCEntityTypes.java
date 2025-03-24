@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import com.lying.Wheelchairs;
 import com.lying.entity.EntityStool;
 import com.lying.entity.EntityWalker;
-import com.lying.entity.EntityWheelchair;
+import com.lying.entity.WheelchairEntity;
 import com.lying.reference.Reference;
 
 import dev.architectury.registry.registries.DeferredRegister;
@@ -21,8 +21,8 @@ public class WHCEntityTypes
 	public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.ENTITY_TYPE);
 	private static int tally = 0;
 	
-	public static final RegistrySupplier<EntityType<EntityWheelchair>> WHEELCHAIR = register("wheelchair", () -> 
-		EntityType.Builder.<EntityWheelchair>create(EntityWheelchair::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("wheelchair")));
+	public static final RegistrySupplier<EntityType<WheelchairEntity>> WHEELCHAIR = register("wheelchair", () -> 
+		EntityType.Builder.<WheelchairEntity>create(WheelchairEntity::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("wheelchair")));
 	
 	public static final RegistrySupplier<EntityType<EntityWalker>> WALKER = register("walker", () -> 
 		EntityType.Builder.<EntityWalker>create(EntityWalker::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("walker")));

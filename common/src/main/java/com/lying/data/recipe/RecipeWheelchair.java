@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.lying.data.WHCTags;
 import com.lying.init.WHCSpecialRecipes;
 import com.lying.item.ItemWheelchair;
 import com.lying.reference.Reference;
@@ -26,7 +25,6 @@ import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -45,13 +43,15 @@ public class RecipeWheelchair implements CraftingRecipe
 	private final ItemStack result;
 	private final Ingredient backing, cushion, wheelLeft, wheelRight;
 	
+	private IngredientPlacement placement = null;
+	
 	public RecipeWheelchair(ItemStack result, Ingredient backing, Ingredient cushion, Optional<Ingredient> wheelL, Optional<Ingredient> wheelR)
 	{
 		this.result = result;
 		this.backing = backing;
 		this.cushion = cushion;
-		this.wheelLeft = wheelL.orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)));
-		this.wheelRight = wheelR.orElse(Ingredient.fromTag(Registries.ITEM.getOrThrow(WHCTags.WHEEL)));
+		this.wheelLeft = wheelL.get();
+		this.wheelRight = wheelR.get();
 	}
 	
 	public RecipeWheelchair(ItemStack result, Ingredient backing, Ingredient cushion, Ingredient wheelL, Ingredient wheelR)
@@ -65,7 +65,14 @@ public class RecipeWheelchair implements CraftingRecipe
 	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	
-	public IngredientPlacement getIngredientPlacement() { return IngredientPlacement.NONE; }	// XXX ????
+	public IngredientPlacement getIngredientPlacement()
+	{
+		if(placement == null)
+			placement = IngredientPlacement.forMultipleSlots(List.of(
+					Optional.empty(), Optional.of(backing), Optional.empty(),
+					Optional.of(wheelLeft), Optional.of(cushion), Optional.of(wheelRight)));
+		return placement;
+	}
 	
 	public boolean fits(int width, int height) { return width >= 3 && height >= 2; }
 	
@@ -90,20 +97,17 @@ public class RecipeWheelchair implements CraftingRecipe
 					continue;
 				
 				ItemStack chair = this.result.copy();
-				if(chair.getItem() instanceof ItemWheelchair)
-					ItemWheelchair.setWheels(chair, contents.get(2), contents.get(3));
-				if(chair.contains(DataComponentTypes.DYED_COLOR))
-				{
-					ItemStack dye = contents.get(1);
-					int colour = 0xF9FFFE;
-					if(dye.getItem() instanceof BlockItem)
-						colour = ((BlockItem)dye.getItem()).getBlock().getDefaultMapColor().color;
-					else if(dye.getItem() instanceof DyeItem)
-						colour = ((DyeItem)dye.getItem()).getColor().getMapColor().color;
-					else if(dye.contains(DataComponentTypes.DYED_COLOR))
-						colour = dye.get(DataComponentTypes.DYED_COLOR).rgb();
-					chair.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(colour, true));
-				}
+				ItemWheelchair.setWheels(chair, contents.get(2), contents.get(3));
+				
+				ItemStack dye = contents.get(1);
+				int colour = 0xF9FFFE;
+				if(dye.getItem() instanceof BlockItem)
+					colour = ((BlockItem)dye.getItem()).getBlock().getDefaultMapColor().color;
+				else if(dye.getItem() instanceof DyeItem)
+					colour = ((DyeItem)dye.getItem()).getColor().getMapColor().color;
+				else if(dye.contains(DataComponentTypes.DYED_COLOR))
+					colour = dye.get(DataComponentTypes.DYED_COLOR).rgb();
+				chair.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(colour, true));
 				
 				return chair;
 			}
@@ -111,6 +115,14 @@ public class RecipeWheelchair implements CraftingRecipe
 		return ItemStack.EMPTY;
 	}
 	
+	/**
+	 * Returns the input crafting ingredients in a predetermined order<br>
+	 *  * 0 - Backing material<br>
+	 *  * 1 - Cushion material<br>
+	 *  * 2 - Left wheel<br>
+	 *  * 3 - Right wheel<br>
+	 * Or returns null if the ingredients are not fully satisfed
+	 */
 	@Nullable
 	private DefaultedList<ItemStack> checkFrom(CraftingRecipeInput inv, int x, int y)
 	{

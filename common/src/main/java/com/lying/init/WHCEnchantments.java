@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
-import com.lying.Wheelchairs;
 import com.lying.data.WHCTags;
 import com.lying.reference.Reference;
 
@@ -90,7 +89,6 @@ public class WHCEnchantments
 	
 	public static void bootstrap(Registerable<Enchantment> registerable)
 	{
-		Wheelchairs.LOGGER.info(" # Enchantments bootstrapped");
 		RegistryEntryLookup<Item> itemLookup = registerable.getRegistryLookup(RegistryKeys.ITEM);
 		RegistryEntryLookup<Enchantment> enchLookup = registerable.getRegistryLookup(RegistryKeys.ENCHANTMENT);
 		

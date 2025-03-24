@@ -2,12 +2,10 @@ package com.lying.item;
 
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
-
+import com.lying.component.type.WheelComponent;
 import com.lying.entity.EntityWalker;
 import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCEntityTypes;
-import com.lying.init.WHCItems;
 
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
@@ -17,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -37,8 +36,8 @@ public class ItemWalker extends Item implements IBonusBlockItem
 	public ItemWalker(Settings settings)
 	{
 		super(settings
-				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK))
-				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), new ItemStack(WHCItems.WHEEL_OAK))
+				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), WheelComponent.empty(Arm.LEFT))
+				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), WheelComponent.empty(Arm.RIGHT))
 				.component(WHCDataComponentTypes.HAS_CHEST.get(), false)
 				.component(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT));
 	}
@@ -88,15 +87,15 @@ public class ItemWalker extends Item implements IBonusBlockItem
 		return ActionResult.SUCCESS_SERVER;
 	}
 	
-	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
+	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
-		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_left", getWheel(stack, Arm.LEFT).getName()));
-		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_right", getWheel(stack, Arm.RIGHT).getName()));
+		stack.get(WHCDataComponentTypes.LEFT_WHEEL.get()).appendTooltip(context, tooltip::add, type);
+		stack.get(WHCDataComponentTypes.RIGHT_WHEEL.get()).appendTooltip(context, tooltip::add, type);
 	}
 	
 	public static Iterable<ItemStack> getWheels(ItemStack stack)
 	{
-		DefaultedList<ItemStack> wheels = DefaultedList.ofSize(2, new ItemStack(WHCItems.WHEEL_OAK));
+		DefaultedList<ItemStack> wheels = DefaultedList.ofSize(2, WheelComponent.DEFAULT_WHEEL.get());
 		wheels.set(0, getWheel(stack, Arm.LEFT));
 		wheels.set(1, getWheel(stack, Arm.RIGHT));
 		return wheels;
@@ -104,16 +103,14 @@ public class ItemWalker extends Item implements IBonusBlockItem
 	
 	public static void setWheels(ItemStack stack, ItemStack left, ItemStack right)
 	{
-		stack.set(WHCDataComponentTypes.LEFT_WHEEL.get(), left.copy());
-		stack.set(WHCDataComponentTypes.RIGHT_WHEEL.get(), right.copy());
+		stack.set(WHCDataComponentTypes.LEFT_WHEEL.get(), stack.get(WHCDataComponentTypes.LEFT_WHEEL.get()).with(left));
+		stack.set(WHCDataComponentTypes.RIGHT_WHEEL.get(), stack.get(WHCDataComponentTypes.RIGHT_WHEEL.get()).with(right));
 	}
 	
 	public static ItemStack getWheel(ItemStack stack, Arm arm)
 	{
-		ComponentType<ItemStack> entry = arm == Arm.LEFT ? WHCDataComponentTypes.LEFT_WHEEL.get() : WHCDataComponentTypes.RIGHT_WHEEL.get();
-		if(stack.contains(entry))
-			return stack.get(entry);
-		return new ItemStack(WHCItems.WHEEL_OAK);
+		ComponentType<WheelComponent> entry = arm == Arm.LEFT ? WHCDataComponentTypes.LEFT_WHEEL.get() : WHCDataComponentTypes.RIGHT_WHEEL.get();
+		return stack.contains(entry) ? stack.get(entry).item() : WheelComponent.DEFAULT_WHEEL.get();
 	}
 	
 	public static void setHasChest(ItemStack stack, boolean contents)

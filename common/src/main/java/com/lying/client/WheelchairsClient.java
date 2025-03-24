@@ -85,7 +85,7 @@ public class WheelchairsClient
 			{
 				// Allows for opening wheelchair inventory
 				while(WHCKeybinds.keyOpenChair.wasPressed())
-					OpenInventoryScreenPacket.send();
+					OpenInventoryScreenPacket.send(mc.targetedEntity != null ? mc.targetedEntity.getUuid() : null);
 				
 				// Allows for toggling the current seatbelt setting ingame
 				if(WHCKeybinds.keySeatbelt.wasPressed() && !WheelchairsClient.wasSeatbeltPressed && player.hasVehicle())
@@ -104,7 +104,8 @@ public class WheelchairsClient
 	
 	private static void registerS2CPacketReceivers()
 	{
-		NetworkManager.registerReceiver(NetworkManager.c2s(), AACMessagePacket.PACKET_TYPE, AACMessagePacket.PACKET_CODEC, (value, context) -> 
+		Wheelchairs.LOGGER.info(" # Registered client-side packet receivers");
+		NetworkManager.registerReceiver(NetworkManager.s2c(), AACMessagePacket.Payload.Receive.PACKET_TYPE, AACMessagePacket.Payload.Receive.PACKET_CODEC, (value, context) -> 
 		{
 			if(mc.options.getChatVisibility().getValue() != ChatVisibility.FULL)
 				return;

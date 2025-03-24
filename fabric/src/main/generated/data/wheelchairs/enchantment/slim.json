@@ -12,7 +12,7 @@
         }
       }
     ],
-    "wheelchairs:can_store_in_cane": {}
+    "wheelchairs:cane_storeable": {}
   },
   "exclusive_set": "#wheelchairs:cane_interact_exclusive",
   "max_cost": {

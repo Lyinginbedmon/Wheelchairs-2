@@ -1,5 +1,6 @@
 package com.lying.data.recipe;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.lying.init.WHCSpecialRecipes;
@@ -41,6 +42,7 @@ public class RecipeCane implements CraftingRecipe
 	private static final Ingredient STICK = Ingredient.ofItems(Items.STICK);
 	
 	private World currentWorld;
+	private IngredientPlacement placement;
 	
 	public RecipeCane(ItemStack result, Ingredient staff)
 	{
@@ -50,7 +52,13 @@ public class RecipeCane implements CraftingRecipe
 	
 	public CraftingRecipeCategory getCategory() { return CraftingRecipeCategory.MISC; }
 	
-	public IngredientPlacement getIngredientPlacement() { return IngredientPlacement.NONE; }	// XXX ????
+	public IngredientPlacement getIngredientPlacement()
+	{
+		if(placement == null)
+			placement = IngredientPlacement.forMultipleSlots(List.of(
+					Optional.of(staff), Optional.of(STICK)));
+		return placement;
+	}
 	
 	public boolean fits(int width, int height) { return width >= 1 && height >= 3; }
 	
