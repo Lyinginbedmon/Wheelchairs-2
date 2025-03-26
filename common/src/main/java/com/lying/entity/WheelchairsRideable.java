@@ -104,66 +104,6 @@ public abstract class WheelchairsRideable extends LivingEntity
 	/** Identical to standard behaviour, except can use portals whilst ridden */
 	public boolean canUsePortals() { return !hasVehicle() && !isSleeping(); }
 	
-	// FIXME Ensure ridden wheelchairs can pass through portals regardless of world settings
-//	public Entity moveToWorld(ServerWorld destination)
-//	{
-//		if(!(getWorld() instanceof ServerWorld) || isRemoved())
-//			return null;
-//		else if(!hasPassengers())
-//			return super.moveToWorld(destination);
-//		
-//		Profiler profiler = getWorld().getProfiler();
-//		profiler.push("changeDimension");
-//		if(hasVehicle())
-//			dismountVehicle();
-//		profiler.push("reposition");
-//		TeleportTarget teleportTarget = getTeleportTarget(destination);
-//		if(teleportTarget == null)
-//			return null;
-//		profiler.swap("reloading");
-//		Entity entity = recreateInDimension(destination);
-//		if(entity != null)
-//		{
-//			ServerPlayerEntity player = null;
-//			if(getPlayerPassengers() > 0)
-//			{
-//				player = (ServerPlayerEntity)getFirstPassenger();
-//				player.dismountVehicle();
-//			}
-//			
-//			entity.refreshPositionAndAngles(teleportTarget.position.x, teleportTarget.position.y, teleportTarget.position.z, teleportTarget.yaw, entity.getPitch());
-//			entity.setVelocity(teleportTarget.velocity);
-//			destination.spawnNewEntityAndPassengers(entity);
-//			if(destination.getRegistryKey() == World.END)
-//				ServerWorld.createEndSpawnPlatform(destination);
-//			
-//			if(player != null)
-//			{
-//				Vector3f seatOffset = getPassengerAttachmentPos(player, entity.getDimensions(EntityPose.STANDING), 1F);
-//				Vec3d offsetPos = entity.getPos().add(seatOffset.x, seatOffset.y, seatOffset.z);
-//				player.teleport(destination, offsetPos.x, offsetPos.y, offsetPos.z, entity.getYaw(), entity.getPitch());
-//				player.startRiding(entity);
-//			}
-//		}
-//		removeFromDimension();
-//		profiler.pop();
-//		((ServerWorld)getWorld()).resetIdleTimeout();
-//		destination.resetIdleTimeout();
-//		profiler.pop();
-//		return entity;
-//	}
-//	
-//	protected Entity recreateInDimension(ServerWorld destination)
-//	{
-//		NbtCompound chairData = new NbtCompound();
-//		saveNbt(chairData);
-//		
-//		return EntityType.loadEntityWithPassengers(chairData, destination, entity -> {
-//			entity.refreshPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), entity.getYaw(), entity.getPitch());
-//			return entity;
-//		});
-//	}
-	
 	protected boolean putPlayerInSaddle(PlayerEntity player)
 	{
 		if(hasPassengers() || getWorld().isClient())
@@ -245,9 +185,9 @@ public abstract class WheelchairsRideable extends LivingEntity
 	
 	protected abstract void clampPassengerYaw(Entity passenger);
 	
-	public boolean isInvulnerableTo(DamageSource damageSource)
+	public boolean isInvulnerableTo(ServerWorld world, DamageSource damageSource)
 	{
-		DamageSources sources = getWorld().getDamageSources();
+		DamageSources sources = world.getDamageSources();
 		return !(
 				damageSource == sources.outOfWorld() ||
 				damageSource == sources.genericKill()

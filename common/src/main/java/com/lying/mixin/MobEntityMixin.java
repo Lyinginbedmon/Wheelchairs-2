@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.lying.init.WHCItems;
-import com.lying.item.ItemVest;
+import com.lying.item.VestItem;
 
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,7 +25,7 @@ public class MobEntityMixin extends EntityMixin
 		ItemStack stack = player.getStackInHand(hand);
 		if(!stack.isEmpty() && stack.getItem() == WHCItems.VEST)
 		{
-			ActionResult result = ((ItemVest)stack.getItem()).useOnEntity(stack, player, mob, hand);
+			ActionResult result = ((VestItem)stack.getItem()).useOnEntity(stack, player, mob, hand);
 			if(result.isAccepted())
 				ci.setReturnValue(result);
 		}

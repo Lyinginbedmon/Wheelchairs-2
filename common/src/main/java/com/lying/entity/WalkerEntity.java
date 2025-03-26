@@ -10,7 +10,7 @@ import org.joml.Vector2d;
 
 import com.lying.component.type.WheelComponent;
 import com.lying.init.WHCItems;
-import com.lying.item.ItemWalker;
+import com.lying.item.WalkerItem;
 import com.lying.utility.WHCUtils;
 
 import net.minecraft.component.DataComponentTypes;
@@ -49,13 +49,13 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class EntityWalker extends LivingEntity implements IParentedEntity
+public class WalkerEntity extends LivingEntity implements IParentedEntity
 {
-	private static final TrackedData<ItemStack> ITEM = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	private static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	private static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	private static final TrackedData<Optional<UUID>> USER_ID = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
-	private static final TrackedData<Boolean> HAS_INV = DataTracker.registerData(EntityWalker.class, TrackedDataHandlerRegistry.BOOLEAN);
+	private static final TrackedData<ItemStack> ITEM = DataTracker.registerData(WalkerEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	private static final TrackedData<ItemStack> LEFT_WHEEL = DataTracker.registerData(WalkerEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	private static final TrackedData<ItemStack> RIGHT_WHEEL = DataTracker.registerData(WalkerEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	private static final TrackedData<Optional<UUID>> USER_ID = DataTracker.registerData(WalkerEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+	private static final TrackedData<Boolean> HAS_INV = DataTracker.registerData(WalkerEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
 	private LivingEntity user = null;
 	
@@ -64,7 +64,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	
 	protected SimpleInventory items;
 	
-	public EntityWalker(EntityType<? extends EntityWalker> entityType, World world)
+	public WalkerEntity(EntityType<? extends WalkerEntity> entityType, World world)
 	{
 		super(entityType, world);
 		double randX = (getRandom().nextDouble() - 0.5D) * 2D;
@@ -182,20 +182,20 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 		return ActionResult.SUCCESS;
 	}
 	
-	public static ItemStack chairToItem(EntityWalker chair)
+	public static ItemStack chairToItem(WalkerEntity chair)
 	{
 		ItemStack stack = chair.getFrame();
-		ItemWalker.setWheels(stack, chair.getLeftWheel(), chair.getRightWheel());
-		ItemWalker.setHasChest(stack, chair.hasInventory());
+		WalkerItem.setWheels(stack, chair.getLeftWheel(), chair.getRightWheel());
+		WalkerItem.setHasChest(stack, chair.hasInventory());
 		return stack;
 	}
 	
 	public void copyFromItem(ItemStack stack)
 	{
 		getDataTracker().set(ITEM, stack.copy());
-		getDataTracker().set(LEFT_WHEEL, ItemWalker.getWheel(stack, Arm.LEFT));
-		getDataTracker().set(RIGHT_WHEEL, ItemWalker.getWheel(stack, Arm.RIGHT));
-		if(ItemWalker.hasChest(stack))
+		getDataTracker().set(LEFT_WHEEL, WalkerItem.getWheel(stack, Arm.LEFT));
+		getDataTracker().set(RIGHT_WHEEL, WalkerItem.getWheel(stack, Arm.RIGHT));
+		if(WalkerItem.hasChest(stack))
 		{
 			setHasInventory(true);
 			List<ItemStack> storedItems = stack.get(DataComponentTypes.CONTAINER).stream().toList();
@@ -276,7 +276,7 @@ public class EntityWalker extends LivingEntity implements IParentedEntity
 	public ItemStack getFrame()
 	{
 		ItemStack stack = getDataTracker().get(ITEM);
-		return stack.getItem() instanceof ItemWalker ? stack : new ItemStack(WHCItems.WHEELCHAIR_OAK);
+		return stack.getItem() instanceof WalkerItem ? stack : new ItemStack(WHCItems.WHEELCHAIR_OAK);
 	}
 	
 	public ItemStack getWheel(Arm arm) { return arm == Arm.LEFT ? getLeftWheel() : getRightWheel(); }

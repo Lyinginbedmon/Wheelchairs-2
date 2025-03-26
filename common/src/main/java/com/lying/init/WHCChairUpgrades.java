@@ -19,8 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 
-// FIXME Ensure chair upgrades are properly initialised
-public class WHCUpgrades
+public class WHCChairUpgrades
 {
 	private static final Map<Identifier, Supplier<ChairUpgrade>> UPGRADES = new HashMap<>();
 	
@@ -38,10 +37,10 @@ public class WHCUpgrades
 			.keyItem(Items.NETHERITE_INGOT));
 	public static final Supplier<ChairUpgrade> DIVING	= register("diving", b -> b.modelled()
 			.keyItem(Items.LEATHER)
-			.incompatible(() -> List.of(WHCUpgrades.FLOATING, WHCUpgrades.POWERED)));
+			.incompatible(() -> List.of(WHCChairUpgrades.FLOATING, WHCChairUpgrades.POWERED)));
 	public static final Supplier<ChairUpgrade> GLIDING = register("gliding", b -> b
 			.keyItem(Items.ELYTRA)
-			.incompatible(() -> List.of(WHCUpgrades.POWERED)));
+			.incompatible(() -> List.of(WHCChairUpgrades.POWERED)));
 	public static final Supplier<ChairUpgrade> PLACER = register("placer", b -> b.modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));
 	public static final Supplier<ChairUpgrade> HANDLES = register("handles", b -> b.modelled().enablesScreen()
@@ -84,7 +83,7 @@ public class WHCUpgrades
 		List<ChairUpgrade> upgrades = Lists.newArrayList();
 		for(int i=0; i<list.size(); i++)
 		{
-			ChairUpgrade upgrade = WHCUpgrades.get(list.get(i));
+			ChairUpgrade upgrade = WHCChairUpgrades.get(list.get(i));
 			if(upgrade != null)
 				upgrades.add(upgrade);
 		}

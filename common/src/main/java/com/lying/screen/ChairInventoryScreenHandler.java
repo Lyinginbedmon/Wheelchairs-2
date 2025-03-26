@@ -4,7 +4,7 @@ import com.lying.entity.ChairUpgrade;
 import com.lying.entity.WheelchairEntity;
 import com.lying.init.WHCEntityTypes;
 import com.lying.init.WHCScreenHandlerTypes;
-import com.lying.init.WHCUpgrades;
+import com.lying.init.WHCChairUpgrades;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -27,20 +27,18 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 		boolean noChair = chair == null;
 		this.inv = noChair ? new SimpleInventory(16) : chair.getInventory();
 		
-		this.hasStorage = !noChair && chair.hasUpgrade(WHCUpgrades.STORAGE.get());
-		this.hasPlacer = !noChair && chair.hasUpgrade(WHCUpgrades.PLACER.get());
+		this.hasStorage = !noChair && chair.hasUpgrade(WHCChairUpgrades.STORAGE.get());
+		this.hasPlacer = !noChair && chair.hasUpgrade(WHCChairUpgrades.PLACER.get());
 		
 		// (Optional) Placer slot
 		this.addSlot(new Slot(inv, 0, 143, 36)
 			{
-				public boolean isEnabled() { return chair.hasUpgrade(WHCUpgrades.PLACER.get()); }
+				public boolean isEnabled() { return chair.hasUpgrade(WHCChairUpgrades.PLACER.get()); }
 				
 				public boolean canInsert(ItemStack stack)
 				{
 					return stack.getItem() instanceof BlockItem;
 				}
-				
-				
 			});
 		
 		// (Optional) Main storage slots
@@ -48,7 +46,7 @@ public class ChairInventoryScreenHandler extends ScreenHandler
 			for(int l=0; l < 5; ++l)
 				this.addSlot(new Slot(inv, 1 + l + k * 5, 44 + l * 18, 18 + k * 18)
 					{
-						public boolean isEnabled() { return chair.hasUpgrade(WHCUpgrades.STORAGE.get()); }
+						public boolean isEnabled() { return chair.hasUpgrade(WHCChairUpgrades.STORAGE.get()); }
 					});
 		
 		// Player inventory slots

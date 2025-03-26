@@ -2,7 +2,7 @@ package com.lying.client.screen;
 
 import com.lying.entity.WheelchairEntity;
 import com.lying.init.WHCEntityTypes;
-import com.lying.init.WHCUpgrades;
+import com.lying.init.WHCChairUpgrades;
 import com.lying.network.ForceUnparentPacket;
 import com.lying.reference.Reference;
 import com.lying.screen.ChairInventoryScreenHandler;
@@ -45,7 +45,7 @@ public class ChairInventoryScreen extends HandledScreen<ChairInventoryScreenHand
 		}
 		
 		WheelchairEntity chair = (WheelchairEntity)mc.player.getVehicle();
-		unbindButton.visible = chair.hasUpgrade(WHCUpgrades.HANDLES.get());
+		unbindButton.visible = chair.hasUpgrade(WHCChairUpgrades.HANDLES.get());
 		unbindButton.active = chair.hasParent() && chair.rebindCooldown() <= 0;
 	}
 	

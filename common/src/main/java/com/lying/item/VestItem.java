@@ -22,7 +22,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 
-public class ItemVest extends Item
+public class VestItem extends Item
 {
 	private static final Function<Entity, UUID> tamedOwner = entity -> ((TameableEntity)entity).getOwnerUuid();
 	public static final Map<EntityType<? extends LivingEntity>, Function<Entity,UUID>> APPLICABLE_MOBS = Map.of(
@@ -31,7 +31,7 @@ public class ItemVest extends Item
 			EntityType.PARROT, tamedOwner,
 			EntityType.FOX, entity -> ((FoxEntityMixin)(Object)entity).getOwnerID().orElse(null));
 	
-	public ItemVest(Settings settings)
+	public VestItem(Settings settings)
 	{
 		super(settings.component(DataComponentTypes.DYED_COLOR, null));
 	}

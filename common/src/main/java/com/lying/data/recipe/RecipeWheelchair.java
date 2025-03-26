@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 
 import com.lying.init.WHCSpecialRecipes;
-import com.lying.item.ItemWheelchair;
+import com.lying.item.WheelchairItem;
 import com.lying.reference.Reference;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -97,7 +97,7 @@ public class RecipeWheelchair implements CraftingRecipe
 					continue;
 				
 				ItemStack chair = this.result.copy();
-				ItemWheelchair.setWheels(chair, contents.get(2), contents.get(3));
+				WheelchairItem.setWheels(chair, contents.get(2), contents.get(3));
 				
 				ItemStack dye = contents.get(1);
 				int colour = 0xF9FFFE;

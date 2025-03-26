@@ -3,8 +3,8 @@ package com.lying.init;
 import java.util.function.Supplier;
 
 import com.lying.Wheelchairs;
-import com.lying.entity.EntityStool;
-import com.lying.entity.EntityWalker;
+import com.lying.entity.StoolEntity;
+import com.lying.entity.WalkerEntity;
 import com.lying.entity.WheelchairEntity;
 import com.lying.reference.Reference;
 
@@ -24,11 +24,11 @@ public class WHCEntityTypes
 	public static final RegistrySupplier<EntityType<WheelchairEntity>> WHEELCHAIR = register("wheelchair", () -> 
 		EntityType.Builder.<WheelchairEntity>create(WheelchairEntity::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("wheelchair")));
 	
-	public static final RegistrySupplier<EntityType<EntityWalker>> WALKER = register("walker", () -> 
-		EntityType.Builder.<EntityWalker>create(EntityWalker::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("walker")));
+	public static final RegistrySupplier<EntityType<WalkerEntity>> WALKER = register("walker", () -> 
+		EntityType.Builder.<WalkerEntity>create(WalkerEntity::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("walker")));
 	
-	public static final RegistrySupplier<EntityType<EntityStool>> STOOL = register("stool", () -> 
-		EntityType.Builder.<EntityStool>create(EntityStool::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("stool")));
+	public static final RegistrySupplier<EntityType<StoolEntity>> STOOL = register("stool", () -> 
+		EntityType.Builder.<StoolEntity>create(StoolEntity::new, SpawnGroup.MISC).dimensions(0.7F, 0.9F).build(keyOf("stool")));
 	
 	private static RegistryKey<EntityType<?>> keyOf(String nameIn) { return RegistryKey.of(RegistryKeys.ENTITY_TYPE, Reference.ModInfo.prefix(nameIn)); }
 	

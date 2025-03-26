@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.lying.client.renderer.entity.state.WheelchairEntityRenderState;
 import com.lying.entity.WheelchairEntity;
-import com.lying.item.ItemWheelchair;
+import com.lying.item.WheelchairItem;
 import com.lying.reference.Reference;
 
 import net.minecraft.client.render.OverlayTexture;
@@ -90,7 +90,7 @@ public class WheelchairEntityRenderer extends WheelchairsRideableEntityRenderer<
 			
 			// Seat
 			ItemStack chair = state.chair;
-			if(chair.getItem() instanceof ItemWheelchair)
+			if(chair.getItem() instanceof WheelchairItem)
 			{
 				matrices.push();
 					matrices.translate(-0.5F, 0F, -0.5F);

@@ -4,15 +4,15 @@ import java.util.function.Function;
 
 import com.lying.Wheelchairs;
 import com.lying.entity.WheelchairEntity;
-import com.lying.item.ItemAACTablet;
-import com.lying.item.ItemCane;
-import com.lying.item.ItemCaneHandle;
-import com.lying.item.ItemController;
-import com.lying.item.ItemCrutch;
-import com.lying.item.ItemStool;
-import com.lying.item.ItemVest;
-import com.lying.item.ItemWalker;
-import com.lying.item.ItemWheelchair;
+import com.lying.item.AACTabletItem;
+import com.lying.item.CaneItem;
+import com.lying.item.CaneHandleItem;
+import com.lying.item.ControllerItem;
+import com.lying.item.CrutchItem;
+import com.lying.item.StoolItem;
+import com.lying.item.VestItem;
+import com.lying.item.WalkerItem;
+import com.lying.item.WheelchairItem;
 import com.lying.reference.Reference;
 
 import dev.architectury.registry.CreativeTabRegistry;
@@ -120,11 +120,11 @@ public class WHCItems
 	public static final RegistrySupplier<Item> CANE_CHERRY		= cane("cherry");
 	public static final RegistrySupplier<Item> CANE_BAMBOO		= cane("bamboo");
 	
-	public static final RegistrySupplier<Item> CONTROLLER	= register("controller", settings -> new ItemController<WheelchairEntity>(WHCEntityTypes.WHEELCHAIR, 0, settings.maxCount(1)));
-	public static final RegistrySupplier<Item> STOOL		= register("wheeled_stool", settings -> new ItemStool(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+	public static final RegistrySupplier<Item> CONTROLLER	= register("controller", settings -> new ControllerItem<WheelchairEntity>(WHCEntityTypes.WHEELCHAIR, 0, settings.maxCount(1).arch$tab(WHEELCHAIR_TAB)));
+	public static final RegistrySupplier<Item> STOOL		= register("wheeled_stool", settings -> new StoolItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	
-	public static final RegistrySupplier<Item> VEST		= register("service_vest", settings -> new ItemVest(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
-	public static final RegistrySupplier<Item> TABLET	= register("speech_tablet", settings -> new ItemAACTablet(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1).rarity(Rarity.RARE)));
+	public static final RegistrySupplier<Item> VEST		= register("service_vest", settings -> new VestItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+	public static final RegistrySupplier<Item> TABLET	= register("speech_tablet", settings -> new AACTabletItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1).rarity(Rarity.RARE)));
 	
 	private static RegistrySupplier<Item> register(String nameIn, Function<Item.Settings, Item> itemIn)
 	{
@@ -153,12 +153,12 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> wheelchair(String name)
 	{
-		return registerWithFake(name+"_wheelchair", settings -> new ItemWheelchair(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+		return registerWithFake(name+"_wheelchair", settings -> new WheelchairItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> walker(String name)
 	{
-		return registerWithFake(name+"_walker", settings -> new ItemWalker(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+		return registerWithFake(name+"_walker", settings -> new WalkerItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> wheel(String name)
@@ -168,16 +168,16 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> crutch(String name)
 	{
-		return register(name+"_crutch", settings -> new ItemCrutch(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+		return register(name+"_crutch", settings -> new CrutchItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> cane(String name)
 	{
-		return register(name+"_cane", settings -> new ItemCane(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+		return register(name+"_cane", settings -> new CaneItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> handle(String name)
 	{
-		return register(name+"_handle", settings -> new ItemCaneHandle(settings.maxCount(1)));
+		return register(name+"_handle", settings -> new CaneHandleItem(settings.maxCount(1)));
 	}
 }

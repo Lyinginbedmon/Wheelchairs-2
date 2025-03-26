@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.google.common.collect.Lists;
+import com.lying.component.type.UpgradesComponent;
 import com.lying.component.type.WheelComponent;
 import com.lying.entity.ChairUpgrade;
 import com.lying.entity.WheelchairEntity;
 import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCEntityTypes;
-import com.lying.init.WHCUpgrades;
+import com.lying.init.WHCChairUpgrades;
 
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
@@ -28,15 +28,15 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemWheelchair extends EntityPlacerItem<WheelchairEntity> implements IBonusBlockItem
+public class WheelchairItem extends EntityPlacerItem<WheelchairEntity> implements IBonusBlockItem
 {
-	public ItemWheelchair(Settings settings)
+	public WheelchairItem(Settings settings)
 	{
 		super(WHCEntityTypes.WHEELCHAIR, settings
 				.component(DataComponentTypes.DYED_COLOR, null)
 				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), WheelComponent.empty(Arm.LEFT))
 				.component(WHCDataComponentTypes.RIGHT_WHEEL.get(), WheelComponent.empty(Arm.RIGHT))
-				.component(WHCDataComponentTypes.UPGRADES.get(), Lists.newArrayList())
+				.component(WHCDataComponentTypes.UPGRADES.get(), UpgradesComponent.blank())
 				.component(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT));
 	}
 	
@@ -62,8 +62,8 @@ public class ItemWheelchair extends EntityPlacerItem<WheelchairEntity> implement
 	public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type)
 	{
 		stack.get(WHCDataComponentTypes.LEFT_WHEEL.get()).appendTooltip(context, tooltip::add, type);
-		stack.get(WHCDataComponentTypes.RIGHT_WHEEL.get()).appendTooltip(context, tooltip::add, type);;
-//		stack.get(WHCDataComponentTypes.UPGRADES.get()).appendTooltip(context, tooltip::add, type);	FIXME Add applied upgrades to wheelchair tooltip
+		stack.get(WHCDataComponentTypes.RIGHT_WHEEL.get()).appendTooltip(context, tooltip::add, type);
+		stack.get(WHCDataComponentTypes.UPGRADES.get()).appendTooltip(context, tooltip::add, type);
 	}
 	
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
@@ -71,13 +71,13 @@ public class ItemWheelchair extends EntityPlacerItem<WheelchairEntity> implement
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_left", getWheel(stack, Arm.LEFT).getName()));
 		tooltip.add(Text.translatable("gui.wheelchairs.wheelchair.wheel_right", getWheel(stack, Arm.RIGHT).getName()));
 		
-		List<Identifier> upgrades = stack.get(WHCDataComponentTypes.UPGRADES.get());
+		List<Identifier> upgrades = stack.get(WHCDataComponentTypes.UPGRADES.get()).upgrades();
 		if(upgrades.size() > 0)
 		{
 			tooltip.add(Text.translatable("gui.wheelchairs.upgrades"));
 			for(Identifier id : upgrades)
 			{
-				ChairUpgrade upgrade = WHCUpgrades.get(id);
+				ChairUpgrade upgrade = WHCChairUpgrades.get(id);
 				if(upgrade != null)
 					tooltip.add(Text.literal(" * ").append(upgrade.translate()));
 			}
@@ -108,6 +108,6 @@ public class ItemWheelchair extends EntityPlacerItem<WheelchairEntity> implement
 	
 	public static boolean hasUpgrade(ItemStack stack, ChairUpgrade upgrade)
 	{
-		return stack.get(WHCDataComponentTypes.UPGRADES.get()).stream().anyMatch(up -> up.equals(upgrade.registryName()));
+		return stack.get(WHCDataComponentTypes.UPGRADES.get()).upgrades().stream().anyMatch(up -> up.equals(upgrade.registryName()));
 	}
 }

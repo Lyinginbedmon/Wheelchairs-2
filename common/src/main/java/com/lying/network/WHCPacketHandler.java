@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.lying.Wheelchairs;
 import com.lying.entity.ChairUpgrade;
-import com.lying.entity.EntityWalker;
+import com.lying.entity.WalkerEntity;
 import com.lying.entity.IFlyingMount;
 import com.lying.entity.WheelchairEntity;
 import com.lying.init.WHCEntityTypes;
@@ -66,7 +66,7 @@ public class WHCPacketHandler
 			{
 				UUID uuid = value.entityID();
 				// Check all walkers with an inventory within 4 blocks for a matching UUID
-				player.getWorld().getEntitiesByType(WHCEntityTypes.WALKER.get(), player.getBoundingBox().expand(4D), EntityWalker::hasInventory).stream()
+				player.getWorld().getEntitiesByType(WHCEntityTypes.WALKER.get(), player.getBoundingBox().expand(4D), WalkerEntity::hasInventory).stream()
 					.filter(e -> e.getUuid().equals(uuid)).findFirst()
 					.ifPresent(walker ->
 						MenuRegistry.openMenu(player, new SimpleNamedScreenHandlerFactory((id, playerInventory, custom) -> new WalkerInventoryScreenHandler(id, playerInventory, walker.getInventory(), walker), walker.getDisplayName())));

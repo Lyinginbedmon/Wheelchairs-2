@@ -8,12 +8,12 @@ import com.lying.Wheelchairs;
 import com.lying.chairspace.Chairspace;
 import com.lying.chairspace.Chairspace.Flag;
 import com.lying.data.WHCTags;
-import com.lying.entity.EntityWalker;
+import com.lying.entity.WalkerEntity;
 import com.lying.entity.WheelchairEntity;
 import com.lying.entity.IParentedEntity;
 import com.lying.init.WHCChairspaceConditions;
 import com.lying.init.WHCEntityTypes;
-import com.lying.item.ItemVest;
+import com.lying.item.VestItem;
 
 import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
@@ -98,8 +98,8 @@ public class ServerBus
 			
 			entity.getWorld().getEntitiesByClass(LivingEntity.class, entity.getBoundingBox().expand(6D), IParentedEntity.isChildOf(entity)).forEach(ent -> 
 				{
-					if(ent.getType() == WHCEntityTypes.WALKER && ((EntityWalker)ent).hasInventory())
-						((EntityWalker)ent).dropInventory((ServerWorld)entity.getWorld());
+					if(ent.getType() == WHCEntityTypes.WALKER && ((WalkerEntity)ent).hasInventory())
+						((WalkerEntity)ent).dropInventory((ServerWorld)entity.getWorld());
 					chairs.storeEntityInChairspace(ent, entity.getUuid(), WHCChairspaceConditions.ON_RESPAWN.get(), Flag.PARENT);
 				});
 			
@@ -159,8 +159,8 @@ public class ServerBus
 				
 				player.getWorld().getEntitiesByClass(LivingEntity.class, player.getBoundingBox().expand(6D), IParentedEntity.isChildOf(player)).forEach(ent -> 
 					{
-						if(ent.getType() == WHCEntityTypes.WALKER.get() && ((EntityWalker)ent).hasInventory())
-							((EntityWalker)ent).dropInventory((ServerWorld)ent.getWorld());
+						if(ent.getType() == WHCEntityTypes.WALKER.get() && ((WalkerEntity)ent).hasInventory())
+							((WalkerEntity)ent).dropInventory((ServerWorld)ent.getWorld());
 						chairs.storeEntityInChairspace(ent, player.getUuid(), WHCChairspaceConditions.ON_LEAVE_SPECTATOR.get(), Flag.PARENT);
 					});
 			}
@@ -193,9 +193,9 @@ public class ServerBus
 		
 		EntityEvent.LIVING_DEATH.register((LivingEntity entity, DamageSource damageSource) -> 
 		{
-			if(ItemVest.isValidMobForVest(entity) && !ItemVest.getVest(entity).isEmpty())
+			if(VestItem.isValidMobForVest(entity) && !VestItem.getVest(entity).isEmpty())
 			{
-				UUID ownerID = ItemVest.getVestedMobOwner(entity);
+				UUID ownerID = VestItem.getVestedMobOwner(entity);
 				if(ownerID == null)
 					return EventResult.pass();
 				

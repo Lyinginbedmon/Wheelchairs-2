@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.lying.init.WHCSpecialRecipes;
-import com.lying.item.ItemCane;
+import com.lying.item.CaneItem;
 import com.lying.reference.Reference;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -111,7 +111,7 @@ public class RecipeCane implements CraftingRecipe
 		if(!handle.isEmpty())
 		{
 			ItemStack stack = this.result.copy();
-			ItemCane.setHandle(stack, handle);
+			CaneItem.setHandle(stack, handle);
 			return stack;
 		}
 		else

@@ -6,7 +6,7 @@ import com.lying.Wheelchairs;
 import com.lying.init.WHCEnchantmentComponentTypes;
 import com.lying.init.WHCItems;
 import com.lying.init.WHCSpecialRecipes;
-import com.lying.item.ItemCane;
+import com.lying.item.CaneItem;
 import com.lying.reference.Reference;
 
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -27,9 +27,9 @@ public class RecipeCaneSword extends SpecialCraftingRecipe
 	private static final Predicate<ItemStack> IS_HOLLOW_CANE = stack -> 
 	{
 		return 
-				stack.getItem() instanceof ItemCane && 
+				stack.getItem() instanceof CaneItem && 
 				EnchantmentHelper.hasAnyEnchantmentsWith(stack, WHCEnchantmentComponentTypes.CANE_INVENTORY.get()) && 
-				ItemCane.getSword(stack).isEmpty();
+				CaneItem.getSword(stack).isEmpty();
 	};
 	
 	public RecipeCaneSword()
@@ -94,7 +94,7 @@ public class RecipeCaneSword extends SpecialCraftingRecipe
 		}
 		
 		if(!cane.isEmpty() && !sword.isEmpty())
-			return ItemCane.setSword(cane, sword);
+			return CaneItem.setSword(cane, sword);
 		else
 			return ItemStack.EMPTY;
 	}

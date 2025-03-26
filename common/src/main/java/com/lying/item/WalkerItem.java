@@ -3,7 +3,7 @@ package com.lying.item;
 import java.util.List;
 
 import com.lying.component.type.WheelComponent;
-import com.lying.entity.EntityWalker;
+import com.lying.entity.WalkerEntity;
 import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCEntityTypes;
 
@@ -31,9 +31,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-public class ItemWalker extends Item implements IBonusBlockItem
+public class WalkerItem extends Item implements IBonusBlockItem
 {
-	public ItemWalker(Settings settings)
+	public WalkerItem(Settings settings)
 	{
 		super(settings
 				.component(WHCDataComponentTypes.LEFT_WHEEL.get(), WheelComponent.empty(Arm.LEFT))
@@ -70,7 +70,7 @@ public class ItemWalker extends Item implements IBonusBlockItem
 		if(world instanceof ServerWorld)
 		{
 			ServerWorld serverWorld = (ServerWorld)world;
-			EntityWalker walker = WHCEntityTypes.WALKER.get().spawnFromItemStack(serverWorld, itemStack, context.getPlayer(), blockPos, SpawnReason.SPAWN_ITEM_USE, true, true);
+			WalkerEntity walker = WHCEntityTypes.WALKER.get().spawnFromItemStack(serverWorld, itemStack, context.getPlayer(), blockPos, SpawnReason.SPAWN_ITEM_USE, true, true);
 			if (walker == null)
 				return ActionResult.FAIL;
 			

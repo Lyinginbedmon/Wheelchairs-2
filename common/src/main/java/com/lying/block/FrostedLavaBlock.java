@@ -21,11 +21,11 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-public class BlockFrostedLava extends Block
+public class FrostedLavaBlock extends Block
 {
 	public static final IntProperty AGE = Properties.AGE_3;
 	
-	public BlockFrostedLava(AbstractBlock.Settings settings)
+	public FrostedLavaBlock(AbstractBlock.Settings settings)
 	{
 		super(settings);
 		this.setDefaultState(getDefaultState().with(AGE, 0));

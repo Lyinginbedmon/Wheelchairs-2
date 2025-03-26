@@ -18,9 +18,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
-public class ItemCane extends Item
+public class CaneItem extends Item
 {
-	public ItemCane(Settings settings)
+	public CaneItem(Settings settings)
 	{
 		super(settings
 				.component(WHCDataComponentTypes.HANDLE.get(), HandleComponent.empty())

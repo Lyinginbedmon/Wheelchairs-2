@@ -2,7 +2,7 @@ package com.lying.data.recipe;
 
 import com.lying.init.WHCItems;
 import com.lying.init.WHCSpecialRecipes;
-import com.lying.item.ItemCane;
+import com.lying.item.CaneItem;
 import com.lying.reference.Reference;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -73,7 +73,7 @@ public class RecipeHandle implements Recipe<RecipeInput>
 	/** Gets an oak cane with this handle */
 	public ItemStack getResult(DynamicRegistryManager var2)
 	{
-		return ItemCane.withHandle(WHCItems.CANE_OAK.get(), this.result.getItem());
+		return CaneItem.withHandle(WHCItems.CANE_OAK.get(), this.result.getItem());
 	}
 	
 	/** Returns the actual item for this recipe that should be added to the cane */

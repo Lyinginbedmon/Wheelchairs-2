@@ -8,9 +8,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
-public class ItemAACTablet extends Item
+public class AACTabletItem extends Item
 {
-	public ItemAACTablet(Settings settings)
+	public AACTabletItem(Settings settings)
 	{
 		super(settings);
 	}

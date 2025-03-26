@@ -16,7 +16,7 @@ import com.lying.init.WHCItems;
 import com.lying.init.WHCScreenHandlerTypes;
 import com.lying.init.WHCSoundEvents;
 import com.lying.init.WHCSpecialRecipes;
-import com.lying.init.WHCUpgrades;
+import com.lying.init.WHCChairUpgrades;
 import com.lying.network.WHCPacketHandler;
 import com.lying.reference.Reference;
 import com.lying.utility.ServerBus;
@@ -45,7 +45,7 @@ public class Wheelchairs
 		ServerBus.registerEventCallbacks();
 		WHCDataComponentTypes.init();
 		WHCItems.init();
-		WHCUpgrades.init();
+		WHCChairUpgrades.init();
 		WHCEnchantmentComponentTypes.init();
 		WHCEnchantments.init();
 		WHCBlocks.init();

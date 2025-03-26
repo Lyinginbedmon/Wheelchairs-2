@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 import com.lying.init.WHCSpecialRecipes;
-import com.lying.item.ItemWalker;
+import com.lying.item.WalkerItem;
 import com.lying.reference.Reference;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -100,7 +100,7 @@ public class RecipeWalker implements CraftingRecipe
 						continue;
 					
 					ItemStack walker = this.result.copy();
-					ItemWalker.setWheels(walker, components.get(0), components.get(1));
+					WalkerItem.setWheels(walker, components.get(0), components.get(1));
 					return walker;
 				}
 		return ItemStack.EMPTY;

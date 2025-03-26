@@ -3,9 +3,9 @@ package com.lying.item;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 
-public class ItemCrutch extends Item
+public class CrutchItem extends Item
 {
-	public ItemCrutch(Settings settings)
+	public CrutchItem(Settings settings)
 	{
 		super(settings.component(DataComponentTypes.DYED_COLOR, null));
 	}

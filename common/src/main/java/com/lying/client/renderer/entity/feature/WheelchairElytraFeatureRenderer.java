@@ -3,7 +3,7 @@ package com.lying.client.renderer.entity.feature;
 import com.lying.client.init.WHCModelParts;
 import com.lying.client.renderer.entity.model.WheelchairElytraModel;
 import com.lying.client.renderer.entity.state.WheelchairEntityRenderState;
-import com.lying.init.WHCUpgrades;
+import com.lying.init.WHCChairUpgrades;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -26,7 +26,7 @@ public class WheelchairElytraFeatureRenderer<T extends WheelchairEntityRenderSta
 	
 	public boolean shouldRender(T state)
 	{
-		return state.upgrades.contains(WHCUpgrades.GLIDING.get());
+		return state.upgrades.contains(WHCChairUpgrades.GLIDING.get());
 	}
 	
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T state, float tickDelta)

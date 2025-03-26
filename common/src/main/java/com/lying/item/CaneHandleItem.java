@@ -2,9 +2,9 @@ package com.lying.item;
 
 import net.minecraft.item.Item;
 
-public class ItemCaneHandle extends Item
+public class CaneHandleItem extends Item
 {
-	public ItemCaneHandle(Settings settings)
+	public CaneHandleItem(Settings settings)
 	{
 		super(settings);
 	}

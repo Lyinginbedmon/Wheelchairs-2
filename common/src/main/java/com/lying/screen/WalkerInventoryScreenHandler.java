@@ -1,6 +1,6 @@
 package com.lying.screen;
 
-import com.lying.entity.EntityWalker;
+import com.lying.entity.WalkerEntity;
 import com.lying.init.WHCScreenHandlerTypes;
 
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,14 +13,14 @@ import net.minecraft.screen.slot.Slot;
 public class WalkerInventoryScreenHandler extends ScreenHandler
 {
 	private final Inventory inv;
-	private final EntityWalker walker;
+	private final WalkerEntity walker;
 	
 	public WalkerInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv)
 	{
 		this(syncId, playerInventory, inv, null);
 	}
 	
-	public WalkerInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv, EntityWalker walkerIn)
+	public WalkerInventoryScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inv, WalkerEntity walkerIn)
 	{
 		super(WHCScreenHandlerTypes.WALKER_INVENTORY_HANDLER.get(), syncId);
 		this.inv = inv;

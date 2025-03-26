@@ -15,12 +15,12 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 
-public class ItemController<T extends Entity & ItemSteerable> extends Item
+public class ControllerItem<T extends Entity & ItemSteerable> extends Item
 {
 	private final RegistrySupplier<EntityType<T>> target;
 	private final int damagePerUse;
 	
-	public ItemController(RegistrySupplier<EntityType<T>> target, int damagePerUse, Item.Settings settings)
+	public ControllerItem(RegistrySupplier<EntityType<T>> target, int damagePerUse, Item.Settings settings)
 	{
 		super(settings);
 		this.target = target;

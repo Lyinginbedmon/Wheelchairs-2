@@ -2,7 +2,7 @@ package com.lying.init;
 
 import java.util.function.Function;
 
-import com.lying.block.BlockFrostedLava;
+import com.lying.block.FrostedLavaBlock;
 import com.lying.reference.Reference;
 
 import dev.architectury.registry.registries.DeferredRegister;
@@ -22,7 +22,7 @@ public class WHCBlocks
 {
 	private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.BLOCK);
 	
-	public static final RegistrySupplier<Block> FROSTED_LAVA = register("frosted_lava", settings -> new BlockFrostedLava(settings.nonOpaque().ticksRandomly().luminance(state -> 3 + state.get(BlockFrostedLava.AGE) * 2).strength(1.5f).allowsSpawning((state, world, pos, entityType) -> entityType.isFireImmune())));
+	public static final RegistrySupplier<Block> FROSTED_LAVA = register("frosted_lava", settings -> new FrostedLavaBlock(settings.nonOpaque().ticksRandomly().luminance(state -> 3 + state.get(FrostedLavaBlock.AGE) * 2).strength(1.5f).allowsSpawning((state, world, pos, entityType) -> entityType.isFireImmune())));
 	
 	private static RegistrySupplier<Block> register(String nameIn, Function<AbstractBlock.Settings,Block> blockIn)
 	{

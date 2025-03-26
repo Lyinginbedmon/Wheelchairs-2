@@ -5,7 +5,7 @@ import java.util.OptionalInt;
 import org.joml.Vector2d;
 
 import com.lying.init.WHCItems;
-import com.lying.item.ItemStool;
+import com.lying.item.StoolItem;
 import com.lying.utility.WHCUtils;
 
 import net.minecraft.component.DataComponentTypes;
@@ -31,15 +31,15 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class EntityStool extends WheelchairsRideable implements Mount
+public class StoolEntity extends WheelchairsRideable implements Mount
 {
-	public static final int DEFAULT_COLOR = ItemStool.DEFAULT_COLOR;
-	public static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(EntityStool.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
+	public static final int DEFAULT_COLOR = StoolItem.DEFAULT_COLOR;
+	public static final TrackedData<OptionalInt> COLOR = DataTracker.registerData(StoolEntity.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
 	
 	public float spin = 0F;
 	private Vector2d prevCaster, caster;
 	
-	public EntityStool(EntityType<? extends LivingEntity> entityType, World world)
+	public StoolEntity(EntityType<? extends LivingEntity> entityType, World world)
 	{
 		super(entityType, world);
 		
@@ -75,7 +75,7 @@ public class EntityStool extends WheelchairsRideable implements Mount
 	
 	public <T extends WheelchairsRideable> ItemStack entityToItem(T chair)
 	{
-		EntityStool stool = (EntityStool)chair;
+		StoolEntity stool = (StoolEntity)chair;
 		ItemStack stack = WHCItems.STOOL.get().getDefaultStack().copy();
 		if(stool.hasColor() && stack.contains(DataComponentTypes.DYED_COLOR))
 			stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(stool.getColor(), true));

@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.lying.init.WHCUpgrades;
-import com.lying.item.ItemWheelchair;
+import com.lying.init.WHCChairUpgrades;
+import com.lying.item.WheelchairItem;
 
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -21,7 +21,7 @@ public class ItemEntityMixin
 	@Inject(method = "isFireImmune()Z", at = @At("HEAD"), cancellable = true)
 	public void whc$isChairFireImmune(final CallbackInfoReturnable<Boolean> ci)
 	{
-		if(getStack().getItem() instanceof ItemWheelchair && ItemWheelchair.hasUpgrade(getStack(), WHCUpgrades.NETHERITE.get()))
+		if(getStack().getItem() instanceof WheelchairItem && WheelchairItem.hasUpgrade(getStack(), WHCChairUpgrades.NETHERITE.get()))
 			ci.setReturnValue(true);
 	}
 }
