@@ -13,10 +13,10 @@ import com.lying.block.FrostedLavaBlock;
 import com.lying.component.type.UpgradesComponent;
 import com.lying.component.type.WheelComponent;
 import com.lying.init.WHCBlocks;
+import com.lying.init.WHCChairUpgrades;
 import com.lying.init.WHCDataComponentTypes;
 import com.lying.init.WHCEnchantments;
 import com.lying.init.WHCItems;
-import com.lying.init.WHCChairUpgrades;
 import com.lying.item.WheelchairItem;
 import com.lying.mixin.AccessorEntity;
 import com.lying.reference.Reference;
@@ -24,13 +24,16 @@ import com.lying.utility.ServerEvents;
 import com.lying.utility.WHCUtils;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.effect.entity.ReplaceDiskEnchantmentEffect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -85,7 +88,6 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 {
 	private static final int REBIND_COOLDOWN = Reference.Values.TICKS_PER_SECOND * 3;
 	public static final TrackedDataHandler<List<Identifier>> UPGRADE_LIST	= TrackedDataHandler.create(Identifier.PACKET_CODEC.collect(PacketCodecs.toList()));
-	static { TrackedDataHandlerRegistry.register(UPGRADE_LIST); }
 	
 	public static final TrackedData<ItemStack> CHAIR			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	public static final TrackedData<OptionalInt> COLOR			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
@@ -683,6 +685,7 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 				(hasUpgrade(WHCChairUpgrades.NETHERITE.get()) && getFluidHeight(FluidTags.LAVA) > swimHeight));
 	}
 	
+	@SuppressWarnings("resource")
 	public void applyMovementEffects(ServerWorld world, BlockPos pos)
 	{
 		super.applyMovementEffects(world, pos);
@@ -692,12 +695,20 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 			return;
 		
 		if(isOnGround() && hasUpgrade(WHCChairUpgrades.NETHERITE.get()))
-			WHCEnchantments.getFrostWalker(getRegistryManager()).ifPresent(f -> 
+		{
+			List<RegistryEntry<Enchantment>> frostWalkers = comp.getEnchantments().stream().filter(ench -> 
 			{
-				int frostWalkerLevel = comp.getLevel(f);
-				if(frostWalkerLevel > 0)
-					freezeLava(this, getWorld(), getBlockPos(), frostWalkerLevel);
-			});
+				ComponentMap effects = ench.value().effects();
+				if(!effects.contains(EnchantmentEffectComponentTypes.LOCATION_CHANGED))
+					return false;
+				
+				return effects.get(EnchantmentEffectComponentTypes.LOCATION_CHANGED).stream()
+					.filter(e -> e.effect() instanceof ReplaceDiskEnchantmentEffect && ((ReplaceDiskEnchantmentEffect)e.effect()).blockState().get(getRandom(), getBlockPos()).isOf(Blocks.FROSTED_ICE))
+					.findFirst().isPresent();
+			}).toList();
+			
+			frostWalkers.stream().map(e -> EnchantmentHelper.getLevel(e, chair)).sorted().findFirst().ifPresent(level -> freezeLava(this, getWorld(), getBlockPos(), level));
+		}
 	}
 	
 	public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource)

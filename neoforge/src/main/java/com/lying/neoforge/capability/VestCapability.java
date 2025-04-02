@@ -1,11 +1,8 @@
 package com.lying.neoforge.capability;
 
-import javax.annotation.Nullable;
-
-import org.jetbrains.annotations.NotNull;
-
 import com.lying.component.VestData;
-import com.lying.item.ItemVest;
+import com.lying.init.WHCItems;
+import com.lying.item.VestItem;
 import com.lying.neoforge.ServerBus;
 import com.lying.neoforge.WheelchairsNeoForge;
 import com.lying.reference.Reference;
@@ -15,10 +12,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.items.IItemHandler;
 
-public class VestCapability extends VestData
+public class VestCapability extends VestData implements IItemHandler
 {
 	public static final Identifier IDENTIFIER = Reference.ModInfo.prefix( "vest_data");
 	
@@ -27,11 +24,6 @@ public class VestCapability extends VestData
 	public VestCapability(LivingEntity ownerIn)
 	{
 		super(ownerIn);
-	}
-	
-	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
-	{
-		return WheelchairsNeoForge.VEST_DATA.orEmpty(cap, LazyOptional.of(() -> this));
 	}
 	
 	public NbtCompound serializeNBT(RegistryWrapper.WrapperLookup lookup)
@@ -46,6 +38,32 @@ public class VestCapability extends VestData
 		super.readFromNbt(nbt, lookup);
 	}
 	
+	public int getSlots() { return 1; }
+	
+	public int getSlotLimit(int slot) { return 1; }
+	
+	public boolean isItemValid(int slot, ItemStack stack) { return stack.isOf(WHCItems.VEST.get()); }
+	
+	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+	{
+		super.setVest(stack.split(1));
+		isDirty = true;
+		return stack;
+	}
+	
+	public ItemStack extractItem(int slot, int amount, boolean simulate)
+	{
+		if(amount <= 0)
+			return ItemStack.EMPTY;
+		
+		ItemStack stackInSlot = get().copy();
+		setVest(ItemStack.EMPTY);
+		isDirty = true;
+		return stackInSlot;
+	}
+	
+	public ItemStack getStackInSlot(int slot) { return get(); }
+	
 	public void setVest(ItemStack stack)
 	{
 		super.setVest(stack);
@@ -54,14 +72,15 @@ public class VestCapability extends VestData
 	
 	public static void onLivingTick(final EntityTickEvent.Post event)
 	{
-		if(!(event.getEntity() instanceof LivingEntity)) return;
+		if(!(event.getEntity() instanceof LivingEntity) || !VestItem.isValidMobForVest(event.getEntity()))
+			return;
+		
 		LivingEntity e = (LivingEntity)event.getEntity();
 		VestCapability cap = e.getCapability(WheelchairsNeoForge.VEST_DATA);
 		if(cap == null)
 			return;
 		
-		if(ItemVest.isValidMobForVest(e))
-			cap.tick();
+		cap.tick();
 		
 		if(cap.isDirty && !e.getWorld().isClient())
 		{

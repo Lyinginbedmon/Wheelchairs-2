@@ -1,7 +1,6 @@
 package com.lying.client.screen;
 
 import com.lying.entity.WheelchairEntity;
-import com.lying.init.WHCEntityTypes;
 import com.lying.init.WHCChairUpgrades;
 import com.lying.network.ForceUnparentPacket;
 import com.lying.reference.Reference;
@@ -33,6 +32,7 @@ public class ChairInventoryScreen extends HandledScreen<ChairInventoryScreenHand
 	{
 		super.init();
 		this.addDrawableChild(unbindButton = ButtonWidget.builder(Text.translatable("gui."+Reference.ModInfo.MOD_ID+".unparent_chair"), button -> ForceUnparentPacket.send()).dimensions(this.width / 2 - 80, this.height / 2 - 50, 30, 20).build());
+		unbindButton.visible = unbindButton.active = false;
 	}
 	
 	public void handledScreenTick()

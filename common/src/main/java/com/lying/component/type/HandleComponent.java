@@ -1,5 +1,6 @@
 package com.lying.component.type;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -30,4 +31,14 @@ public record HandleComponent(ItemStack handle) implements TooltipAppender
 	}
 	
 	public static HandleComponent empty() { return new HandleComponent(ItemStack.EMPTY); }
+	
+	public int hashCode() { return Objects.hash(handle); }
+	
+	public boolean equals(Object obj)
+	{
+		if(obj == this)
+			return true;
+		else
+			return obj instanceof HandleComponent comp && comp.handle.equals(handle);
+	}
 }

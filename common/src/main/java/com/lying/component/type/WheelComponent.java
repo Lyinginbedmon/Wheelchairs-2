@@ -1,5 +1,6 @@
 package com.lying.component.type;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -69,4 +70,14 @@ public class WheelComponent implements TooltipAppender
 	}
 	
 	public static WheelComponent empty(Arm side) { return new WheelComponent(side); }
+	
+	public int hashCode() { return Objects.hash(item, side); }
+	
+	public boolean equals(Object obj)
+	{
+		if(obj == this)
+			return true;
+		else
+			return obj instanceof WheelComponent comp && comp.side.equals(side) && comp.item.equals(item);
+	}
 }

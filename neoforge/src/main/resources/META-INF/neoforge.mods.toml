@@ -5,7 +5,7 @@ license = "Insert License Here"
 
 [[mods]]
 modId = "wheelchairs"
-version = "${version}"
+version = "0.4"
 displayName = "Wheelchairs"
 authors = "Me!"
 description = '''

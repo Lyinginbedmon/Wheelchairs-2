@@ -29,6 +29,8 @@ public class WHCEnchantments
 {
 	private static final List<RegistryKey<Enchantment>> WHEELCHAIR_ENCHANTS = Lists.newArrayList(); 
 	
+	// FIXME Ensure wheelchairs can be properly enchanted (ideally only with relevant enchantments)
+	
 	public static final RegistryKey<Enchantment> HOLLOWED	= register("hollowed");
 	public static final RegistryKey<Enchantment> SLIM		= register("slim");
 	

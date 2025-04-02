@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
-import com.lying.item.ItemVest;
+import com.lying.item.VestItem;
 import com.lying.neoforge.capability.VestCapability;
 import com.lying.neoforge.network.SyncVestPacket;
 
@@ -29,14 +29,14 @@ public class ServerBus
 	@SubscribeEvent
 	public static void serviceAnimalLoaded(final EntityJoinLevelEvent event)
 	{
-		if(ItemVest.isMobWithVest(event.getEntity()))
+		if(VestItem.isMobWithVest(event.getEntity()))
 			startTrackingVest(event.getEntity());
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void serviceAnimalUnloaded(final EntityLeaveLevelEvent event)
 	{
-		if(ItemVest.isMobWithVest(event.getEntity()))
+		if(VestItem.isMobWithVest(event.getEntity()))
 			stopTrackingVest(event.getEntity());
 	}
 	

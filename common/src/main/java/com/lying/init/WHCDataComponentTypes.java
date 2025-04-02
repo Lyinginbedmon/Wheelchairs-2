@@ -2,6 +2,7 @@ package com.lying.init;
 
 import java.util.function.UnaryOperator;
 
+import com.lying.Wheelchairs;
 import com.lying.component.type.HandleComponent;
 import com.lying.component.type.SwordComponent;
 import com.lying.component.type.UpgradesComponent;
@@ -18,6 +19,7 @@ import net.minecraft.registry.RegistryKeys;
 public class WHCDataComponentTypes 
 {
 	private static final DeferredRegister<ComponentType<?>> TYPES	= DeferredRegister.create(Reference.ModInfo.MOD_ID, RegistryKeys.DATA_COMPONENT_TYPE);
+	private static int tally = 0;
 	
 	public static final RegistrySupplier<ComponentType<WheelComponent>> LEFT_WHEEL		= register("left_wheel", builder -> builder.codec(WheelComponent.CODEC).packetCodec(WheelComponent.PACKET_CODEC));
 	public static final RegistrySupplier<ComponentType<WheelComponent>> RIGHT_WHEEL		= register("right_wheel", builder -> builder.codec(WheelComponent.CODEC).packetCodec(WheelComponent.PACKET_CODEC));
@@ -28,11 +30,13 @@ public class WHCDataComponentTypes
 	
 	private static <T extends Object> RegistrySupplier<ComponentType<T>> register(String nameIn, UnaryOperator<ComponentType.Builder<T>> builderOperator)
 	{
+		tally++;
 		return TYPES.register(Reference.ModInfo.prefix(nameIn), () -> builderOperator.apply(ComponentType.builder()).build());
 	}
 	
 	public static void init()
 	{
 		TYPES.register();
+		Wheelchairs.LOGGER.info(" # Registered {} data component types", tally);
 	}
 }

@@ -1,5 +1,6 @@
 package com.lying.component.type;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -29,4 +30,14 @@ public record SwordComponent(ItemStack item) implements TooltipAppender
 	}
 	
 	public static SwordComponent empty() { return new SwordComponent(ItemStack.EMPTY); }
+	
+	public int hashCode() { return Objects.hash(item); }
+	
+	public boolean equals(Object obj)
+	{
+		if(obj == this)
+			return true;
+		else
+			return obj instanceof SwordComponent comp && comp.item.equals(item);
+	}
 }
