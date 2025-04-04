@@ -5,13 +5,9 @@ import java.util.function.Function;
 import com.lying.Wheelchairs;
 import com.lying.entity.WheelchairEntity;
 import com.lying.item.AACTabletItem;
-import com.lying.item.CaneItem;
-import com.lying.item.CaneHandleItem;
 import com.lying.item.ControllerItem;
-import com.lying.item.CrutchItem;
 import com.lying.item.StoolItem;
 import com.lying.item.VestItem;
-import com.lying.item.WalkerItem;
 import com.lying.item.WheelchairItem;
 import com.lying.reference.Reference;
 
@@ -151,6 +147,11 @@ public class WHCItems
 		Wheelchairs.LOGGER.info(" # Registered {} items", tally);
 	}
 	
+	private static RegistrySupplier<Item> wheel(String name)
+	{
+		return register(name+"_wheel", settings -> new Item(settings.arch$tab(WHEELCHAIR_TAB).maxCount(2)));
+	}
+	
 	private static RegistrySupplier<Item> wheelchair(String name)
 	{
 		return registerWithFake(name+"_wheelchair", settings -> new WheelchairItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
@@ -158,26 +159,25 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> walker(String name)
 	{
-		return registerWithFake(name+"_walker", settings -> new WalkerItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
-	}
-	
-	private static RegistrySupplier<Item> wheel(String name)
-	{
-		return register(name+"_wheel", settings -> new Item(settings.arch$tab(WHEELCHAIR_TAB).maxCount(2)));
+//		return registerWithFake(name+"_walker", settings -> new WalkerItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+		return register(name+"_walker", settings -> new Item(settings.maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> crutch(String name)
 	{
-		return register(name+"_crutch", settings -> new CrutchItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+//		return register(name+"_crutch", settings -> new CrutchItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+		return register(name+"_crutch", settings -> new Item(settings.maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> cane(String name)
 	{
-		return register(name+"_cane", settings -> new CaneItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+//		return register(name+"_cane", settings -> new CaneItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+		return register(name+"_cane", settings -> new Item(settings.maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> handle(String name)
 	{
-		return register(name+"_handle", settings -> new CaneHandleItem(settings.maxCount(1)));
+//		return register(name+"_handle", settings -> new CaneHandleItem(settings.maxCount(1)));
+		return register(name+"_handle", settings -> new Item(settings.maxCount(1)));
 	}
 }

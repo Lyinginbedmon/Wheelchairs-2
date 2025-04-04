@@ -23,7 +23,7 @@ public class MobEntityMixin extends EntityMixin
 		if(ci.getReturnValue().isAccepted()) return;
 		MobEntity mob = (MobEntity)(Object)this;
 		ItemStack stack = player.getStackInHand(hand);
-		if(!stack.isEmpty() && stack.getItem() == WHCItems.VEST)
+		if(!stack.isEmpty() && stack.getItem() == WHCItems.VEST.get())
 		{
 			ActionResult result = ((VestItem)stack.getItem()).useOnEntity(stack, player, mob, hand);
 			if(result.isAccepted())

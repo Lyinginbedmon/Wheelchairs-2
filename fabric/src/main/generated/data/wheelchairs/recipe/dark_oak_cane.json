@@ -1,8 +1,0 @@
-{
-  "type": "wheelchairs:cane",
-  "result": {
-    "count": 1,
-    "id": "wheelchairs:dark_oak_cane"
-  },
-  "staff": "minecraft:stripped_dark_oak_log"
-}

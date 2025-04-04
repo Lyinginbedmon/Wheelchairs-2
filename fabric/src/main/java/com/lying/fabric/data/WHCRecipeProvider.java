@@ -39,7 +39,6 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.RegistryWrapper.WrapperLookup;
 import net.minecraft.registry.tag.ItemTags;
 
-// TODO Implement REI support for special recipe display
 @SuppressWarnings("deprecation")
 public class WHCRecipeProvider extends FabricRecipeProvider
 {
@@ -47,6 +46,9 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	public static final String GROUP_CHAIRS = Reference.ModInfo.MOD_ID+":wheelchairs";
 	public static final String GROUP_CANES = Reference.ModInfo.MOD_ID+":canes";
 	public static final String GROUP_CRUTCHES = Reference.ModInfo.MOD_ID+":crutches";
+	
+	// FIXME Re-enable crafting recipes as more items are properly updated to 1.21
+	// TODO Implement REI support for special recipe display
 	
 	private static final Map<Wood, WoodSet> WOOD_GUIDE = new HashMap<>();
 	
@@ -57,6 +59,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	
 	public String getName() { return "Wheelchairs recipes"; }
 	
+	@SuppressWarnings("unused")
 	protected RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup wrapperLookup, RecipeExporter exporter)
 	{
 		return new RecipeGenerator(wrapperLookup, exporter)
@@ -69,22 +72,22 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 						{
 							offerWoodWheelRecipe(exporter, entry.getValue().wheel, entry.getKey());
 							offerWheelchairRecipe(exporter, wrapperLookup, entry.getValue().wheelchair, entry.getKey());
-							offerWalkerRecipe(exporter, wrapperLookup, entry.getValue().walker, entry.getKey());
-							offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
-							offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
-							offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());
+//							offerWalkerRecipe(exporter, wrapperLookup, entry.getValue().walker, entry.getKey());
+//							offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
+//							offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
+//							offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());
 						});
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_COPPER, Metal.COPPER);
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_IRON, Metal.IRON);
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_GOLD, Metal.GOLD);
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_NETHERITE, Metal.NETHERITE);
 						
-						offerHandleRecipe(exporter, WHCItems.HANDLE_BONE, Ingredient.ofItems(Items.BONE), "bone_handle");
-						offerHandleRecipe(exporter, WHCItems.HANDLE_COPPER, Ingredient.ofItems(Items.COPPER_INGOT), "copper_handle");
-						offerHandleRecipe(exporter, WHCItems.HANDLE_IRON, Ingredient.ofItems(Items.IRON_INGOT), "iron_handle");
-						offerHandleRecipe(exporter, WHCItems.HANDLE_GOLD, Ingredient.ofItems(Items.GOLD_INGOT), "gold_handle");
-						offerHandleRecipe(exporter, WHCItems.HANDLE_SKULL, Ingredient.ofItems(Items.SKELETON_SKULL), "skull_handle");
-						offerHandleRecipe(exporter, WHCItems.HANDLE_WITHER, Ingredient.ofItems(Items.WITHER_SKELETON_SKULL), "wither_handle");
+//						offerHandleRecipe(exporter, WHCItems.HANDLE_BONE, Ingredient.ofItems(Items.BONE), "bone_handle");
+//						offerHandleRecipe(exporter, WHCItems.HANDLE_COPPER, Ingredient.ofItems(Items.COPPER_INGOT), "copper_handle");
+//						offerHandleRecipe(exporter, WHCItems.HANDLE_IRON, Ingredient.ofItems(Items.IRON_INGOT), "iron_handle");
+//						offerHandleRecipe(exporter, WHCItems.HANDLE_GOLD, Ingredient.ofItems(Items.GOLD_INGOT), "gold_handle");
+//						offerHandleRecipe(exporter, WHCItems.HANDLE_SKULL, Ingredient.ofItems(Items.SKELETON_SKULL), "skull_handle");
+//						offerHandleRecipe(exporter, WHCItems.HANDLE_WITHER, Ingredient.ofItems(Items.WITHER_SKELETON_SKULL), "wither_handle");
 						
 						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER.get())
 							.pattern("j").pattern("b")
@@ -102,13 +105,13 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 							.criterion(hasItem(WHCItems.WHEEL_OAK.get()), conditionsFromTag(WHCTags.WHEEL))
 							.criterion(hasItem(Items.IRON_BARS), conditionsFromItem(Items.IRON_BARS)).offerTo(exporter);
 						
-						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.VEST.get())
-							.pattern(" l ").pattern("lil").pattern(" s ")
-							.input('l', Items.LEATHER)
-							.input('s', Items.STRING)
-							.input('i', Items.GOLD_INGOT)
-							.criterion(hasItem(Items.LEATHER), conditionsFromItem(Items.LEATHER))
-							.criterion(hasItem(Items.STRING), conditionsFromItem(Items.STRING)).offerTo(exporter);
+//						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.VEST.get())
+//							.pattern(" l ").pattern("lil").pattern(" s ")
+//							.input('l', Items.LEATHER)
+//							.input('s', Items.STRING)
+//							.input('i', Items.GOLD_INGOT)
+//							.criterion(hasItem(Items.LEATHER), conditionsFromItem(Items.LEATHER))
+//							.criterion(hasItem(Items.STRING), conditionsFromItem(Items.STRING)).offerTo(exporter);
 						
 						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.TABLET.get())
 							.pattern("bb").pattern("ns")

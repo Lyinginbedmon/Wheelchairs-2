@@ -35,16 +35,16 @@ public class WHCChairUpgrades
 	public static final Supplier<ChairUpgrade> NETHERITE = register("netherite", b -> b
 			.modelled()
 			.keyItem(Items.NETHERITE_INGOT));
-	public static final Supplier<ChairUpgrade> DIVING	= register("diving", b -> b.modelled()	//
+	public static final Supplier<ChairUpgrade> DIVING	= register("diving", b -> b.modelled()
 			.keyItem(Items.LEATHER)
 			.incompatible(() -> List.of(WHCChairUpgrades.FLOATING, WHCChairUpgrades.POWERED)));
-	public static final Supplier<ChairUpgrade> GLIDING = register("gliding", b -> b	//
-			.keyItem(Items.ELYTRA)
+	public static final Supplier<ChairUpgrade> GLIDING = register("gliding", b -> b	// FIXME Ensure gliding upgrade works properly
+//			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCChairUpgrades.POWERED)));
-	public static final Supplier<ChairUpgrade> PLACER = register("placer", b -> b.modelled().enablesScreen()	//
+	public static final Supplier<ChairUpgrade> PLACER = register("placer", b -> b.modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));
-	public static final Supplier<ChairUpgrade> HANDLES = register("handles", b -> b.modelled().enablesScreen()	//
-			.keyItem(Items.IRON_BARS));
+	public static final Supplier<ChairUpgrade> HANDLES = register("handles", b -> b.modelled().enablesScreen()	// FIXME Ensure handles work properly
+			/*.keyItem(Items.IRON_BARS)*/);
 	
 	private static Supplier<ChairUpgrade> register(String nameIn, Consumer<ChairUpgrade.Builder> consumer)
 	{

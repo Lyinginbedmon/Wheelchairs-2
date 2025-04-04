@@ -1,0 +1,24 @@
+{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.wheelchairs.hollowed"
+  },
+  "effects": {
+    "wheelchairs:cane_inventory": {}
+  },
+  "exclusive_set": "#wheelchairs:cane_interact_exclusive",
+  "max_cost": {
+    "base": 20,
+    "per_level_above_first": 6
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 6
+  },
+  "slots": [
+    "hand"
+  ],
+  "supported_items": "#wheelchairs:canes",
+  "weight": 5
+}

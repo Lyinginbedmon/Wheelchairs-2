@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "wheelchairs:wheels",
+  "key": {
+    "S": "minecraft:iron_ingot",
+    "s": "minecraft:stick"
+  },
+  "pattern": [
+    " S ",
+    "SsS",
+    " S "
+  ],
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:iron_wheel"
+  }
+}

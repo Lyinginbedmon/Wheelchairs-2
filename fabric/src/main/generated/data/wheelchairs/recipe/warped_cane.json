@@ -1,8 +1,0 @@
-{
-  "type": "wheelchairs:cane",
-  "result": {
-    "count": 1,
-    "id": "wheelchairs:warped_cane"
-  },
-  "staff": "minecraft:stripped_warped_stem"
-}

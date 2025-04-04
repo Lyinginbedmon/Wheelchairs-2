@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import com.lying.entity.ChairUpgrade;
 import com.lying.init.WHCChairUpgrades;
+import com.lying.reference.Reference;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -26,12 +27,13 @@ public record UpgradesComponent(List<Identifier> upgrades) implements TooltipApp
 	
 	public void appendTooltip(TooltipContext context, Consumer<Text> tooltip, TooltipType type)
 	{
-		// TODO Finalise upgrade list formatting
+		if(!upgrades.isEmpty())
+			tooltip.accept(Reference.ModInfo.translate("gui", "upgrades"));
 		upgrades.forEach(upgrade -> 
 		{
 			ChairUpgrade obj = WHCChairUpgrades.get(upgrade);
 			if(obj != null)
-				tooltip.accept(obj.translate());
+				tooltip.accept(Text.literal(" * ").append(obj.translate()));
 		});
 	}
 	
