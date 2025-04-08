@@ -105,13 +105,13 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 							.criterion(hasItem(WHCItems.WHEEL_OAK.get()), conditionsFromTag(WHCTags.WHEEL))
 							.criterion(hasItem(Items.IRON_BARS), conditionsFromItem(Items.IRON_BARS)).offerTo(exporter);
 						
-//						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.VEST.get())
-//							.pattern(" l ").pattern("lil").pattern(" s ")
-//							.input('l', Items.LEATHER)
-//							.input('s', Items.STRING)
-//							.input('i', Items.GOLD_INGOT)
-//							.criterion(hasItem(Items.LEATHER), conditionsFromItem(Items.LEATHER))
-//							.criterion(hasItem(Items.STRING), conditionsFromItem(Items.STRING)).offerTo(exporter);
+						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.VEST.get())
+							.pattern(" l ").pattern("lil").pattern(" s ")
+							.input('l', Items.LEATHER)
+							.input('s', Items.STRING)
+							.input('i', Items.GOLD_INGOT)
+							.criterion(hasItem(Items.LEATHER), conditionsFromItem(Items.LEATHER))
+							.criterion(hasItem(Items.STRING), conditionsFromItem(Items.STRING)).offerTo(exporter);
 						
 						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.MISC, WHCItems.TABLET.get())
 							.pattern("bb").pattern("ns")

@@ -24,13 +24,13 @@
 	"fabric-datagen": [
 		"com.lying.fabric.data.WHCDataGenerators"
 	],
-	"cardinal-components": [
-		"com.lying.fabric.WheelchairsFabric"
+	"cardinal-components-entity": [
+		"com.lying.fabric.init.WHCComponents"
 	]
   },
   "custom": {
 	"cardinal-components": [
-		"wheelchairs:vest_data"
+		"wheelchairs:vest_tracking"
 	]
   },
   "mixins": [

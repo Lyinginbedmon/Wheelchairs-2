@@ -34,12 +34,14 @@ public class VestComponent extends VestData implements AutoSyncedComponent, Serv
 	
 	public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup)
 	{
-		vestStack = ItemStack.fromNbtOrEmpty(lookup, tag.getCompound("Vest"));
+		if(tag.contains("Vest"))
+			vestStack = ItemStack.fromNbtOrEmpty(lookup, tag.getCompound("Vest"));
 	}
 	
 	public void writeToNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup)
 	{
-		tag.put("Vest", vestStack.toNbt(lookup));
+		if(hasVest())
+			tag.put("Vest", vestStack.toNbt(lookup));
 	}
 	
 	public void markDirty() { WHCComponents.VEST_TRACKING.sync(owner); }

@@ -48,7 +48,7 @@ public class WHCItems
 	public static final RegistrySupplier<Item> WHEEL_COPPER		= wheel("copper");
 	public static final RegistrySupplier<Item> WHEEL_IRON		= wheel("iron");
 	public static final RegistrySupplier<Item> WHEEL_GOLD		= wheel("gold");
-	public static final RegistrySupplier<Item> WHEEL_NETHERITE	= register("netherite_wheel", settings -> new Item(settings.maxCount(2).fireproof()));
+	public static final RegistrySupplier<Item> WHEEL_NETHERITE	= register("netherite_wheel", settings -> new Item(settings.arch$tab(WHEELCHAIR_TAB).maxCount(2).fireproof()));
 	
 	public static final RegistrySupplier<Item> WHEELCHAIR_OAK		= wheelchair("oak");
 	public static final RegistrySupplier<Item> WHEELCHAIR_SPRUCE	= wheelchair("spruce");

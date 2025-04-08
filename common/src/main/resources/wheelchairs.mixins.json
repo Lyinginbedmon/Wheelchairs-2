@@ -30,7 +30,9 @@
 		"BipedEntityModelMixin",
 		"ItemRendererMixin",
 		"HeldItemRendererMixin",
-		"ClientWorldMixin"
+		"ClientWorldMixin",
+		"LivingEntityRendererMixin",
+		"LivingEntityRenderStateMixin"
 		//"ModelLoaderMixin"
 	],
 	"injectors": {

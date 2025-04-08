@@ -1,17 +1,14 @@
 package com.lying.fabric;
 
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.internal.base.ComponentRegistrationInitializer;
 
 import com.lying.Wheelchairs;
 import com.lying.entity.StoolEntity;
 import com.lying.entity.WalkerEntity;
 import com.lying.entity.WheelchairEntity;
-import com.lying.fabric.component.VestComponent;
+import com.lying.fabric.init.WHCComponents;
 import com.lying.init.WHCEntityTypes;
 import com.lying.item.VestItem;
-import com.lying.reference.Reference;
 import com.lying.utility.XPlatHandler;
 
 import net.fabricmc.api.ModInitializer;
@@ -22,8 +19,6 @@ import net.minecraft.item.ItemStack;
 
 public final class WheelchairsFabric implements ModInitializer, ComponentRegistrationInitializer
 {
-	public static final ComponentKey<VestComponent> VEST_DATA	= ComponentRegistry.getOrCreate(Reference.ModInfo.prefix("vest_data"), VestComponent.class);
-	
     public void onInitialize()
     {
         Wheelchairs.commonInit();
@@ -36,18 +31,18 @@ public final class WheelchairsFabric implements ModInitializer, ComponentRegistr
 		{
 			public boolean hasVest(LivingEntity entity)
 			{
-				return VestItem.isValidMobForVest(entity) && VEST_DATA.get(entity).hasVest();
+				return VestItem.isValidMobForVest(entity) && WHCComponents.VEST_TRACKING.get(entity).hasVest();
 			}
 			
 			public ItemStack getVest(LivingEntity entity)
 			{
-				return !VestItem.isValidMobForVest(entity) ? ItemStack.EMPTY : VEST_DATA.get(entity).get();
+				return !VestItem.isValidMobForVest(entity) ? ItemStack.EMPTY : WHCComponents.VEST_TRACKING.get(entity).get();
 			}
 			
 			public void setVest(LivingEntity entity, ItemStack stack)
 			{
 				if(VestItem.isValidMobForVest(entity))
-					VEST_DATA.get(entity).setVest(stack);
+					WHCComponents.VEST_TRACKING.get(entity).setVest(stack);
 			}
 		};
     }

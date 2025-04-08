@@ -1,11 +1,15 @@
 package com.lying.client.renderer.entity.feature;
 
+import com.lying.entity.IServiceVestHolder;
+
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
 public class AbstractVestLayer<C extends LivingEntityRenderState, M extends EntityModel<C>> extends FeatureRenderer<C, M>
@@ -26,18 +30,14 @@ public class AbstractVestLayer<C extends LivingEntityRenderState, M extends Enti
 		if(state.invisibleToPlayer)
 			return;
 		
-		// FIXME Detect service vest during rendering
-//		ItemStack stack = Wheelchairs.HANDLER.getVest(entity);
-//		if(stack.isEmpty())
-//			return;
-//		
-//		int color = DyedColorComponent.getColor(stack, -1);
-//        float r = ((color & 0xFF0000) >> 16) / 255F;
-//        float g = ((color & 0xFF00) >> 8) / 255F;
-//        float b = ((color & 0xFF) >> 0) / 255F;
-//		
-//        model.setAngles(state);
-//		renderModel(model, mainTexture, matrices, vertexConsumers, light, state, color);
-//		renderModel(model, overlayTexture, matrices, vertexConsumers, light, state, -1);
+		IServiceVestHolder extension = (IServiceVestHolder)state;
+		if(!extension.hasVest())
+			return;
+		
+		ItemStack stack = extension.getVest();
+		int color = DyedColorComponent.getColor(stack, -6265536);
+        model.setAngles(state);
+		renderModel(model, mainTexture, matrices, vertexConsumers, light, state, color);
+		renderModel(model, overlayTexture, matrices, vertexConsumers, light, state, -1);
 	}
 }

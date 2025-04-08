@@ -1,4 +1,5 @@
 // 1.21.4	-999999999-01-01T00:00:00	Wheelchairs/Wheelchairs recipes
+8fd541f2f885f395d4726af0692095c3248e79a4 data/wheelchairs/advancement/recipes/misc/service_vest.json
 5304661ef6205993fba234478c9c6e2e295631af data/wheelchairs/advancement/recipes/misc/speech_tablet.json
 da3f4ba105b4a70a32c055189d0bfe0fa93c7a37 data/wheelchairs/advancement/recipes/misc/wheeled_stool.json
 f238451a233e6c1de0ba263af74047a5a92a5e70 data/wheelchairs/advancement/recipes/transportation/acacia_wheel.json
@@ -52,6 +53,7 @@ b8541e3b1d08f05d519cf301ab3eedb997ca4230 data/wheelchairs/recipe/gold_wheel.json
 5d58ba8299654d768164a151f8bb8fe381ba7f55 data/wheelchairs/recipe/netherite_wheel.json
 249208221033c1d3303a1747901e932605b1a9c5 data/wheelchairs/recipe/oak_wheel.json
 cb9555d8d2816f7d00bda7dcaec9aeb979366ece data/wheelchairs/recipe/oak_wheelchair.json
+7bc640f45e7a919b3edf9782eaffa9c9a118be99 data/wheelchairs/recipe/service_vest.json
 382c1aa98441f8a42021a3248ec5ce55bbfc8500 data/wheelchairs/recipe/speech_tablet.json
 173fa54c08fb689e2b1dd527d818a24a7d8bac32 data/wheelchairs/recipe/spruce_wheel.json
 7e24440f20b1d4cb2c6db92046ce51855a233b1b data/wheelchairs/recipe/spruce_wheelchair.json

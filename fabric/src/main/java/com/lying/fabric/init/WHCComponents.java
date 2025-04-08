@@ -5,6 +5,7 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
 
+import com.lying.Wheelchairs;
 import com.lying.fabric.component.VestComponent;
 import com.lying.reference.Reference;
 
@@ -19,6 +20,7 @@ public class WHCComponents implements EntityComponentInitializer
 	
 	public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry)
 	{
+		Wheelchairs.LOGGER.info(" # Attached vest component to applicable mobs");
 		registry.registerFor(WolfEntity.class, VEST_TRACKING, VestComponent::new);
 		registry.registerFor(CatEntity.class, VEST_TRACKING, VestComponent::new);
 		registry.registerFor(ParrotEntity.class, VEST_TRACKING, VestComponent::new);
