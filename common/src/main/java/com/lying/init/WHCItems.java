@@ -8,6 +8,7 @@ import com.lying.item.AACTabletItem;
 import com.lying.item.ControllerItem;
 import com.lying.item.StoolItem;
 import com.lying.item.VestItem;
+import com.lying.item.WalkerItem;
 import com.lying.item.WheelchairItem;
 import com.lying.reference.Reference;
 
@@ -117,7 +118,7 @@ public class WHCItems
 	public static final RegistrySupplier<Item> CANE_BAMBOO		= cane("bamboo");
 	
 	public static final RegistrySupplier<Item> CONTROLLER	= register("controller", settings -> new ControllerItem<WheelchairEntity>(WHCEntityTypes.WHEELCHAIR, 0, settings.maxCount(1).arch$tab(WHEELCHAIR_TAB)));
-	public static final RegistrySupplier<Item> STOOL		= register("wheeled_stool", settings -> new StoolItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
+	public static final RegistrySupplier<Item> STOOL		= registerWithFake("wheeled_stool", settings -> new StoolItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	
 	public static final RegistrySupplier<Item> VEST		= register("service_vest", settings -> new VestItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	public static final RegistrySupplier<Item> TABLET	= register("speech_tablet", settings -> new AACTabletItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1).rarity(Rarity.RARE)));
@@ -159,8 +160,7 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> walker(String name)
 	{
-//		return registerWithFake(name+"_walker", settings -> new WalkerItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
-		return register(name+"_walker", settings -> new Item(settings.maxCount(1)));
+		return registerWithFake(name+"_walker", settings -> new WalkerItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> crutch(String name)

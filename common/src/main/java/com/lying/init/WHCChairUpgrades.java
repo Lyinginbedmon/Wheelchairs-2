@@ -32,8 +32,7 @@ public class WHCChairUpgrades
 			.dropItem(Items.CHEST));
 	public static final Supplier<ChairUpgrade> FLOATING = register("floating", b -> b.modelled()
 			.keyItem(Items.PUMPKIN));
-	public static final Supplier<ChairUpgrade> NETHERITE = register("netherite", b -> b
-			.modelled()
+	public static final Supplier<ChairUpgrade> NETHERITE = register("netherite", b -> b.modelled()
 			.keyItem(Items.NETHERITE_INGOT));
 	public static final Supplier<ChairUpgrade> DIVING	= register("diving", b -> b.modelled()
 			.keyItem(Items.LEATHER)
@@ -43,8 +42,8 @@ public class WHCChairUpgrades
 			.incompatible(() -> List.of(WHCChairUpgrades.POWERED)));
 	public static final Supplier<ChairUpgrade> PLACER = register("placer", b -> b.modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));
-	public static final Supplier<ChairUpgrade> HANDLES = register("handles", b -> b.modelled().enablesScreen()	// FIXME Ensure handles work properly
-			/*.keyItem(Items.IRON_BARS)*/);
+	public static final Supplier<ChairUpgrade> HANDLES = register("handles", b -> b.modelled().enablesScreen()
+			.keyItem(Items.IRON_BARS));
 	
 	private static Supplier<ChairUpgrade> register(String nameIn, Consumer<ChairUpgrade.Builder> consumer)
 	{

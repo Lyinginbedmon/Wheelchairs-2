@@ -9,7 +9,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
+import com.lying.Wheelchairs;
+import com.lying.init.WHCChairspaceConditions;
 import com.lying.reference.Reference;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 
 import dev.architectury.event.Event;
 import net.minecraft.entity.Entity;
@@ -21,6 +27,19 @@ import net.minecraft.util.Identifier;
  */
 public class ChairspaceCondition
 {
+	public static final Codec<ChairspaceCondition> CODEC = Codec.of(ChairspaceCondition::encodeToOps, ChairspaceCondition::decodeFromOps);
+	
+	private static <T> DataResult<T> encodeToOps(final ChairspaceCondition func, final DynamicOps<T> ops, final T prefix)
+	{
+		return DataResult.success(ops.createString(func.registryName.toString()));
+	}
+	
+	private static <T> DataResult<Pair<ChairspaceCondition, T>> decodeFromOps(final DynamicOps<T> ops, final T input)
+	{
+		ChairspaceCondition condition = WHCChairspaceConditions.get(Identifier.of(ops.getStringValue(input).getOrThrow()));
+		return condition == null ? DataResult.error(() -> "Error reading Chairspace condition from data") : DataResult.success(Pair.of(condition, input));
+	}
+	
 	private final Identifier registryName;
 	private final List<Event<?>> firedBy = Lists.newArrayList();
 	
@@ -36,7 +55,19 @@ public class ChairspaceCondition
 			firedBy.add(event);
 	}
 	
+	public <T> T encode(DynamicOps<T> ops)
+	{
+		return CODEC.encodeStart(ops, this).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+	}
+	
+	public static <T> ChairspaceCondition decode(DynamicOps<T> ops, T input)
+	{
+		return CODEC.parse(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+	}
+	
 	public Identifier registryName() { return this.registryName; }
+	
+	public boolean equals(Object obj) { return obj instanceof ChairspaceCondition && ((ChairspaceCondition)obj).registryName.equals(registryName); }
 	
 	public boolean isListeningTo(Event<?> event) { return firedBy.contains(event); }
 	

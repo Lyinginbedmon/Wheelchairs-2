@@ -4,7 +4,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -12,6 +15,11 @@ import com.google.common.collect.Lists;
 import com.lying.Wheelchairs;
 import com.lying.entity.IParentedEntity;
 import com.lying.init.WHCChairspaceConditions;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.architectury.event.Event;
 import net.minecraft.entity.Entity;
@@ -21,11 +29,10 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.RegistryWrapper.WrapperLookup;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.PersistentState;
@@ -57,7 +64,7 @@ public class Chairspace extends PersistentState
 		chairs.markDirty();
 		return chairs;
 	}
-
+	
 	public NbtCompound writeNbt(NbtCompound nbt, WrapperLookup lookup)
 	{
 		NbtList set = new NbtList();
@@ -68,23 +75,9 @@ public class Chairspace extends PersistentState
 			NbtCompound compound = new NbtCompound();
 			// UUID of the associated player
 			compound.putUuid("ID", uuid);
-			
 			// Map of conditions to set of entities to respawn
-			NbtList mapData = new NbtList();
-			map.forEach((condition, list) -> 
-			{
-				if(list.isEmpty()) return;
-				
-				NbtCompound entry = new NbtCompound();
-				entry.putString("Condition", condition.registryName().toString());
-				
-				NbtList entries = new NbtList();
-				list.forEach(respawn -> entries.add(respawn.writeToNbt()));
-				entry.put("Entries", entries);
-				
-				mapData.add(entry);
-			});
-			compound.put("Data", mapData);
+			compound.put("Data", SerializedConditionListMap.CODEC.encodeStart(NbtOps.INSTANCE, map).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow());
+			
 			set.add(compound);
 		});
 		nbt.put("Data", set);
@@ -102,25 +95,7 @@ public class Chairspace extends PersistentState
 		{
 			NbtCompound compound = set.getCompound(i);
 			UUID id = compound.getUuid("ID");
-			
-			Map<ChairspaceCondition, List<RespawnData>> dataEntry = new HashMap<>();
-			NbtList mapData = compound.getList("Data", NbtElement.COMPOUND_TYPE);
-			for(int j=0; j<mapData.size(); j++)
-			{
-				NbtCompound entry = mapData.getCompound(j);
-				ChairspaceCondition dataCondition = WHCChairspaceConditions.get(Identifier.of(entry.getString("Condition")));
-				if(dataCondition == null) continue;
-				
-				NbtList entries = entry.getList("Entries", NbtElement.COMPOUND_TYPE);
-				if(entries.isEmpty()) continue;
-				
-				List<RespawnData> dataEntries = Lists.newArrayList();
-				for(int k=0; k<entries.size(); k++)
-					dataEntries.add(RespawnData.readFromNbt(entries.getCompound(k)));
-				
-				dataEntry.put(dataCondition, dataEntries);
-			}
-			
+			Map<ChairspaceCondition, List<RespawnData>> dataEntry = SerializedConditionListMap.CODEC.parse(NbtOps.INSTANCE, compound.get("Data")).getOrThrow();
 			dataSet.put(id, dataEntry);
 		}
 		chairs.storage = dataSet;
@@ -128,7 +103,7 @@ public class Chairspace extends PersistentState
 	}
 	
 	/** Returns true if there is at least one entity in storage under the given UUID */
-	public boolean hasEntityFor(UUID ownerID){ return storage.containsKey(ownerID) && !storage.get(ownerID).isEmpty(); }
+	public boolean hasEntityFor(UUID ownerID) { return storage.entrySet().stream().anyMatch(e -> e.getKey().equals(ownerID) && !e.getValue().isEmpty()); }
 	
 	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition, Flag... flags)
 	{
@@ -145,120 +120,166 @@ public class Chairspace extends PersistentState
 		
 		ent.discard();
 		this.markDirty();
-		Wheelchairs.LOGGER.info("Stored entity {} in Chairspace with condition {} by {}", ent.getName().getString(), condition.registryName().toString(), ownerID.toString());
+		Wheelchairs.LOGGER.info("# Stored entity {} in Chairspace with condition {} by {}", ent.getName().getString(), condition.registryName().toString(), ownerID.toString());
 	}
 	
 	/** Respawns all associated entities across all applicable conditions (if any) */
 	public void reactToEvent(Event<?> eventIn, Entity owner)
 	{
-		UUID uuid = owner.getUuid();
-		WHCChairspaceConditions.getApplicable(eventIn).forEach(condition -> respawnForCondition(uuid, owner, condition));
+		WHCChairspaceConditions.getApplicable(eventIn).forEach(condition -> respawnForCondition(owner.getUuid(), owner, condition));
 	}
 	
 	/** Respawns all associated entities stored under the given condition */
 	public void respawnForCondition(UUID ownerID, Entity owner, ChairspaceCondition condition)
 	{
 		// Do not fire if there is not an owner to spawn on, a world to spawn in, or the world is client-side
-		if(owner == null || owner.getWorld() == null || owner.isSpectator() || owner.getWorld().isClient() || !hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner))
+		if(
+				owner == null || owner.isSpectator() || 
+				owner.getWorld() == null || owner.getWorld().isClient() || 
+				!hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner))
 			return;
 		
 		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
-		if(!ownerMap.containsKey(condition)) return;
-		
-		List<RespawnData> entities = ownerMap.getOrDefault(condition, Lists.newArrayList());
-		if(entities.isEmpty()) return;
-		
-		ServerWorld world = (ServerWorld)owner.getWorld();
-		entities.forEach(entry -> condition.applyPostEffects(entry.respawn(owner, world)));
-		
-		ownerMap.remove(condition);
-		storage.put(ownerID, ownerMap);
-		this.markDirty();
+		ownerMap.entrySet().stream().filter(e -> e.getKey().equals(condition)).map(Entry::getValue).forEach(entities -> 
+		{
+			Wheelchairs.LOGGER.info(" # Respawning {} entities from Chairspace for {} under condition {}", entities.size(), owner.getUuid().toString(), condition.registryName().toString());
+			
+			ServerWorld world = (ServerWorld)owner.getWorld();
+			entities.forEach(entry -> condition.applyPostEffects(entry.respawn(owner, world)));
+			
+			ownerMap.remove(condition);
+			storage.put(ownerID, ownerMap);
+			this.markDirty();
+		});
 	}
 	
 	/**
 	 * Handles the respawning of a single stored entity, including mounting it to the owner if desired.<br>
 	 * @author Lying
 	 */
-	private static class RespawnData
+	public static record RespawnData(NbtCompound entityData, EnumSet<Flag> flags)
 	{
-		private final NbtCompound entityData;
-		private final EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
+		public static final Codec<RespawnData> CODEC	= RecordCodecBuilder.create(instance -> instance.group(
+				NbtCompound.CODEC.fieldOf("Entity").forGetter(r -> r.entityData()),
+				SerializedFlagSet.CODEC.fieldOf("Flags").forGetter(r -> r.flags))
+				.apply(instance, RespawnData::new));
+		public static final Codec<List<RespawnData>> LIST_CODEC	= CODEC.listOf();
 		
-		public RespawnData(NbtCompound data, Flag... flags)
-		{
-			this.entityData = data;
-			for(Flag flag : flags)
-				if(!this.flags.contains(flag))
-					this.flags.add(flag);
-		}
-		
-		public static RespawnData of(Entity entity, Flag... flags)
+		public static RespawnData of(Entity entity, Flag... flagsIn)
 		{
 			NbtCompound data = new NbtCompound();
 			entity.saveNbt(data);
+			EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
+			for(Flag flag : flagsIn)
+				flags.add(flag);
 			return new RespawnData(data, flags);
 		}
 		
-		public NbtCompound writeToNbt()
+		public static <T> T encodeList(DynamicOps<T> ops, List<RespawnData> input)
 		{
-			NbtCompound data = new NbtCompound();
-			data.put("Entity", entityData);
-			
-			NbtList list = new NbtList();
-			this.flags.forEach(flag -> list.add(NbtString.of(flag.toString())));
-			data.put("Flags", list);
-			return data;
+			return LIST_CODEC.encodeStart(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
 		}
 		
-		public static RespawnData readFromNbt(NbtCompound nbt)
+		public static <T> List<RespawnData> decodeList(DynamicOps<T> ops, T input)
 		{
-			NbtList list = nbt.getList("Flags", NbtElement.STRING_TYPE);
-			List<Flag> flags = Lists.newArrayList();
-			for(int i=0; i<list.size(); i++)
-			{
-				Flag flag = Flag.get(list.getString(i));
-				if(flag != null)
-					flags.add(flag);
-			}
-			return new RespawnData(nbt.getCompound("Entity"), flags.toArray(new Flag[0]));
+			return LIST_CODEC.parse(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
 		}
 		
 		@Nullable
 		public Entity respawn(Entity owner, ServerWorld world)
 		{
-			Entity storedEntity = EntityType.loadEntityWithPassengers(entityData, world, SpawnReason.LOAD, entity -> {
+			Entity storedEntity = EntityType.loadEntityWithPassengers(entityData(), world, SpawnReason.LOAD, entity -> {
 				entity.refreshPositionAndAngles(owner.getX(), owner.getY(), owner.getZ(), owner.getYaw(), owner.getPitch());
 	            return entity;
 	        });
 			
 			if(storedEntity != null)
 			{
-				Wheelchairs.LOGGER.info("Restored entity {} from Chairspace with owner {}", storedEntity.getName().getString(), owner.getName().getString());
+				Wheelchairs.LOGGER.info(" # - Restored entity {}", storedEntity.getName().getString());
 				world.spawnEntity(storedEntity);
-				
-				if(flags.contains(Flag.MOUNT) && !owner.hasVehicle())
-					owner.startRiding(storedEntity);
-				
-				if(flags.contains(Flag.PARENT) && storedEntity instanceof IParentedEntity && owner instanceof LivingEntity)
-				{
-					LivingEntity parent = (LivingEntity)owner;
-					IParentedEntity child = (IParentedEntity)storedEntity;
-					
-					Vec3d offset = child.getParentOffset(parent, parent.getYaw(), parent.getPitch());
-					storedEntity.updatePosition(parent.getX() + offset.getX(), parent.getY() + offset.getY(), parent.getZ() + offset.getY());
-					child.parentTo(parent);
-				}
+				flags().stream().forEach(f -> f.postRespawnAction.accept(owner, storedEntity));
 			}
 			return storedEntity;
+		}
+		
+		private static class SerializedFlagSet
+		{
+			private static final Codec<EnumSet<Flag>> CODEC	= Codec.of(SerializedFlagSet::encode, SerializedFlagSet::decode);
+			
+			private static <T> DataResult<T> encode(final EnumSet<Flag> set, final DynamicOps<T> ops, final T prefix)
+			{
+				return (DataResult<T>)DataResult.success(ops.createList(set.stream().map(d -> ops.createString(d.asString()))));
+			}
+			
+			private static <T> DataResult<Pair<EnumSet<Flag>, T>> decode(final DynamicOps<T> ops, final T input)
+			{
+				EnumSet<Flag> set = EnumSet.noneOf(Flag.class);
+				set.addAll(ops.getStream(input).result().orElse(Stream.empty()).map(e -> Flag.get(ops.getStringValue(e).getOrThrow())).toList());
+				return DataResult.success(Pair.of(set, input));
+			}
+		}
+	}
+	
+	private static class SerializedConditionListMap
+	{
+		private static final Codec<Map<ChairspaceCondition, List<RespawnData>>> CODEC	= Codec.of(SerializedConditionListMap::encode, SerializedConditionListMap::decode);
+		
+		private static <T> DataResult<T> encode(final Map<ChairspaceCondition, List<RespawnData>> map, final DynamicOps<T> ops, final T prefix)
+		{
+			return DataResult.success(ops.createList(map.entrySet().stream().map(Entry::new).map(e -> e.encode(ops))));
+		}
+		
+		private static <T> DataResult<Pair<Map<ChairspaceCondition, List<RespawnData>>, T>> decode(final DynamicOps<T> ops, final T input)
+		{
+			Map<ChairspaceCondition, List<RespawnData>> map = new HashMap<>();
+			ops.getStream(input).result().get().map(t -> Entry.decode(ops, t)).forEach(e -> map.put(e.key(), e.list()));
+			return DataResult.success(Pair.of(map, input));
+		}
+		
+		private static record Entry(ChairspaceCondition key, List<RespawnData> list)
+		{
+			private static final Codec<Entry> CODEC	= RecordCodecBuilder.create(instance -> instance.group(
+					ChairspaceCondition.CODEC.fieldOf("Key").forGetter(Entry::key),
+					RespawnData.LIST_CODEC.fieldOf("Value").forGetter(Entry::list))
+						.apply(instance, Entry::new));
+			
+			public Entry(Map.Entry<ChairspaceCondition, List<RespawnData>> entryIn)
+			{
+				this(entryIn.getKey(), entryIn.getValue());
+			}
+			
+			public <T> T encode(DynamicOps<T> ops)
+			{
+				return CODEC.encodeStart(ops, this).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+			}
+			
+			public static <T> Entry decode(DynamicOps<T> ops, T input)
+			{
+				return CODEC.parse(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+			}
 		}
 	}
 	
 	/** Specific post-respawn effects that should be applied to a specific stored entity when respawned */
 	public static enum Flag implements StringIdentifiable
 	{
-		MOUNT,
-		PARENT;
+		MOUNT((owner, entity) -> { if(!owner.hasVehicle()) owner.startRiding(entity); }),
+		PARENT((owner, entity) -> 
+		{
+			LivingEntity parent = (LivingEntity)owner;
+			IParentedEntity child = (IParentedEntity)entity;
+			
+			Vec3d offset = child.getParentOffset(parent, parent.getYaw(), parent.getPitch());
+			entity.updatePosition(parent.getX() + offset.getX(), parent.getY() + offset.getY(), parent.getZ() + offset.getY());
+			child.parentTo(parent);
+		});
+		
+		private final BiConsumer<Entity, Entity> postRespawnAction;
+		
+		private Flag(BiConsumer<Entity, Entity> consumerIn)
+		{
+			postRespawnAction = consumerIn;
+		}
 		
 		public String asString() { return name().toString(); }
 		

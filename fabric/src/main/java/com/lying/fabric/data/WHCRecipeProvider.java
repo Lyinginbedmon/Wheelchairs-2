@@ -72,7 +72,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 						{
 							offerWoodWheelRecipe(exporter, entry.getValue().wheel, entry.getKey());
 							offerWheelchairRecipe(exporter, wrapperLookup, entry.getValue().wheelchair, entry.getKey());
-//							offerWalkerRecipe(exporter, wrapperLookup, entry.getValue().walker, entry.getKey());
+							offerWalkerRecipe(exporter, wrapperLookup, entry.getValue().walker, entry.getKey());
 //							offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
 //							offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
 //							offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());

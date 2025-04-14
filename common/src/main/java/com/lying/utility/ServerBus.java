@@ -133,11 +133,8 @@ public class ServerBus
 		
 		PlayerEvent.PLAYER_JOIN.register((player) -> 
 		{
-			if(player == null || player.getWorld() == null || player.getWorld().isClient())
-				return;
-			
-			Chairspace chairs = Chairspace.getChairspace(player.getServer());
-			chairs.reactToEvent(PlayerEvent.PLAYER_JOIN, player);
+			if(player == null || player.getWorld() == null || player.getWorld().isClient()) return;
+			Chairspace.getChairspace(player.getServer()).reactToEvent(PlayerEvent.PLAYER_JOIN, player);
 		});
 		
 		// Storage/retrieval due to rider being in/out of Spectator
