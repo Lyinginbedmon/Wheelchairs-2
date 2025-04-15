@@ -163,7 +163,6 @@ public class Chairspace extends PersistentState
 				NbtCompound.CODEC.fieldOf("Entity").forGetter(r -> r.entityData()),
 				SerializedFlagSet.CODEC.fieldOf("Flags").forGetter(r -> r.flags))
 				.apply(instance, RespawnData::new));
-		public static final Codec<List<RespawnData>> LIST_CODEC	= CODEC.listOf();
 		
 		public static RespawnData of(Entity entity, Flag... flagsIn)
 		{
@@ -173,16 +172,6 @@ public class Chairspace extends PersistentState
 			for(Flag flag : flagsIn)
 				flags.add(flag);
 			return new RespawnData(data, flags);
-		}
-		
-		public static <T> T encodeList(DynamicOps<T> ops, List<RespawnData> input)
-		{
-			return LIST_CODEC.encodeStart(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
-		}
-		
-		public static <T> List<RespawnData> decodeList(DynamicOps<T> ops, T input)
-		{
-			return LIST_CODEC.parse(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
 		}
 		
 		@Nullable
@@ -240,7 +229,7 @@ public class Chairspace extends PersistentState
 		{
 			private static final Codec<Entry> CODEC	= RecordCodecBuilder.create(instance -> instance.group(
 					ChairspaceCondition.CODEC.fieldOf("Key").forGetter(Entry::key),
-					RespawnData.LIST_CODEC.fieldOf("Value").forGetter(Entry::list))
+					RespawnData.CODEC.listOf().fieldOf("Value").forGetter(Entry::list))
 						.apply(instance, Entry::new));
 			
 			public Entry(Map.Entry<ChairspaceCondition, List<RespawnData>> entryIn)

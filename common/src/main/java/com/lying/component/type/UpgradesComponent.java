@@ -25,6 +25,10 @@ public record UpgradesComponent(List<Identifier> upgrades) implements TooltipApp
 				.apply(instance, UpgradesComponent::new));
 	public static final PacketCodec<ByteBuf, UpgradesComponent> PACKET_CODEC = Identifier.PACKET_CODEC.collect(PacketCodecs.toList()).xmap(UpgradesComponent::new, UpgradesComponent::upgrades);
 	
+	public List<ChairUpgrade> asList() { return upgrades().stream().map(WHCChairUpgrades::get).toList(); }
+	
+	public static UpgradesComponent fromList(List<ChairUpgrade> upgrades) { return new UpgradesComponent(upgrades.stream().map(ChairUpgrade::registryName).toList()); }
+	
 	public void appendTooltip(TooltipContext context, Consumer<Text> tooltip, TooltipType type)
 	{
 		if(!upgrades.isEmpty())

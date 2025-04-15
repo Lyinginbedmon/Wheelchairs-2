@@ -14,7 +14,6 @@ import com.lying.utility.ServerEvents;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -85,17 +84,16 @@ public interface IParentedEntity
 	}
 	
 	/** Updates the position and rotation of the child entity according to the position and rotation of the parent entity */
-	public static <T extends LivingEntity & IParentedEntity> void updateParentingBond(T child, LivingEntity parent)
+	public static <T extends LivingEntity & IParentedEntity> void updateParentingBond(T child, LivingEntity parent, Entity.PositionUpdater positionUpdater)
 	{
 		if(child == null || parent == null || parent == child || !child.isParent(parent))
 			return;
 		
-		float yaw = parent.getBodyYaw();
-		float pitch = parent.getPitch();
-		
 		child.setVelocity(Vec3d.ZERO);
 		child.tick();
 		
+		float yaw = parent.bodyYaw;
+		float pitch = parent.getPitch();
 		child.tickParented(parent, yaw, pitch);
 		
 		// Stop calculating if the parented tick has severed the parenting bond
@@ -103,13 +101,12 @@ public interface IParentedEntity
 			return;
 		
 		Vec3d dest = parent.getPos().add(child.getParentOffset(parent, yaw, pitch));
-		if(child.getWorld().isClient())
-		{
-			Vec3d offset = dest.subtract(child.getPos());
-			child.move(MovementType.PLAYER, offset);
-		}
-		
-		child.setPosition(dest);
+		positionUpdater.accept(child, dest.x, dest.y, dest.z);
+	}
+	
+	public static Vec3d rotateOffset(Vec3d offset, float parentYaw)
+	{
+		return offset.rotateY(-parentYaw * (float)(Math.PI / 180));
 	}
 	
 	public static <T extends LivingEntity & IParentedEntity> boolean bindToPlayer(PlayerEntity player, T walker)

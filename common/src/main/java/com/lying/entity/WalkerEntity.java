@@ -301,7 +301,7 @@ public class WalkerEntity extends LivingEntity implements IParentedEntity
 	
 	public Vec3d getParentOffset(LivingEntity parent, float yaw, float pitch)
 	{
-		return WHCUtils.localToGlobal(new Vec3d(0, 0, 0.5D), parent.bodyYaw);
+		return IParentedEntity.rotateOffset(new Vec3d(0, 0, 0.5D), yaw);
 	}
 	
 	public void tick()
@@ -319,7 +319,10 @@ public class WalkerEntity extends LivingEntity implements IParentedEntity
 	
 	public void tickParented(@NotNull LivingEntity parent, float yaw, float pitch)
 	{
-		setRotation(parent.bodyYaw, 0F);
+		this.prevYaw = yaw;
+		this.bodyYaw = yaw;
+		this.prevPitch = 0F;
+		this.setPitch(0F);
 		
 		// Unbind from user if user is riding or holding two items
 		if(!canParentToChild(parent, this))

@@ -32,7 +32,8 @@
 		"HeldItemRendererMixin",
 		"ClientWorldMixin",
 		"LivingEntityRendererMixin",
-		"LivingEntityRenderStateMixin"
+		"LivingEntityRenderStateMixin",
+		"TickManagerMixinClient"
 		//"ModelLoaderMixin"
 	],
 	"injectors": {

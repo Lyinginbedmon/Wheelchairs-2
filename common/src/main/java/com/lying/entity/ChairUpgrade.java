@@ -12,7 +12,13 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.lying.Wheelchairs;
+import com.lying.init.WHCChairUpgrades;
 import com.lying.reference.Reference;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
@@ -21,12 +27,29 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ChairUpgrade
 {
+	public static final Codec<ChairUpgrade> CODEC	= Codec.of(ChairUpgrade::encodeToOps, ChairUpgrade::decodeFromOps);
+	
+	private static <T> DataResult<T> encodeToOps(final ChairUpgrade upg, final DynamicOps<T> ops, final T prefix)
+	{
+		return DataResult.success(ops.createString(upg.registryName().toString()));
+	}
+	
+	private static <T> DataResult<Pair<ChairUpgrade, T>> decodeFromOps(final DynamicOps<T> ops, final T input)
+	{
+		ChairUpgrade condition = WHCChairUpgrades.get(Identifier.of(ops.getStringValue(input).getOrThrow()));
+		return condition == null ? DataResult.error(() -> "Error reading wheelchair upgrade from data") : DataResult.success(Pair.of(condition, input));
+	}
+	
+	public static final PacketCodec<RegistryByteBuf, ChairUpgrade> PACKET_CODEC	= PacketCodec.tuple(Identifier.PACKET_CODEC, ChairUpgrade::registryName, WHCChairUpgrades::get);
+	
 	private final Identifier name;
 	private final Predicate<ItemStack> isKeyItem;
 	private final Item dropItem;
@@ -60,6 +83,28 @@ public class ChairUpgrade
 	}
 	
 	public final Identifier registryName() { return name; }
+	
+	public boolean equals(Object obj) { return obj instanceof ChairUpgrade && ((ChairUpgrade)obj).registryName().equals(name); }
+	
+	public <T> T encode(DynamicOps<T> ops)
+	{
+		return CODEC.encodeStart(ops, this).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+	}
+	
+	public static <T> ChairUpgrade decode(DynamicOps<T> ops, T input)
+	{
+		return CODEC.parse(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+	}
+	
+	public static <T> T encodeList(DynamicOps<T> ops, List<ChairUpgrade> list)
+	{
+		return CODEC.listOf().encodeStart(ops, list).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+	}
+	
+	public static <T> List<ChairUpgrade> decodeList(DynamicOps<T> ops, T input)
+	{
+		return CODEC.listOf().parse(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+	}
 	
 	public Text translate() { return Text.translatable("upgrade."+name.getNamespace()+"."+name.getPath()); }
 	

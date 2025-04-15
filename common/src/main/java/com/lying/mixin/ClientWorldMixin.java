@@ -31,7 +31,7 @@ public class ClientWorldMixin
 			return;
 		
 		child.resetPosition();
-		++child.age;
-		IParentedEntity.updateParentingBond(child, parent);
+		child.age++;
+		IParentedEntity.updateParentingBond(child, parent, Entity::setPosition);
 	}
 }

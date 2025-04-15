@@ -48,6 +48,6 @@ public class ServerWorldMixin
 		
 		child.resetPosition();
 		++child.age;
-		IParentedEntity.updateParentingBond(child, parent);
+		IParentedEntity.updateParentingBond(child, parent, Entity::setPosition);
 	}
 }

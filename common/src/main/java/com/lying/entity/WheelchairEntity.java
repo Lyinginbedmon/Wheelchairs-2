@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.lying.block.FrostedLavaBlock;
 import com.lying.component.type.UpgradesComponent;
@@ -64,7 +65,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -75,7 +76,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -87,18 +87,18 @@ import net.minecraft.world.World;
 public class WheelchairEntity extends WheelchairsRideable implements JumpingMount, ItemSteerable, IFlyingMount, IParentedEntity
 {
 	private static final int REBIND_COOLDOWN = Reference.Values.TICKS_PER_SECOND * 3;
-	public static final TrackedDataHandler<List<Identifier>> UPGRADE_LIST	= TrackedDataHandler.create(Identifier.PACKET_CODEC.collect(PacketCodecs.toList()));
+	public static final TrackedDataHandler<List<ChairUpgrade>> UPGRADE_LIST	= TrackedDataHandler.create(ChairUpgrade.PACKET_CODEC.collect(PacketCodecs.toList()));
 	
-	public static final TrackedData<ItemStack> CHAIR			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	public static final TrackedData<OptionalInt> COLOR			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
-	public static final TrackedData<ItemStack> LEFT_WHEEL		= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	public static final TrackedData<ItemStack> RIGHT_WHEEL		= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	public static final TrackedData<List<Identifier>> UPGRADES	= DataTracker.registerData(WheelchairEntity.class, UPGRADE_LIST);
-	public static final TrackedData<Boolean> POWERED			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	public static final TrackedData<Optional<UUID>> USER_ID		= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
-	public static final TrackedData<Integer> REBIND				= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	public static final TrackedData<Boolean> FLYING				= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	public static final TrackedData<Integer> BOOST_TIME			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	public static final TrackedData<ItemStack> CHAIR				= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	public static final TrackedData<OptionalInt> COLOR				= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
+	public static final TrackedData<ItemStack> LEFT_WHEEL			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	public static final TrackedData<ItemStack> RIGHT_WHEEL			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	public static final TrackedData<List<ChairUpgrade>> UPGRADES	= DataTracker.registerData(WheelchairEntity.class, UPGRADE_LIST);
+	public static final TrackedData<Boolean> POWERED				= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final TrackedData<Optional<UUID>> USER_ID			= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+	public static final TrackedData<Integer> REBIND					= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	public static final TrackedData<Boolean> FLYING					= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final TrackedData<Integer> BOOST_TIME				= DataTracker.registerData(WheelchairEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	
 	private final SaddledComponent saddledComponent;
 	protected SimpleInventory items;
@@ -158,8 +158,8 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 			getDataTracker().set(RIGHT_WHEEL, ItemStack.fromNbt(getRegistryManager(), wheels.getCompound("Right")).get());
 		}
 		
-		if(data.contains("Upgrades", NbtElement.LIST_TYPE))
-			setUpgrades(data.getList("Upgrades", NbtElement.STRING_TYPE).stream().map(e -> Identifier.of(e.asString())).toList());
+		if(data.contains("Upgrades"))
+			setUpgrades(ChairUpgrade.decodeList(NbtOps.INSTANCE, data.get("Upgrades")));
 		
 		onChestedStatusChanged();
 		if(hasUpgrade(WHCChairUpgrades.STORAGE.get()))
@@ -186,67 +186,50 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 			wheels.put("Right", getRightWheel().toNbt(getRegistryManager()));
 		data.put("Wheels", wheels);
 		
-		NbtList upgradeList = new NbtList();
-		getUpgradeList().forEach(u -> upgradeList.add(NbtString.of(u.toString())));
-		data.put("Upgrades", upgradeList);
-		
-		if(hasUpgrade(WHCChairUpgrades.STORAGE.get()))
+		if(!getUpgrades().isEmpty())
 		{
-			NbtList items = new NbtList();
-			for(int i=0; i<this.items.size(); ++i)
-			{
-				ItemStack stack = this.items.getStack(i);
-				if(stack.isEmpty())
-					continue;
-				
-				NbtCompound nbt = new NbtCompound();
-				nbt.putByte("Slot", (byte)i);
-				items.add(stack.toNbt(getRegistryManager(), nbt));
-			}
-			data.put("Items", items);
-		}
-	}
-	
-	protected void setUpgrades(List<Identifier> data)
-	{
-		List<ChairUpgrade> oldSet = getUpgrades();
-		List<ChairUpgrade> newSet = WHCChairUpgrades.idsToList(data);
-		
-		// Remove any upgrades currently applied that aren't in the new set
-		oldSet.forEach(upgrade -> 
-		{
-			if(!newSet.contains(upgrade))
-				upgrade.removeFrom(this);
-		});
-		
-		List<Identifier> upgrades = Lists.newArrayList();
-		for(int i=0; i<data.size(); i++)
-		{
-			ChairUpgrade upgrade = WHCChairUpgrades.get(data.get(i));
-			if(upgrade == null)
-				continue;
+			data.put("Upgrades", ChairUpgrade.encodeList(NbtOps.INSTANCE, getUpgrades()));
 			
-			if(!oldSet.contains(upgrade))
-				upgrade.applyTo(this);
-			upgrades.add(data.get(i));
+			if(hasUpgrade(WHCChairUpgrades.STORAGE.get()))
+			{
+				NbtList items = new NbtList();
+				for(int i=0; i<this.items.size(); ++i)
+				{
+					ItemStack stack = this.items.getStack(i);
+					if(stack.isEmpty())
+						continue;
+					
+					NbtCompound nbt = new NbtCompound();
+					nbt.putByte("Slot", (byte)i);
+					items.add(stack.toNbt(getRegistryManager(), nbt));
+				}
+				data.put("Items", items);
+			}
 		}
-		
-		getDataTracker().set(UPGRADES, upgrades);
-	}
-	
-	public List<Identifier> getUpgradeList()
-	{
-		return getDataTracker().get(UPGRADES);
 	}
 	
 	public List<ChairUpgrade> getUpgrades()
 	{
-		return WHCChairUpgrades.idsToList(getUpgradeList());
+		return getDataTracker().get(UPGRADES);
 	}
 	
 	public boolean hasUpgrade(ChairUpgrade upgrade)
 	{
-		return getUpgradeList().stream().anyMatch(u -> u.equals(upgrade.registryName()));
+		return getUpgrades().stream().anyMatch(u -> u.equals(upgrade));
+	}
+	
+	protected void setUpgrades(List<ChairUpgrade> newSet)
+	{
+		List<ChairUpgrade> oldSet = getUpgrades();
+		List<ChairUpgrade> upgrades = newSet.stream().filter(Predicates.notNull()).toList();
+		
+		// Remove any upgrades currently applied that aren't in the new set
+		oldSet.stream().filter(u -> !upgrades.contains(u)).forEach(u -> u.removeFrom(this));
+		
+		// Apply any immediate effects of upgrades that aren't in the old set
+		upgrades.stream().filter(u -> !oldSet.contains(u)).forEach(u -> u.applyTo(this));
+		
+		getDataTracker().set(UPGRADES, upgrades);
 	}
 	
 	public void addUpgrade(ChairUpgrade upgrade)
@@ -254,8 +237,8 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 		if(hasUpgrade(upgrade))
 			return;
 		
-		List<Identifier> upgrades = getUpgradeList();
-		upgrades.add(upgrade.registryName());
+		List<ChairUpgrade> upgrades = getUpgrades();
+		upgrades.add(upgrade);
 		setUpgrades(upgrades);
 		onChestedStatusChanged();
 		
@@ -268,8 +251,8 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 			return;
 		
 		List<ChairUpgrade> upgrades = getUpgrades();
-		upgrades.removeIf(u -> u.registryName().equals(upgrade.registryName()));
-		setUpgrades(WHCChairUpgrades.listToIds(upgrades));
+		upgrades.removeIf(u -> u.equals(upgrade));
+		setUpgrades(upgrades);
 		onChestedStatusChanged();
 		
 		dropItem(upgrade.dropItem());
@@ -380,7 +363,7 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 		if(chair.hasColor() && stack.getItem() instanceof WheelchairItem)
 			stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(chair.getColor(), true));
 		
-		stack.set(WHCDataComponentTypes.UPGRADES.get(), new UpgradesComponent(chair.getUpgradeList()));
+		stack.set(WHCDataComponentTypes.UPGRADES.get(), UpgradesComponent.fromList(chair.getUpgrades()));
 		
 		return stack;
 	}
@@ -393,9 +376,9 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 		getDataTracker().set(LEFT_WHEEL, WheelchairItem.getWheel(stack, Arm.LEFT));
 		getDataTracker().set(RIGHT_WHEEL, WheelchairItem.getWheel(stack, Arm.RIGHT));
 		
-		List<Identifier> stackData;
-		if(stack.contains(WHCDataComponentTypes.UPGRADES.get()) && !(stackData = stack.get(WHCDataComponentTypes.UPGRADES.get()).upgrades()).isEmpty())
-			setUpgrades(stackData);
+		List<ChairUpgrade> upgrades;
+		if(stack.contains(WHCDataComponentTypes.UPGRADES.get()) && !(upgrades = stack.get(WHCDataComponentTypes.UPGRADES.get()).asList()).isEmpty())
+			setUpgrades(upgrades);
 	}
 	
 	/** Converts this wheelchair into an ItemEntity or (if a player is supplied) an ItemStack in a player's inventory */
