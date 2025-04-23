@@ -1,5 +1,7 @@
 package com.lying.mixin;
 
+import java.util.UUID;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,6 +17,7 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
@@ -31,6 +34,15 @@ public abstract class EntityMixin
 	
 	@Shadow
 	protected static final int GLIDING_FLAG_INDEX = 7;
+	
+	@Shadow
+	public boolean isRemoved() { return false; }
+	
+	@Shadow
+	public MinecraftServer getServer() { return null; }
+	
+	@Shadow
+	public UUID getUuid() { return null; }
 	
 	@Shadow
 	public boolean hasVehicle() { return false; }

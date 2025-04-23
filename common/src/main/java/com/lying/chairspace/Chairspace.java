@@ -1,12 +1,10 @@
 package com.lying.chairspace;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
@@ -27,8 +25,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.registry.RegistryWrapper.WrapperLookup;
 import net.minecraft.server.MinecraftServer;
@@ -54,7 +50,7 @@ public class Chairspace extends PersistentState
             null
     );
 	
-	private Map<UUID, Map<ChairspaceCondition, List<RespawnData>>> storage = new HashMap<>();
+	private List<PlayerStorage> storage = Lists.newArrayList();
 	
 	public static Chairspace getChairspace(MinecraftServer server)
 	{
@@ -67,60 +63,36 @@ public class Chairspace extends PersistentState
 	
 	public NbtCompound writeNbt(NbtCompound nbt, WrapperLookup lookup)
 	{
-		NbtList set = new NbtList();
-		storage.forEach((uuid,map) -> 
-		{
-			if(map.isEmpty()) return;
-			
-			NbtCompound compound = new NbtCompound();
-			// UUID of the associated player
-			compound.putUuid("ID", uuid);
-			// Map of conditions to set of entities to respawn
-			compound.put("Data", SerializedConditionListMap.CODEC.encodeStart(NbtOps.INSTANCE, map).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow());
-			
-			set.add(compound);
-		});
-		nbt.put("Data", set);
+		storage.removeIf(PlayerStorage::isEmpty);
+		nbt.put("Data", PlayerStorage.LIST_CODEC.encodeStart(NbtOps.INSTANCE, storage).resultOrPartial(Wheelchairs.LOGGER::error).get());
 		return nbt;
 	}
 	
 	public static Chairspace createFromNbt(NbtCompound nbt, WrapperLookup lookup)
 	{
 		Chairspace chairs = new Chairspace();
-		NbtList set = nbt.getList("Data", NbtElement.COMPOUND_TYPE);
-		
 		chairs.storage.clear();
-		Map<UUID, Map<ChairspaceCondition, List<RespawnData>>> dataSet = new HashMap<>();
-		for(int i=0; i<set.size(); i++)
-		{
-			NbtCompound compound = set.getCompound(i);
-			UUID id = compound.getUuid("ID");
-			Map<ChairspaceCondition, List<RespawnData>> dataEntry = SerializedConditionListMap.CODEC.parse(NbtOps.INSTANCE, compound.get("Data")).getOrThrow();
-			dataSet.put(id, dataEntry);
-		}
-		chairs.storage = dataSet;
+		chairs.storage.addAll(PlayerStorage.LIST_CODEC.parse(NbtOps.INSTANCE, nbt.get("Data")).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow());
 		return chairs;
 	}
 	
 	/** Returns true if there is at least one entity in storage under the given UUID */
-	public boolean hasEntityFor(UUID ownerID) { return storage.entrySet().stream().anyMatch(e -> e.getKey().equals(ownerID) && !e.getValue().isEmpty()); }
+	public boolean hasEntityFor(UUID ownerID) { return storage.stream().anyMatch(s -> s.playerID().equals(ownerID) && !s.isEmpty()); }
 	
 	public void storeEntityInChairspace(Entity ent, UUID ownerID, ChairspaceCondition condition, Flag... flags)
 	{
 		if(ent == null || ent.getWorld().isClient()) return;
 		
-		NbtCompound data = new NbtCompound();
-		ent.saveNbt(data);
-		
-		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
-		List<RespawnData> listForCondition = ownerMap.getOrDefault(condition, Lists.newArrayList());
-		listForCondition.add(RespawnData.of(ent, flags));
-		ownerMap.put(condition, listForCondition);
-		storage.put(ownerID, ownerMap);
+		RespawnData entry = RespawnData.of(ent, flags);
+		Predicate<PlayerStorage> predicate = s -> s.playerID().equals(ownerID);
+		if(storage.stream().anyMatch(predicate))
+			storage.stream().filter(predicate).forEach(s -> s.add(condition, entry));
+		else
+			storage.add(new PlayerStorage(ownerID).add(condition, entry));
 		
 		ent.discard();
 		this.markDirty();
-		Wheelchairs.LOGGER.info("# Stored entity {} in Chairspace with condition {} by {}", ent.getName().getString(), condition.registryName().toString(), ownerID.toString());
+		Wheelchairs.LOGGER.info(" # Stored entity {} in Chairspace with condition {} by {}", ent.getName().getString(), condition.registryName().toString(), ownerID.toString());
 	}
 	
 	/** Respawns all associated entities across all applicable conditions (if any) */
@@ -139,18 +111,12 @@ public class Chairspace extends PersistentState
 				!hasEntityFor(owner.getUuid()) || !condition.isApplicable(owner))
 			return;
 		
-		Map<ChairspaceCondition, List<RespawnData>> ownerMap = storage.getOrDefault(ownerID, new HashMap<>());
-		ownerMap.entrySet().stream().filter(e -> e.getKey().equals(condition)).map(Entry::getValue).forEach(entities -> 
-		{
-			Wheelchairs.LOGGER.info(" # Respawning {} entities from Chairspace for {} under condition {}", entities.size(), owner.getUuid().toString(), condition.registryName().toString());
-			
-			ServerWorld world = (ServerWorld)owner.getWorld();
-			entities.forEach(entry -> condition.applyPostEffects(entry.respawn(owner, world)));
-			
-			ownerMap.remove(condition);
-			storage.put(ownerID, ownerMap);
-			this.markDirty();
-		});
+		ServerWorld world = (ServerWorld)owner.getWorld();
+		List<PlayerStorage> wares = storage.stream().filter(s -> s.playerID().equals(ownerID)).toList();
+		for(PlayerStorage w : wares)
+			if(w.respawnFor(condition, owner, world))
+				markDirty();
+		storage.removeIf(PlayerStorage::isEmpty);
 	}
 	
 	/**
@@ -209,42 +175,124 @@ public class Chairspace extends PersistentState
 		}
 	}
 	
-	private static class SerializedConditionListMap
+	/**
+	 * Serializable per-player condition to entities mapping
+	 * @author Lying
+	 */
+	private static class PlayerStorage
 	{
-		private static final Codec<Map<ChairspaceCondition, List<RespawnData>>> CODEC	= Codec.of(SerializedConditionListMap::encode, SerializedConditionListMap::decode);
+		public static final Codec<PlayerStorage> CODEC	= RecordCodecBuilder.create(instance -> instance.group(
+				Codec.STRING.fieldOf("id").forGetter(p -> p.playerID().toString()),
+				ConditionEntry.CODEC.listOf().fieldOf("entries").forGetter(p -> p.entries))
+				.apply(instance, (id,entries) -> 
+				{
+					PlayerStorage storage = new PlayerStorage(UUID.fromString(id));
+					entries.forEach(storage::add);
+					return storage;
+				}));
+		public static final Codec<List<PlayerStorage>> LIST_CODEC	= CODEC.listOf();
 		
-		private static <T> DataResult<T> encode(final Map<ChairspaceCondition, List<RespawnData>> map, final DynamicOps<T> ops, final T prefix)
+		private final UUID playerID;
+		private final List<ConditionEntry> entries = Lists.newArrayList();
+		
+		public PlayerStorage(UUID idIn)
 		{
-			return DataResult.success(ops.createList(map.entrySet().stream().map(Entry::new).map(e -> e.encode(ops))));
+			playerID = idIn;
 		}
 		
-		private static <T> DataResult<Pair<Map<ChairspaceCondition, List<RespawnData>>, T>> decode(final DynamicOps<T> ops, final T input)
+		public boolean equals(Object obj) { return obj instanceof PlayerStorage && ((PlayerStorage)obj).playerID().equals(playerID); }
+		
+		public UUID playerID() { return this.playerID; }
+		
+		public boolean isEmpty() { return entries.isEmpty() || entries.stream().allMatch(ConditionEntry::isEmpty); }
+		
+		public PlayerStorage add(ConditionEntry entry)
 		{
-			Map<ChairspaceCondition, List<RespawnData>> map = new HashMap<>();
-			ops.getStream(input).result().get().map(t -> Entry.decode(ops, t)).forEach(e -> map.put(e.key(), e.list()));
-			return DataResult.success(Pair.of(map, input));
+			if(entries.stream().noneMatch(e -> e.equals(entry)))
+				entries.add(entry);
+			else
+				entries.stream().filter(e -> e.equals(entry)).findFirst().ifPresent(e -> e.add(entry));
+			
+			return this;
 		}
 		
-		private static record Entry(ChairspaceCondition key, List<RespawnData> list)
+		public PlayerStorage add(ChairspaceCondition condition, RespawnData data)
 		{
-			private static final Codec<Entry> CODEC	= RecordCodecBuilder.create(instance -> instance.group(
-					ChairspaceCondition.CODEC.fieldOf("Key").forGetter(Entry::key),
-					RespawnData.CODEC.listOf().fieldOf("Value").forGetter(Entry::list))
-						.apply(instance, Entry::new));
+			Predicate<ConditionEntry> predicate = ConditionEntry.matching(condition);
+			if(entries.stream().noneMatch(predicate))
+				entries.add(new ConditionEntry(condition).add(data));
+			else
+				entries.stream().filter(predicate).findFirst().ifPresent(e -> e.add(data));
 			
-			public Entry(Map.Entry<ChairspaceCondition, List<RespawnData>> entryIn)
+			return this;
+		}
+		
+		public boolean respawnFor(ChairspaceCondition condition, Entity owner, ServerWorld world)
+		{
+			Predicate<ConditionEntry> predicate = ConditionEntry.matching(condition);
+			if(entries.stream().anyMatch(predicate))
 			{
-				this(entryIn.getKey(), entryIn.getValue());
+				entries.stream().filter(predicate).forEach(entry -> entry.respawn(owner, world));
+				entries.removeIf(e -> e.matches(condition));
+				return true;
+			}
+			return false;
+		}
+		
+		/**
+		 * Serializable entry in {@link PlayerStorage}
+		 * @author Lying
+		 */
+		private static class ConditionEntry
+		{
+			public static final Codec<ConditionEntry> CODEC	= RecordCodecBuilder.create(instance -> instance.group(
+					ChairspaceCondition.CODEC.fieldOf("condition").forGetter(ConditionEntry::condition),
+					RespawnData.CODEC.listOf().fieldOf("objects").forGetter(ConditionEntry::entries))
+					.apply(instance, (condition,entries) -> 
+					{
+						ConditionEntry entry = new ConditionEntry(condition);
+						entries.forEach(entry::add);
+						return entry;
+					}));
+			
+			private final ChairspaceCondition condition;
+			private final List<RespawnData> entries = Lists.newArrayList();
+			
+			public static Predicate<ConditionEntry> matching(ChairspaceCondition c) { return a -> a.matches(c); }
+			
+			public ConditionEntry(ChairspaceCondition conditionIn)
+			{
+				condition = conditionIn;
 			}
 			
-			public <T> T encode(DynamicOps<T> ops)
+			public boolean equals(Object obj) { return obj instanceof ConditionEntry && matches(((ConditionEntry)obj).condition()); }
+			
+			public boolean matches(ChairspaceCondition cond) { return cond.equals(condition); }
+			
+			public ChairspaceCondition condition() { return this.condition; }
+			
+			public List<RespawnData> entries() { return this.entries; }
+			
+			public boolean isEmpty() { return this.entries.isEmpty(); }
+			
+			public ConditionEntry add(RespawnData data)
 			{
-				return CODEC.encodeStart(ops, this).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+				entries.add(data);
+				return this;
 			}
 			
-			public static <T> Entry decode(DynamicOps<T> ops, T input)
+			public ConditionEntry add(ConditionEntry other)
 			{
-				return CODEC.parse(ops, input).resultOrPartial(Wheelchairs.LOGGER::error).orElseThrow();
+				if(other.condition().equals(condition))
+					entries.addAll(entries);
+				return this;
+			}
+			
+			public void respawn(Entity owner, ServerWorld world)
+			{
+				Wheelchairs.LOGGER.info(" # Respawning {} entities from Chairspace for {} under condition {}", entries.size(), owner.getUuid().toString(), condition.registryName().toString());
+				entries.forEach(entry -> condition.applyPostEffects(entry.respawn(owner, world)));
+				entries.clear();
 			}
 		}
 	}

@@ -240,9 +240,9 @@ public class WalkerEntity extends LivingEntity implements IParentedEntity
 			super.pushAwayFrom(entity);
 	}
 	
-	public boolean isInvulnerableTo(DamageSource damageSource)
+	public boolean isInvulnerableTo(ServerWorld world, DamageSource damageSource)
 	{
-		DamageSources sources = getWorld().getDamageSources();
+		DamageSources sources = world.getDamageSources();
 		return !(
 				damageSource == sources.outOfWorld() ||
 				damageSource == sources.genericKill()
