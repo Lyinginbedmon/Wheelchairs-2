@@ -1,8 +1,0 @@
-{
-  "type": "wheelchairs:handle",
-  "material": "minecraft:gold_ingot",
-  "result": {
-    "count": 1,
-    "id": "wheelchairs:gold_handle"
-  }
-}

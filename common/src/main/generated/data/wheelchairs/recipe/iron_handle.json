@@ -1,8 +1,0 @@
-{
-  "type": "wheelchairs:handle",
-  "material": "minecraft:iron_ingot",
-  "result": {
-    "count": 1,
-    "id": "wheelchairs:iron_handle"
-  }
-}

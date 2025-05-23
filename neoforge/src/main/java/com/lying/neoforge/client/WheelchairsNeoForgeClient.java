@@ -3,6 +3,8 @@ package com.lying.neoforge.client;
 import com.lying.Wheelchairs;
 import com.lying.client.WheelchairsClient;
 import com.lying.client.init.WHCModelParts;
+import com.lying.client.renderer.entity.StoolEntityRenderer;
+import com.lying.client.renderer.entity.WalkerEntityRenderer;
 import com.lying.client.renderer.entity.WheelchairEntityRenderer;
 import com.lying.client.screen.ChairInventoryScreen;
 import com.lying.client.screen.WalkerInventoryScreen;
@@ -71,8 +73,8 @@ public class WheelchairsNeoForgeClient
 	{
 		Wheelchairs.LOGGER.info(" # [CLIENT] Registering entity renderers");
 		event.registerEntityRenderer(WHCEntityTypes.WHEELCHAIR.get(), WheelchairEntityRenderer::new);
-//		event.registerEntityRenderer(WHCEntityTypes.WALKER, WalkerEntityRenderer::new);
-//		event.registerEntityRenderer(WHCEntityTypes.STOOL, StoolEntityRenderer::new);
+		event.registerEntityRenderer(WHCEntityTypes.WALKER.get(), WalkerEntityRenderer::new);
+		event.registerEntityRenderer(WHCEntityTypes.STOOL.get(), StoolEntityRenderer::new);
 	}
 	
     @SubscribeEvent

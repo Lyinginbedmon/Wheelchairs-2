@@ -1,8 +1,0 @@
-{
-  "type": "wheelchairs:handle",
-  "material": "minecraft:spruce_button",
-  "result": {
-    "count": 1,
-    "id": "wheelchairs:spruce_handle"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "type": "wheelchairs:cane",
-  "result": {
-    "count": 1,
-    "id": "wheelchairs:spruce_cane"
-  },
-  "staff": "minecraft:stripped_spruce_log"
-}
