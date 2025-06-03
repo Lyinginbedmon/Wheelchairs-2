@@ -1,5 +1,6 @@
 package com.lying.mixin;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +31,13 @@ public abstract class EntityMixin
 {
 	// Manages event calls so that stopRiding doesn't cause an event whilst startRiding is executing
 	private int calls = 0;
+	
+	/** The previous vehicle that was being ridden */
 	private Entity originalVehicle;
+	
+	private static final Long DETACH_TIME_OUT	= 10L;
+	protected Optional<Entity> latestVehicle = Optional.empty();
+	protected long detachTime = Long.MAX_VALUE;
 	
 	@Shadow
 	protected static final int GLIDING_FLAG_INDEX = 7;
@@ -70,6 +77,17 @@ public abstract class EntityMixin
 	
 	private boolean shouldCall() { return getWorld() != null && !getWorld().isClient(); }
 	
+	protected long currentTime() { return getWorld().getTime(); }
+	
+	protected Optional<Entity> recallVehicle()
+	{
+		if(latestVehicle.isEmpty())
+			return latestVehicle;
+		
+		long time = currentTime();
+		return time >= detachTime ? (time - detachTime) < DETACH_TIME_OUT ? latestVehicle : Optional.empty() : Optional.empty();
+	}
+	
 	@Inject(method = "startRiding(Lnet/minecraft/entity/Entity;Z)Z", at = @At("HEAD"))
 	private void whc$startRidingHead(Entity entity, boolean force, final CallbackInfoReturnable<Boolean> ci)
 	{
@@ -85,23 +103,29 @@ public abstract class EntityMixin
 	@Inject(method = "startRiding(Lnet/minecraft/entity/Entity;Z)Z", at = @At("TAIL"))
 	private void whc$startRidingTail(Entity entity, boolean force, final CallbackInfoReturnable<Boolean> ci)
 	{
-		if(!shouldCall())
-			return;
-		
-		Entity ent = (Entity)(Object)this;
-		if(--calls <= 0 && ent instanceof LivingEntity)
+		if(shouldCall())
 		{
-			if(getVehicle() != originalVehicle)
-				ServerEvents.AFTER_LIVING_CHANGE_MOUNT_END.invoker().afterChangeMount((LivingEntity)ent, getVehicle(), originalVehicle);
-			
-			originalVehicle = null;
-			calls = 0;
+			Entity ent = (Entity)(Object)this;
+			if(--calls <= 0 && ent instanceof LivingEntity)
+			{
+				if(getVehicle() != originalVehicle)
+					ServerEvents.AFTER_LIVING_CHANGE_MOUNT_END.invoker().afterChangeMount((LivingEntity)ent, getVehicle(), originalVehicle);
+				
+				originalVehicle = null;
+				calls = 0;
+			}
 		}
 	}
 	
 	@Inject(method = "stopRiding()V", at = @At("HEAD"))
 	private void whc$stopRiding(final CallbackInfo ci)
 	{
+		if(hasVehicle())
+		{
+			latestVehicle = Optional.of(getVehicle());
+			detachTime = currentTime();
+		}
+		
 		if(!shouldCall() || !hasVehicle())
 			return;
 		else if(calls == 0)

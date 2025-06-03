@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:handle",
+  "material": "minecraft:wither_skeleton_skull",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:wither_skull_handle"
+  }
+}

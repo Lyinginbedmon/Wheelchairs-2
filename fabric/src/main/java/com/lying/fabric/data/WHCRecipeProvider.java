@@ -74,20 +74,20 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 							offerWheelchairRecipe(exporter, wrapperLookup, entry.getValue().wheelchair, entry.getKey());
 							offerWalkerRecipe(exporter, wrapperLookup, entry.getValue().walker, entry.getKey());
 //							offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
-//							offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
-//							offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());
+							offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
+							offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());
 						});
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_COPPER, Metal.COPPER);
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_IRON, Metal.IRON);
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_GOLD, Metal.GOLD);
 						offerMetalWheelRecipe(exporter, WHCItems.WHEEL_NETHERITE, Metal.NETHERITE);
 						
-//						offerHandleRecipe(exporter, WHCItems.HANDLE_BONE, Ingredient.ofItems(Items.BONE), "bone_handle");
-//						offerHandleRecipe(exporter, WHCItems.HANDLE_COPPER, Ingredient.ofItems(Items.COPPER_INGOT), "copper_handle");
-//						offerHandleRecipe(exporter, WHCItems.HANDLE_IRON, Ingredient.ofItems(Items.IRON_INGOT), "iron_handle");
-//						offerHandleRecipe(exporter, WHCItems.HANDLE_GOLD, Ingredient.ofItems(Items.GOLD_INGOT), "gold_handle");
-//						offerHandleRecipe(exporter, WHCItems.HANDLE_SKULL, Ingredient.ofItems(Items.SKELETON_SKULL), "skull_handle");
-//						offerHandleRecipe(exporter, WHCItems.HANDLE_WITHER, Ingredient.ofItems(Items.WITHER_SKELETON_SKULL), "wither_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_BONE, Ingredient.ofItems(Items.BONE), "bone_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_COPPER, Ingredient.ofItems(Items.COPPER_INGOT), "copper_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_IRON, Ingredient.ofItems(Items.IRON_INGOT), "iron_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_GOLD, Ingredient.ofItems(Items.GOLD_INGOT), "gold_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_SKULL, Ingredient.ofItems(Items.SKELETON_SKULL), "skull_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_WITHER, Ingredient.ofItems(Items.WITHER_SKELETON_SKULL), "wither_handle");
 						
 						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER.get())
 							.pattern("j").pattern("b")

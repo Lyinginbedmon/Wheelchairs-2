@@ -5,6 +5,8 @@ import java.util.function.Function;
 import com.lying.Wheelchairs;
 import com.lying.entity.WheelchairEntity;
 import com.lying.item.AACTabletItem;
+import com.lying.item.CaneHandleItem;
+import com.lying.item.CaneItem;
 import com.lying.item.ControllerItem;
 import com.lying.item.StoolItem;
 import com.lying.item.VestItem;
@@ -171,13 +173,11 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> cane(String name)
 	{
-//		return register(name+"_cane", settings -> new CaneItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
-		return register(name+"_cane", settings -> new Item(settings.maxCount(1)));
+		return register(name+"_cane", settings -> new CaneItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> handle(String name)
 	{
-//		return register(name+"_handle", settings -> new CaneHandleItem(settings.maxCount(1)));
-		return register(name+"_handle", settings -> new Item(settings.maxCount(1)));
+		return register(name+"_handle", settings -> new CaneHandleItem(settings.maxCount(1)));
 	}
 }
