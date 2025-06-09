@@ -46,7 +46,7 @@ public class RecipeHandle implements Recipe<RecipeInput>
 	
 	public RecipeBookCategory getRecipeBookCategory() { return RecipeBookCategories.CRAFTING_MISC; }
 	
-	public IngredientPlacement getIngredientPlacement() { return IngredientPlacement.NONE; }	// XXX ????
+	public IngredientPlacement getIngredientPlacement() { return IngredientPlacement.NONE; }
 	
 	public boolean isIgnoredInRecipeBook() { return true; }
 	

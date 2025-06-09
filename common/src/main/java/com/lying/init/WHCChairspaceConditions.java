@@ -34,7 +34,7 @@ public class WHCChairspaceConditions
 	/** Respawn whenever the owner logs in */
 	public static final Supplier<ChairspaceCondition> ON_LOGIN = register("on_login", id -> ChairspaceCondition.Builder.of(id, PlayerEvent.PLAYER_JOIN));
 	
-	/** Respawn when the server receives a teleport confirmation packet from the owner */	// FIXME Ensure teleporting works as intended
+	/** Respawn when the server receives a teleport confirmation packet from the owner */
 	public static final Supplier<ChairspaceCondition> ON_FINISH_TELEPORT = register("on_finish_teleport", id -> ChairspaceCondition.Builder.of(id, ServerEvents.AFTER_PLAYER_TELEPORT));
 	
 	/** Respawn when the owner exits Spectator mode */

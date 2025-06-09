@@ -29,12 +29,11 @@
 		"EntityModelMixin",
 		"BipedEntityModelMixin",
 		"ItemRendererMixin",
-		"HeldItemRendererMixin",
 		"ClientWorldMixin",
 		"LivingEntityRendererMixin",
 		"LivingEntityRenderStateMixin",
-		"TickManagerMixinClient"
-		//"ModelLoaderMixin"
+		"TickManagerMixinClient",
+		"ItemModelManagerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

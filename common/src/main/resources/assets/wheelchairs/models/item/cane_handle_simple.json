@@ -1,5 +1,8 @@
 {
 	"parent": "wheelchairs:item/cane",
+	"textures": {
+		"particle": "#handle"
+	},
 	"elements": [
 		{
 			"name": "handle",

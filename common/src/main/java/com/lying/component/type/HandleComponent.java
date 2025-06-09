@@ -23,11 +23,11 @@ public record HandleComponent(ItemStack handle) implements TooltipAppender
 				.apply(instance, (stack) -> new HandleComponent(stack.orElse(ItemStack.EMPTY))));
 	public static final PacketCodec<RegistryByteBuf, HandleComponent> PACKET_CODEC = ItemStack.PACKET_CODEC.xmap(HandleComponent::new, HandleComponent::handle);
 	
-	public Optional<ItemStack> contents() { return handle == null || handle.isEmpty() ? Optional.empty() : Optional.of(handle); }
+	public Optional<ItemStack> contents() { return handle == null || handle.isEmpty() ? Optional.of(WHCItems.HANDLE_OAK.get().getDefaultStack()) : Optional.of(handle); }
 	
 	public void appendTooltip(TooltipContext context, Consumer<Text> tooltip, TooltipType type)
 	{
-		tooltip.accept(Text.translatable("gui.wheelchairs.cane.handle", contents().orElse(WHCItems.HANDLE_OAK.get().getDefaultStack()).getName()));
+		tooltip.accept(Text.translatable("gui.wheelchairs.cane.handle", contents().get().getName()));
 	}
 	
 	public static HandleComponent empty() { return new HandleComponent(ItemStack.EMPTY); }

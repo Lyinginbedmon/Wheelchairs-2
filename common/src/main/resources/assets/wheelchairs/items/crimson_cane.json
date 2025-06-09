@@ -1,7 +1,27 @@
 {
   "model": 
   {
-	  "type": "minecraft:model",
-	  "model": "wheelchairs:item/crimson_cane"
+		"type": "minecraft:select",
+		"cases": 
+		[
+			{
+				"model": 
+				{
+					"type": "minecraft:model",
+					"model": "wheelchairs:item/crimson_cane"
+				},
+				"when":[
+					"firstperson_lefthand",
+					"firstperson_righthand",
+					"thirdperson_lefthand",
+					"thirdperson_righthand"
+				]
+			}
+		],
+		"fallback": {
+			"type": "minecraft:model",
+			"model": "wheelchairs:item/crimson_cane_in_gui"
+		},
+		"property": "minecraft:display_context"
   }
 }

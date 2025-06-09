@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.lying.init.WHCItems;
-import com.lying.mixin.ItemRendererMixin;
 import com.lying.mixin.ModelLoaderMixin;
 
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -62,7 +61,7 @@ public class WHCItemsClient
 	
 	/**
 	 * Defines a model to replace the main item model when rendering the item in a specific ModelTransformationMode.<br>
-	 * The model is baked in {@link ModelLoaderMixin} and applied in {@link ItemRendererMixin}
+	 * The model is baked in {@link ModelLoaderMixin}
 	 */
 	public static class ExtraModelHandler
 	{
