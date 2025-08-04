@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:handle",
+  "material": "minecraft:gilded_blackstone",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:gilded_blackstone_handle"
+  }
+}

@@ -59,6 +59,7 @@ public class WalkerEntity extends LivingEntity implements IParentedEntity
 	
 	private LivingEntity user = null;
 	
+	// FIXME Ensure walker wheels actually spin
 	private Vector2d prevCaster, caster;
 	public float spinLeft = 0F, spinRight = 0F;
 	

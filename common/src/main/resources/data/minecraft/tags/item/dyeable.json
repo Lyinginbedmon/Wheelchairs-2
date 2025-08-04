@@ -1,6 +1,7 @@
 {
   "values": [
     "wheelchairs:service_vest",
-    "wheelchairs:wheeled_stool"
+    "wheelchairs:wheeled_stool",
+    "#wheelchairs:crutches"
   ]
 }

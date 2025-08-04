@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:handle",
+  "material": "minecraft:pale_oak_button",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:pale_oak_handle"
+  }
+}

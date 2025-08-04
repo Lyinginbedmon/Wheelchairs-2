@@ -47,7 +47,6 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	public static final String GROUP_CANES = Reference.ModInfo.MOD_ID+":canes";
 	public static final String GROUP_CRUTCHES = Reference.ModInfo.MOD_ID+":crutches";
 	
-	// FIXME Re-enable crafting recipes as more items are properly updated to 1.21
 	// TODO Implement REI support for special recipe display
 	
 	private static final Map<Wood, WoodSet> WOOD_GUIDE = new HashMap<>();
@@ -59,7 +58,6 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 	
 	public String getName() { return "Wheelchairs recipes"; }
 	
-	@SuppressWarnings("unused")
 	protected RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup wrapperLookup, RecipeExporter exporter)
 	{
 		return new RecipeGenerator(wrapperLookup, exporter)
@@ -73,7 +71,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 							offerWoodWheelRecipe(exporter, entry.getValue().wheel, entry.getKey());
 							offerWheelchairRecipe(exporter, wrapperLookup, entry.getValue().wheelchair, entry.getKey());
 							offerWalkerRecipe(exporter, wrapperLookup, entry.getValue().walker, entry.getKey());
-//							offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
+							offerCrutchRecipe(exporter, entry.getValue().crutch, entry.getKey());
 							offerCaneRecipe(exporter, entry.getValue().cane, entry.getKey());
 							offerHandleRecipe(exporter, entry.getValue().handle, entry.getKey());
 						});
@@ -88,6 +86,8 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 						offerHandleRecipe(exporter, WHCItems.HANDLE_GOLD, Ingredient.ofItems(Items.GOLD_INGOT), "gold_handle");
 						offerHandleRecipe(exporter, WHCItems.HANDLE_SKULL, Ingredient.ofItems(Items.SKELETON_SKULL), "skull_handle");
 						offerHandleRecipe(exporter, WHCItems.HANDLE_WITHER, Ingredient.ofItems(Items.WITHER_SKELETON_SKULL), "wither_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_BLACKSTONE, Ingredient.ofItems(Items.POLISHED_BLACKSTONE_BUTTON), "blackstone_handle");
+						offerHandleRecipe(exporter, WHCItems.HANDLE_GILDED_BLACKSTONE, Ingredient.ofItems(Items.GILDED_BLACKSTONE), "gilded_blackstone_handle");
 						
 						ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.TRANSPORTATION, WHCItems.CONTROLLER.get())
 							.pattern("j").pattern("b")
@@ -234,6 +234,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		putWoodSet(Wood.MANGROVE, WHCItems.WHEEL_MANGROVE, WHCItems.WHEELCHAIR_MANGROVE, WHCItems.WALKER_MANGROVE, WHCItems.CRUTCH_MANGROVE, WHCItems.CANE_MANGROVE, WHCItems.HANDLE_MANGROVE);
 		putWoodSet(Wood.CHERRY, WHCItems.WHEEL_CHERRY, WHCItems.WHEELCHAIR_CHERRY, WHCItems.WALKER_CHERRY, WHCItems.CRUTCH_CHERRY, WHCItems.CANE_CHERRY, WHCItems.HANDLE_CHERRY);
 		putWoodSet(Wood.BAMBOO, WHCItems.WHEEL_BAMBOO, WHCItems.WHEELCHAIR_BAMBOO, WHCItems.WALKER_BAMBOO, WHCItems.CRUTCH_BAMBOO, WHCItems.CANE_BAMBOO, WHCItems.HANDLE_BAMBOO);
+		putWoodSet(Wood.PALE_OAK, WHCItems.WHEEL_PALE_OAK, WHCItems.WHEELCHAIR_PALE_OAK, WHCItems.WALKER_PALE_OAK, WHCItems.CRUTCH_PALE_OAK, WHCItems.CANE_PALE_OAK, WHCItems.HANDLE_PALE_OAK);
 	}
 	
 	public static record WoodSet(Item wheel, Item wheelchair, Item walker, Item crutch, Item cane, Item handle) { }
@@ -245,6 +246,7 @@ public class WHCRecipeProvider extends FabricRecipeProvider
 		SPRUCE(Blocks.SPRUCE_LOG, Blocks.SPRUCE_PLANKS, Blocks.SPRUCE_SLAB, Blocks.STRIPPED_SPRUCE_LOG, Blocks.SPRUCE_BUTTON),
 		BIRCH(Blocks.BIRCH_LOG, Blocks.BIRCH_PLANKS, Blocks.BIRCH_SLAB, Blocks.STRIPPED_BIRCH_LOG, Blocks.BIRCH_BUTTON),
 		DARK_OAK(Blocks.DARK_OAK_LOG, Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_SLAB, Blocks.STRIPPED_DARK_OAK_LOG, Blocks.DARK_OAK_BUTTON),
+		PALE_OAK(Blocks.PALE_OAK_LOG, Blocks.PALE_OAK_PLANKS, Blocks.PALE_OAK_SLAB, Blocks.STRIPPED_PALE_OAK_LOG, Blocks.PALE_OAK_BUTTON),
 		JUNGLE(Blocks.JUNGLE_LOG, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_SLAB, Blocks.STRIPPED_JUNGLE_LOG, Blocks.JUNGLE_BUTTON),
 		ACACIA(Blocks.ACACIA_LOG, Blocks.ACACIA_PLANKS, Blocks.ACACIA_SLAB, Blocks.STRIPPED_ACACIA_LOG, Blocks.ACACIA_BUTTON),
 		CRIMSON(Blocks.CRIMSON_STEM, Blocks.CRIMSON_PLANKS, Blocks.CRIMSON_SLAB, Blocks.STRIPPED_CRIMSON_STEM, Blocks.CRIMSON_BUTTON),

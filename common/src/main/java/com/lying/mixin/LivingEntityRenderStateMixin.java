@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.lying.entity.IHeldItemRenderer;
+import com.lying.entity.IParentEntity;
 import com.lying.entity.IServiceVestHolder;
 
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
@@ -11,8 +12,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 
 @Mixin(LivingEntityRenderState.class)
-public class LivingEntityRenderStateMixin implements IServiceVestHolder, IHeldItemRenderer
+public class LivingEntityRenderStateMixin implements IServiceVestHolder, IHeldItemRenderer, IParentEntity
 {
+	@Unique
+	private boolean isActiveParent = false;
+	
 	@Unique
 	private ItemStack serviceVest = ItemStack.EMPTY;
 	
@@ -23,21 +27,32 @@ public class LivingEntityRenderStateMixin implements IServiceVestHolder, IHeldIt
 	
 	public void setVest(ItemStack stack) { serviceVest = stack; }
 	
-	public void setHandItem(ItemStack stack, Arm hand)
+	public ItemStack getHeldItem(Arm arm)
 	{
-		if(hand == Arm.RIGHT)
-			heldItemRight = stack;
-		else
-			heldItemLeft = stack;
+		switch(arm)
+		{
+			case RIGHT:
+				return heldItemRight;
+			case LEFT:
+				return heldItemLeft;
+		}
+		return ItemStack.EMPTY;
 	}
 	
-	public ItemStack getHeldItem(Arm hand) { return hand == Arm.RIGHT ? heldItemRight : heldItemLeft; }
-	
-	public void setHeldItem(ItemStack stack, Arm hand)
+	public void setHeldItem(ItemStack stack, Arm arm)
 	{
-		if(hand == Arm.RIGHT)
-			heldItemRight = stack;
-		else
-			heldItemLeft = stack;
+		switch(arm)
+		{
+			case RIGHT:
+				heldItemRight = stack;
+				break;
+			case LEFT:
+				heldItemLeft = stack;
+				break;
+		}
 	}
+	
+	public boolean hasParentedEntities() { return isActiveParent; }
+	
+	public void setHasParentedEntities(boolean val) { isActiveParent = val; }
 }

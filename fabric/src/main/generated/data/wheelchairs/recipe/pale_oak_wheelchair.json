@@ -1,0 +1,11 @@
+{
+  "type": "wheelchairs:wheelchair",
+  "backing": "minecraft:pale_oak_log",
+  "cushion": "#minecraft:wool",
+  "left_wheel": "#wheelchairs:wheels",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:pale_oak_wheelchair"
+  },
+  "right_wheel": "#wheelchairs:wheels"
+}

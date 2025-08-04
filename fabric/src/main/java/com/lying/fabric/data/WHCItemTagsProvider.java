@@ -33,6 +33,7 @@ public class WHCItemTagsProvider extends ItemTagProvider
 				WHCItems.WHEEL_WARPED.get(),
 				WHCItems.WHEEL_CHERRY.get(),
 				WHCItems.WHEEL_BAMBOO.get(),
+				WHCItems.WHEEL_PALE_OAK.get(),
 				WHCItems.WHEEL_COPPER.get(),
 				WHCItems.WHEEL_IRON.get(),
 				WHCItems.WHEEL_GOLD.get(),
@@ -48,7 +49,8 @@ public class WHCItemTagsProvider extends ItemTagProvider
 				WHCItems.WHEELCHAIR_SPRUCE.get(), 
 				WHCItems.WHEELCHAIR_WARPED.get(),
 				WHCItems.WHEELCHAIR_CHERRY.get(),
-				WHCItems.WHEELCHAIR_BAMBOO.get());
+				WHCItems.WHEELCHAIR_BAMBOO.get(),
+				WHCItems.WHEELCHAIR_PALE_OAK.get());
 		getOrCreateTagBuilder(WHCTags.CRUTCH).add(
 				WHCItems.CRUTCH_ACACIA.get(), 
 				WHCItems.CRUTCH_BIRCH.get(), 
@@ -60,7 +62,8 @@ public class WHCItemTagsProvider extends ItemTagProvider
 				WHCItems.CRUTCH_SPRUCE.get(), 
 				WHCItems.CRUTCH_WARPED.get(),
 				WHCItems.CRUTCH_CHERRY.get(),
-				WHCItems.CRUTCH_BAMBOO.get());
+				WHCItems.CRUTCH_BAMBOO.get(),
+				WHCItems.CRUTCH_PALE_OAK.get());
 		getOrCreateTagBuilder(WHCTags.CANE).add(
 				WHCItems.CANE_ACACIA.get(), 
 				WHCItems.CANE_BIRCH.get(), 
@@ -72,7 +75,8 @@ public class WHCItemTagsProvider extends ItemTagProvider
 				WHCItems.CANE_SPRUCE.get(), 
 				WHCItems.CANE_WARPED.get(),
 				WHCItems.CANE_CHERRY.get(),
-				WHCItems.CANE_BAMBOO.get());
+				WHCItems.CANE_BAMBOO.get(),
+				WHCItems.CANE_PALE_OAK.get());
 		getOrCreateTagBuilder(WHCTags.WALKER).add(
 				WHCItems.WALKER_ACACIA.get(),
 				WHCItems.WALKER_BAMBOO.get(),
@@ -84,11 +88,12 @@ public class WHCItemTagsProvider extends ItemTagProvider
 				WHCItems.WALKER_MANGROVE.get(),
 				WHCItems.WALKER_OAK.get(),
 				WHCItems.WALKER_SPRUCE.get(),
-				WHCItems.WALKER_WARPED.get());
-		getOrCreateTagBuilder(WHCTags.PRESERVED).addTag(WHCTags.WHEELCHAIR).addTag(WHCTags.CRUTCH).addTag(WHCTags.CANE).addTag(WHCTags.WALKER).add(WHCItems.TABLET.get());
+				WHCItems.WALKER_WARPED.get(),
+				WHCItems.WALKER_PALE_OAK.get());
+		getOrCreateTagBuilder(WHCTags.PRESERVED).addTag(WHCTags.WHEELCHAIR).addTag(WHCTags.CRUTCH).addTag(WHCTags.CANE).addTag(WHCTags.WALKER).add(WHCItems.TABLET.get(), WHCItems.CONTROLLER.get());
 		
 		getOrCreateTagBuilder(WHCTags.FILTER_SWORD_CANE).addTag(ItemTags.SWORDS);
 		
-		getOrCreateTagBuilder(ItemTags.DYEABLE).add(WHCItems.VEST.get(), WHCItems.STOOL.get());
+		getOrCreateTagBuilder(ItemTags.DYEABLE).add(WHCItems.VEST.get(), WHCItems.STOOL.get()).addTag(WHCTags.CRUTCH);
 	}
 }

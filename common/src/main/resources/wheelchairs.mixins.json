@@ -28,7 +28,7 @@
 		"PlayerEntityMixinClient" ,
 		"EntityModelMixin",
 		"BipedEntityModelMixin",
-		"ItemRendererMixin",
+		"PlayerEntityModelMixin",
 		"ClientWorldMixin",
 		"LivingEntityRendererMixin",
 		"LivingEntityRenderStateMixin",

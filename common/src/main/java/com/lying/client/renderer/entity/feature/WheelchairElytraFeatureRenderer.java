@@ -6,8 +6,12 @@ import com.lying.client.renderer.entity.state.WheelchairEntityRenderState;
 import com.lying.init.WHCChairUpgrades;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory.Context;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -16,7 +20,7 @@ import net.minecraft.util.Identifier;
 
 public class WheelchairElytraFeatureRenderer<T extends WheelchairEntityRenderState> extends EntityFeatureRenderer<T>
 {
-	private static final Identifier TEXTURE = Identifier.of("textures/entity/elytra.png");
+	private static final Identifier TEXTURE = Identifier.ofVanilla("textures/entity/equipment/wings/elytra.png");
 	private final WheelchairElytraModel<T> model;
 	
 	public WheelchairElytraFeatureRenderer(Context ctx)
@@ -36,9 +40,8 @@ public class WheelchairElytraFeatureRenderer<T extends WheelchairEntityRenderSta
 			float scale = state.isFlying ? 1.75F : 0.8F;
 			matrices.scale(scale, -scale, scale);
 			this.model.setAngles(state, 0, 0, state.age, state.yawDegrees, state.pitch);
-			// FIXME Restore elytra upgrade rendering
-//			VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(getTexture(entity)), false, false);
-//			this.model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1F, 1F, 1F, 1F);
+			VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(getTexture(state)), false);
+			this.model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, -1);
 		matrices.pop();
 	}
 	

@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:cane",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:jungle_cane"
+  },
+  "staff": "minecraft:stripped_jungle_log"
+}

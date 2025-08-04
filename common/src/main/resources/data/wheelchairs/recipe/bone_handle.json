@@ -1,0 +1,8 @@
+{
+  "type": "wheelchairs:handle",
+  "material": "minecraft:bone",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:bone_handle"
+  }
+}

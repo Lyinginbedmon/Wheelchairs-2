@@ -1,0 +1,12 @@
+{
+  "type": "wheelchairs:walker",
+  "handle": "minecraft:stick",
+  "left_wheel": "#wheelchairs:wheels",
+  "platform": "minecraft:pale_oak_planks",
+  "result": {
+    "count": 1,
+    "id": "wheelchairs:pale_oak_walker"
+  },
+  "right_wheel": "#wheelchairs:wheels",
+  "strut": "minecraft:pale_oak_log"
+}

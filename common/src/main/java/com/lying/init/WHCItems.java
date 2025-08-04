@@ -8,6 +8,7 @@ import com.lying.item.AACTabletItem;
 import com.lying.item.CaneHandleItem;
 import com.lying.item.CaneItem;
 import com.lying.item.ControllerItem;
+import com.lying.item.CrutchItem;
 import com.lying.item.StoolItem;
 import com.lying.item.VestItem;
 import com.lying.item.WalkerItem;
@@ -38,9 +39,10 @@ public class WHCItems
 			() -> new ItemStack(WHCItems.WHEELCHAIR_OAK.get())));
 	
 	public static final RegistrySupplier<Item> WHEEL_OAK		= wheel("oak");
+	public static final RegistrySupplier<Item> WHEEL_DARK_OAK	= wheel("dark_oak");
+	public static final RegistrySupplier<Item> WHEEL_PALE_OAK	= wheel("pale_oak");
 	public static final RegistrySupplier<Item> WHEEL_SPRUCE		= wheel("spruce");
 	public static final RegistrySupplier<Item> WHEEL_BIRCH		= wheel("birch");
-	public static final RegistrySupplier<Item> WHEEL_DARK_OAK	= wheel("dark_oak");
 	public static final RegistrySupplier<Item> WHEEL_ACACIA		= wheel("acacia");
 	public static final RegistrySupplier<Item> WHEEL_JUNGLE		= wheel("jungle");
 	public static final RegistrySupplier<Item> WHEEL_CRIMSON	= wheel("crimson");
@@ -54,9 +56,10 @@ public class WHCItems
 	public static final RegistrySupplier<Item> WHEEL_NETHERITE	= register("netherite_wheel", settings -> new Item(settings.arch$tab(WHEELCHAIR_TAB).maxCount(2).fireproof()));
 	
 	public static final RegistrySupplier<Item> WHEELCHAIR_OAK		= wheelchair("oak");
+	public static final RegistrySupplier<Item> WHEELCHAIR_DARK_OAK	= wheelchair("dark_oak");
+	public static final RegistrySupplier<Item> WHEELCHAIR_PALE_OAK	= wheelchair("pale_oak");
 	public static final RegistrySupplier<Item> WHEELCHAIR_SPRUCE	= wheelchair("spruce");
 	public static final RegistrySupplier<Item> WHEELCHAIR_BIRCH		= wheelchair("birch");
-	public static final RegistrySupplier<Item> WHEELCHAIR_DARK_OAK	= wheelchair("dark_oak");
 	public static final RegistrySupplier<Item> WHEELCHAIR_ACACIA	= wheelchair("acacia");
 	public static final RegistrySupplier<Item> WHEELCHAIR_JUNGLE	= wheelchair("jungle");
 	public static final RegistrySupplier<Item> WHEELCHAIR_CRIMSON	= wheelchair("crimson");
@@ -66,9 +69,10 @@ public class WHCItems
 	public static final RegistrySupplier<Item> WHEELCHAIR_BAMBOO	= wheelchair("bamboo");
 	
 	public static final RegistrySupplier<Item> WALKER_OAK		= walker("oak");
+	public static final RegistrySupplier<Item> WALKER_DARK_OAK	= walker("dark_oak");
+	public static final RegistrySupplier<Item> WALKER_PALE_OAK	= walker("pale_oak");
 	public static final RegistrySupplier<Item> WALKER_SPRUCE	= walker("spruce");
 	public static final RegistrySupplier<Item> WALKER_BIRCH		= walker("birch");
-	public static final RegistrySupplier<Item> WALKER_DARK_OAK	= walker("dark_oak");
 	public static final RegistrySupplier<Item> WALKER_ACACIA	= walker("acacia");
 	public static final RegistrySupplier<Item> WALKER_JUNGLE	= walker("jungle");
 	public static final RegistrySupplier<Item> WALKER_CRIMSON	= walker("crimson");
@@ -78,9 +82,10 @@ public class WHCItems
 	public static final RegistrySupplier<Item> WALKER_BAMBOO	= walker("bamboo");
 	
 	public static final RegistrySupplier<Item> CRUTCH_OAK		= crutch("oak");
+	public static final RegistrySupplier<Item> CRUTCH_DARK_OAK	= crutch("dark_oak");
+	public static final RegistrySupplier<Item> CRUTCH_PALE_OAK	= crutch("pale_oak");
 	public static final RegistrySupplier<Item> CRUTCH_SPRUCE	= crutch("spruce");
 	public static final RegistrySupplier<Item> CRUTCH_BIRCH		= crutch("birch");
-	public static final RegistrySupplier<Item> CRUTCH_DARK_OAK	= crutch("dark_oak");
 	public static final RegistrySupplier<Item> CRUTCH_ACACIA	= crutch("acacia");
 	public static final RegistrySupplier<Item> CRUTCH_JUNGLE	= crutch("jungle");
 	public static final RegistrySupplier<Item> CRUTCH_CRIMSON	= crutch("crimson");
@@ -88,7 +93,7 @@ public class WHCItems
 	public static final RegistrySupplier<Item> CRUTCH_MANGROVE	= crutch("mangrove");
 	public static final RegistrySupplier<Item> CRUTCH_CHERRY	= crutch("cherry");
 	public static final RegistrySupplier<Item> CRUTCH_BAMBOO	= crutch("bamboo");
-
+	
 	public static final RegistrySupplier<Item> HANDLE_COPPER	= handle("copper");
 	public static final RegistrySupplier<Item> HANDLE_IRON		= handle("iron");
 	public static final RegistrySupplier<Item> HANDLE_GOLD		= handle("gold");
@@ -96,9 +101,10 @@ public class WHCItems
 	public static final RegistrySupplier<Item> HANDLE_WITHER	= handle("wither_skull");
 	public static final RegistrySupplier<Item> HANDLE_BONE		= handle("bone");
 	public static final RegistrySupplier<Item> HANDLE_OAK		= handle("oak");
+	public static final RegistrySupplier<Item> HANDLE_DARK_OAK	= handle("dark_oak");
+	public static final RegistrySupplier<Item> HANDLE_PALE_OAK	= handle("pale_oak");
 	public static final RegistrySupplier<Item> HANDLE_SPRUCE	= handle("spruce");
 	public static final RegistrySupplier<Item> HANDLE_BIRCH		= handle("birch");
-	public static final RegistrySupplier<Item> HANDLE_DARK_OAK	= handle("dark_oak");
 	public static final RegistrySupplier<Item> HANDLE_ACACIA	= handle("acacia");
 	public static final RegistrySupplier<Item> HANDLE_JUNGLE	= handle("jungle");
 	public static final RegistrySupplier<Item> HANDLE_CRIMSON	= handle("crimson");
@@ -106,11 +112,14 @@ public class WHCItems
 	public static final RegistrySupplier<Item> HANDLE_MANGROVE	= handle("mangrove");
 	public static final RegistrySupplier<Item> HANDLE_CHERRY	= handle("cherry");
 	public static final RegistrySupplier<Item> HANDLE_BAMBOO	= handle("bamboo");
+	public static final RegistrySupplier<Item> HANDLE_BLACKSTONE	= handle("blackstone");
+	public static final RegistrySupplier<Item> HANDLE_GILDED_BLACKSTONE	= handle("gilded_blackstone");
 	
 	public static final RegistrySupplier<Item> CANE_OAK			= cane("oak");
+	public static final RegistrySupplier<Item> CANE_DARK_OAK	= cane("dark_oak");
+	public static final RegistrySupplier<Item> CANE_PALE_OAK	= cane("pale_oak");
 	public static final RegistrySupplier<Item> CANE_SPRUCE		= cane("spruce");
 	public static final RegistrySupplier<Item> CANE_BIRCH		= cane("birch");
-	public static final RegistrySupplier<Item> CANE_DARK_OAK	= cane("dark_oak");
 	public static final RegistrySupplier<Item> CANE_ACACIA		= cane("acacia");
 	public static final RegistrySupplier<Item> CANE_JUNGLE		= cane("jungle");
 	public static final RegistrySupplier<Item> CANE_CRIMSON		= cane("crimson");
@@ -167,8 +176,7 @@ public class WHCItems
 	
 	private static RegistrySupplier<Item> crutch(String name)
 	{
-//		return register(name+"_crutch", settings -> new CrutchItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
-		return register(name+"_crutch", settings -> new Item(settings.maxCount(1)));
+		return register(name+"_crutch", settings -> new CrutchItem(settings.arch$tab(WHEELCHAIR_TAB).maxCount(1)));
 	}
 	
 	private static RegistrySupplier<Item> cane(String name)

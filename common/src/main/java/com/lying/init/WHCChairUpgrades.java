@@ -37,8 +37,8 @@ public class WHCChairUpgrades
 	public static final Supplier<ChairUpgrade> DIVING	= register("diving", b -> b.modelled()
 			.keyItem(Items.LEATHER)
 			.incompatible(() -> List.of(WHCChairUpgrades.FLOATING, WHCChairUpgrades.POWERED)));
-	public static final Supplier<ChairUpgrade> GLIDING = register("gliding", b -> b	// FIXME Ensure gliding upgrade works properly
-//			.keyItem(Items.ELYTRA)
+	public static final Supplier<ChairUpgrade> GLIDING = register("gliding", b -> b	// FIXME Fix gliding upgrade velocity nullification on rocket end
+			.keyItem(Items.ELYTRA)
 			.incompatible(() -> List.of(WHCChairUpgrades.POWERED)));
 	public static final Supplier<ChairUpgrade> PLACER = register("placer", b -> b.modelled().enablesScreen()
 			.keyItem(Items.DISPENSER));

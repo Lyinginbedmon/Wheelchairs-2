@@ -2,6 +2,7 @@ package com.lying.client.renderer.entity;
 
 import java.util.Optional;
 
+import com.lying.client.renderer.entity.feature.WheelchairElytraFeatureRenderer;
 import com.lying.client.renderer.entity.state.WheelchairEntityRenderState;
 import com.lying.entity.WheelchairEntity;
 import com.lying.item.WheelchairItem;
@@ -30,6 +31,7 @@ public class WheelchairEntityRenderer extends WheelchairsRideableEntityRenderer<
 	public WheelchairEntityRenderer(Context context)
 	{
 		super(context);
+		addFeature(new WheelchairElytraFeatureRenderer<>(context));
 	}
 	
 	public WheelchairEntityRenderState createRenderState()
@@ -54,7 +56,8 @@ public class WheelchairEntityRenderer extends WheelchairsRideableEntityRenderer<
 		state.spinRight = entity.spinRight;
 		state.upgrades = entity.getUpgrades();
 		state.hasParent = entity.hasParent();
-		state.isFlying = entity.isGliding();
+		state.isFlying = entity.isFlying();
+		state.isGliding = entity.isGliding();
 		state.velocity = entity.getVelocity();
 		state.rider = entity.hasPassengers() && entity.getFirstPassenger() instanceof LivingEntity ? Optional.of((LivingEntity)entity.getFirstPassenger()) : Optional.empty();
 	}

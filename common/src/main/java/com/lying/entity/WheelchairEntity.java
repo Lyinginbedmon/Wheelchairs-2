@@ -210,7 +210,7 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 	
 	public List<ChairUpgrade> getUpgrades()
 	{
-		return getDataTracker().get(UPGRADES);
+		return Lists.newArrayList(getDataTracker().get(UPGRADES));
 	}
 	
 	public boolean hasUpgrade(ChairUpgrade upgrade)
@@ -398,8 +398,10 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 	
 	public LivingEntity getControllingPassenger()
 	{
-		return !isGliding() && !hasParent() && getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
+		return !hasParent() && getFirstPassenger() instanceof LivingEntity ? (LivingEntity)getFirstPassenger() : null;
 	}
+	
+	protected float getOffGroundSpeed() { return this.getMovementSpeed() * 0.1F; }
 	
 	public void tickMovement()
 	{
@@ -613,6 +615,9 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 	
 	protected Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
+		if(isGliding())
+			return getVelocity();
+		
 		double modifier = 1D;
 		if(!isOnGround() && !hasUpgrade(WHCChairUpgrades.GLIDING.get()))
 			if(shouldBobUp())
@@ -652,7 +657,7 @@ public class WheelchairEntity extends WheelchairsRideable implements JumpingMoun
 	
 	public float getActualStepHeight() { return 1F; }
 	
-	public void travel(Vec3d movementInput)
+	public void travelControlled(PlayerEntity controllingPlayer, Vec3d movementInput)
 	{
 		if(shouldBobUp())
 			addVelocity(0D, 0.08D, 0D);
