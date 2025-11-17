@@ -2,6 +2,7 @@ package com.lying.client.utility;
 
 import java.util.Map;
 
+import com.lying.client.WheelchairsClient;
 import com.lying.client.event.RenderEvents;
 import com.lying.client.renderer.entity.feature.CatVestLayer;
 import com.lying.client.renderer.entity.feature.FoxVestLayer;
@@ -10,9 +11,11 @@ import com.lying.client.renderer.entity.feature.WolfVestLayer;
 import com.lying.entity.IFlyingMount;
 import com.lying.mixin.AccessorEntityRenderDispatcher;
 import com.lying.mixin.AccessorLivingEntityRenderer;
+import com.lying.network.SetSeatbeltPacket;
 import com.lying.network.StartFlyingPacket;
 import com.lying.utility.ServerEvents;
 
+import dev.architectury.event.events.common.PlayerEvent;
 import net.minecraft.client.render.entity.CatEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.FoxEntityRenderer;
@@ -44,5 +47,8 @@ public class ClientBus
 			FoxEntityRenderer foxRenderer = (FoxEntityRenderer)renderers.get(EntityType.FOX);
 			((AccessorLivingEntityRenderer)foxRenderer).appendFeature(new FoxVestLayer(foxRenderer));
 		});
+		
+		// Ping server on join with initial seatbelt setting
+		PlayerEvent.PLAYER_JOIN.register(p -> SetSeatbeltPacket.send(WheelchairsClient.SEATBELT_ON));
 	}
 }

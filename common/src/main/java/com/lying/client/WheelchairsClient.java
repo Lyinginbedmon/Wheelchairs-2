@@ -15,6 +15,7 @@ import com.lying.init.WHCBlocks;
 import com.lying.init.WHCSoundEvents;
 import com.lying.network.AACMessagePacket;
 import com.lying.network.OpenInventoryScreenPacket;
+import com.lying.network.SetSeatbeltPacket;
 import com.lying.reference.Reference;
 import com.mojang.text2speech.Narrator;
 
@@ -107,9 +108,8 @@ public class WheelchairsClient
 				if(WHCKeybinds.keySeatbelt.wasPressed() && !WheelchairsClient.wasSeatbeltPressed && player.hasVehicle())
 				{
 					WheelchairsClient.SEATBELT_ON = !WheelchairsClient.SEATBELT_ON;
-					mc.inGameHud.getChatHud().addMessage(Text.translatable("gui.wheelchairs.seatbelt_"+(WheelchairsClient.SEATBELT_ON ? "on" : "off")));
+					SetSeatbeltPacket.send(WheelchairsClient.SEATBELT_ON);
 					player.playSound(WheelchairsClient.SEATBELT_ON ? WHCSoundEvents.SEATBELT_ON.get() : WHCSoundEvents.SEATBELT_OFF.get(), 1F, 0.5F + player.getRandom().nextFloat() * 0.5F);
-					
 					WheelchairsClient.wasSeatbeltPressed = true;
 				}
 				else

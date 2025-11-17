@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.lying.init.WHCEntityTypes;
+import com.lying.utility.ServerBus;
 import com.lying.utility.ServerEvents;
 
 import net.minecraft.block.BlockState;
@@ -22,6 +23,12 @@ public class PlayerEntityMixin extends EntityMixin
 		// Reverts a 1/5 mining speed debuff for not being on solid ground as long as your wheelchair is
 		if(hasVehicle() && getVehicle().getType() == WHCEntityTypes.WHEELCHAIR.get() && getVehicle().isOnGround())
 			ci.setReturnValue(ci.getReturnValue() * 5F);
+	}
+	
+	@Inject(method = "shouldDismount()Z", at = @At("TAIL"), cancellable = true)
+	public void whc$shouldDismount(final CallbackInfoReturnable<Boolean> ci)
+	{
+		ci.setReturnValue(ci.getReturnValue() && !ServerBus.getSeatbelt(getUuid()));
 	}
 	
 	private boolean wasFlying = false;

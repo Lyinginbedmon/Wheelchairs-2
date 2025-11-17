@@ -23,17 +23,17 @@
 		"AccessorItemModelManager",
 		"AccessorEntityRenderDispatcher",
 		"AccessorLivingEntityRenderer",
+		"BipedEntityModelMixin",
+		"ClientWorldMixin",
+		"EntityModelMixin",
 		"EntityRenderDispatcherMixin",
 		"FireworkRocketItemMixinClient",
-		"PlayerEntityMixinClient" ,
-		"EntityModelMixin",
-		"BipedEntityModelMixin",
-		"PlayerEntityModelMixin",
-		"ClientWorldMixin",
+		"ItemModelManagerMixin",
 		"LivingEntityRendererMixin",
 		"LivingEntityRenderStateMixin",
-		"TickManagerMixinClient",
-		"ItemModelManagerMixin"
+		"PlayerEntityMixinClient",
+		"PlayerEntityModelMixin",
+		"TickManagerMixinClient"
 	],
 	"injectors": {
 		"defaultRequire": 1

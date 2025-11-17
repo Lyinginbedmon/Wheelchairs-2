@@ -1,5 +1,7 @@
 package com.lying.utility;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.jetbrains.annotations.Nullable;
@@ -8,9 +10,9 @@ import com.lying.Wheelchairs;
 import com.lying.chairspace.Chairspace;
 import com.lying.chairspace.Chairspace.Flag;
 import com.lying.data.WHCTags;
+import com.lying.entity.IParentedEntity;
 import com.lying.entity.WalkerEntity;
 import com.lying.entity.WheelchairEntity;
-import com.lying.entity.IParentedEntity;
 import com.lying.init.WHCChairspaceConditions;
 import com.lying.init.WHCEntityTypes;
 import com.lying.item.VestItem;
@@ -33,6 +35,23 @@ import net.minecraft.world.World;
 
 public class ServerBus
 {
+	private static final Map<UUID, Boolean> SEATBELT_LOG = new HashMap<>();
+	
+	public static void toggleSeatbelt(UUID id)
+	{
+		setSeatbelt(id, !getSeatbelt(id));
+	}
+	
+	public static boolean getSeatbelt(UUID id)
+	{
+		return SEATBELT_LOG.getOrDefault(id, false);
+	}
+	
+	public static void setSeatbelt(UUID id, boolean bool)
+	{
+		SEATBELT_LOG.put(id, bool);
+	}
+	
 	public static void registerEventCallbacks()
 	{
 		ServerEvents.AFTER_LIVING_CHANGE_MOUNT_START.register((living, next, last) -> 
