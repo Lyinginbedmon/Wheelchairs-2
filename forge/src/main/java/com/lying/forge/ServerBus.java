@@ -1,10 +1,9 @@
 package com.lying.forge;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.compress.utils.Lists;
 
 import com.lying.forge.capability.VestCapability;
 import com.lying.forge.network.PacketHandler;
@@ -62,7 +61,7 @@ public class ServerBus
 		if(ent.getWorld().isClient()) return;
 		
 		RegistryKey<World> world = ent.getWorld().getRegistryKey();
-		List<Entity> entities = SERVICE_ANIMALS.getOrDefault(world, Lists.newArrayList());
+		List<Entity> entities = SERVICE_ANIMALS.getOrDefault(world, new ArrayList<>());
 		entities.removeIf(e -> e.getUuid().equals(ent.getUuid()));
 		SERVICE_ANIMALS.put(world, entities);
 	}
@@ -73,7 +72,7 @@ public class ServerBus
 		stopTrackingVest(ent);
 		
 		RegistryKey<World> world = ent.getWorld().getRegistryKey();
-		List<Entity> entities = SERVICE_ANIMALS.getOrDefault(world, Lists.newArrayList());
+		List<Entity> entities = SERVICE_ANIMALS.getOrDefault(world, new ArrayList<>());
 		entities.add(ent);
 		SERVICE_ANIMALS.put(world, entities);
 		syncServiceAnimalToPlayers(ent);
@@ -98,7 +97,7 @@ public class ServerBus
 	
 	private static void syncServiceAnimalsToPlayer(PlayerEntity player, RegistryKey<World> newDim)
 	{
-		SERVICE_ANIMALS.getOrDefault(newDim, Lists.newArrayList()).forEach(ent -> 
+		SERVICE_ANIMALS.getOrDefault(newDim, new ArrayList<>()).forEach(ent ->
 		{
 			VestCapability cap = ent.getCapability(WheelchairsForge.VEST_DATA).orElse(null);
 			if(cap == null) return;
